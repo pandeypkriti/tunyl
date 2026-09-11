@@ -14,7 +14,6 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
     "@base-ui/react": "^1.8.0",
-    "@neondatabase/serverless": "^1.1.0",
     "@vercel/blob": "^2.8.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.2.6",
@@ -22,6 +21,7 @@
     "lucide-react": "^1.44.0",
     "next": "16.3.4",
     "openai": "^7.15.0",
+    "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",

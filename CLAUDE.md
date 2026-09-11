@@ -6,7 +6,7 @@ made real. Read `DESIGN.md` before touching UI.
 
 ## Stack
 Next.js 16 (App Router, TypeScript, React 19), Tailwind 4 + shadcn/ui (tokens in `src/app/globals.css`),
-Drizzle ORM on Neon Postgres (`src/db/schema.ts`), Vercel Blob for photos, OpenAI Responses API
+Drizzle ORM on Supabase Postgres (`src/db/schema.ts`), Vercel Blob for photos, OpenAI Responses API
 (structured output) with Anthropic fallback in `src/lib/provider.ts`. Deployed on Vercel (project `tunyl`).
 
 ## Rules that are product rules, not style
@@ -25,5 +25,5 @@ Office (passcode cookie, `(office)` group): `/` board, `/queue`, `/projects/[slu
 
 ## Commands
 `npm run dev` · `npm run db:push` (schema) · `npm run db:seed` (demo data) · `vercel deploy --prod`.
-Env: `DATABASE_URL` (Neon via Vercel), `BLOB_READ_WRITE_TOKEN`, `OPENAI_API_KEY` (or `ANTHROPIC_API_KEY`),
+Env: `DATABASE_URL` (Supabase, pooled connection string), `BLOB_READ_WRITE_TOKEN`, `OPENAI_API_KEY` (or `ANTHROPIC_API_KEY`),
 `APP_PASSCODE` (office login), optional `TUNYL_MODEL`, `TUNYL_PROVIDER`.

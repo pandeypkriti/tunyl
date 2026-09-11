@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NavRail } from "./nav-rail";
+import { AskTunyl } from "./ask-tunyl";
 
 export function OfficeShell({ children, queueCount }: { children: React.ReactNode; queueCount: number }) {
   return (
@@ -7,6 +8,7 @@ export function OfficeShell({ children, queueCount }: { children: React.ReactNod
       <header className="flex flex-wrap items-center justify-between gap-3 pb-6">
         <Link href="/" className="flex items-baseline gap-2.5"><b className="text-[18px] font-bold tracking-tight">Tunyl</b><span className="text-[15px] text-[color:var(--ink2)]">Docket to claim</span></Link>
         <div className="flex flex-wrap items-center gap-2.5">
+          <AskTunyl />
           <span className="chip neutral">Office</span>
         </div>
       </header>

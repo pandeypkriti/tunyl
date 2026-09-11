@@ -2,14 +2,15 @@
 // figure is invented. Run: npm run db:seed (needs DATABASE_URL).
 import { config as loadEnv } from "dotenv";
 loadEnv({ path: ".env.local" }); loadEnv();
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import * as s from "./schema";
 import type { ReadField, Flag } from "./schema";
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL is not set");
-const db = drizzle(neon(url), { schema: s });
+const client = postgres(url, { prepare: false, max: 1 });
+const db = drizzle(client, { schema: s });
 
 const F = (label: string, value: string, state: ReadField["state"] = "clear"): ReadField => ({ label, value, state });
 
@@ -111,5 +112,6 @@ async function main() {
   console.log("Seeded: 4 projects, materials, purchase orders, records, claims, waits.");
   console.log("Site links: /site/kr-gate2-7f3a (Kellyville), /site/bh-basin-2c9e (Box Hill)");
   console.log("Builder links: /c/kr-claim5-a1b2c3, /c/mp-claim4-d4e5f6");
+  await client.end();
 }
 main().catch((e) => { console.error(e); process.exit(1); });

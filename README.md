@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tunyl
 
-## Getting Started
+The site photographs the docket. The office gets the claim.
 
-First, run the development server:
+A back-office product for civil and earthworks subcontractors. Paper from suppliers, hauliers and
+builders comes in as photos, email or a docket-app feed. It leaves as a checked quantities ledger,
+a progress claim in the builder's format, and one view the directors can read.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+vercel env pull .env.local      # DATABASE_URL, BLOB_READ_WRITE_TOKEN, APP_PASSCODE
+npm run db:push                 # create tables
+npm run db:seed                 # load the example data (invented)
+npm run dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sign in at `/login` with the office passcode. The site page needs no login: `/site/kr-gate2-7f3a`.
+The builder's claim page needs no login: `/c/kr-claim5-a1b2c3`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+vercel deploy --prod
+```
 
-## Learn More
+Environment on Vercel: `DATABASE_URL` (Supabase pooled connection string, Sydney region), `BLOB_READ_WRITE_TOKEN`
+(Blob store `tunyl-photos`), `APP_PASSCODE` (office sign in), `OPENAI_API_KEY` (the reader; or
+`ANTHROPIC_API_KEY`). Optional: `TUNYL_MODEL`, `TUNYL_PROVIDER`, `OFFICE_EMAIL`, and for WhatsApp
+intake `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `WHATSAPP_PROJECT_MAP` (JSON of phone to site token).
 
-To learn more about Next.js, take a look at the following resources:
+## The rules that are product rules
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- The reader never invents a number. Unreadable stays blank.
+- Nothing enters the ledger silently. A record is matched by rule or ticked by a named person.
+- Anything that moves money is a draft until a person confirms it.
+- Nobody outside the office logs in. The site uses a token link, the builder uses a token link.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `CLAUDE.md` for the layout of the code and `DESIGN.md` for the visual lock.
