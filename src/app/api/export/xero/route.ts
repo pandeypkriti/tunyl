@@ -1,7 +1,10 @@
 // GET /api/export/xero?project=slug -> Xero bill import lines for the supplier
-// dockets in this project's ledger (matched by rule or ticked). Rates are not
-// invented here: UnitAmount is left at 0.00 for the office to fill in Xero.
+// dockets in this project's ledger (matched by rule or ticked).
+// UnitAmount comes from the purchase order rate for that material and supplier; 0.00 when there is no order on file.
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/db";
+import { purchaseOrders } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { isOffice } from "@/lib/auth";
 import { projectBySlug } from "@/lib/records";
 import { ledgerFor } from "@/lib/ledger";
@@ -25,6 +28,11 @@ export async function GET(req: NextRequest) {
   const led = await ledgerFor(project.id);
   const materialMap = new Map(led.materials.map((m) => [m.id, m]));
   const bills = led.dockets.filter((r) => r.type === "docket");
+  const pos = await db.select().from(purchaseOrders).where(eq(purchaseOrders.projectId, project.id));
+  const rateFor = (materialId: string | null, supplier: string) => {
+    const po = pos.find((p) => p.materialId === materialId && p.supplier === supplier) || pos.find((p) => p.materialId === materialId);
+    return po ? po.rate.toFixed(2) : "0.00";
+  };
 
   let csv = csvRow(["*ContactName", "*InvoiceNumber", "*InvoiceDate", "*DueDate", "Description", "*Quantity", "*UnitAmount", "*AccountCode", "TaxType", "TrackingName1", "TrackingOption1"]);
   for (const r of bills) {
@@ -36,7 +44,7 @@ export async function GET(req: NextRequest) {
       fmtDate(r.date),
       mat?.name ?? r.materialText,
       r.qty ?? "",
-      "0.00",
+      rateFor(r.materialId, r.supplier),
       "300",
       "GST on Expenses",
       "Job",

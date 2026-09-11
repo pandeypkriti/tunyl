@@ -1,7 +1,6 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ReadField, Flag, FieldState } from "@/db/schema";
 
 // Same order and labels as FIELD_LABELS in src/lib/reader.ts. Kept as plain
@@ -25,7 +24,6 @@ export function blankFields(): ReadField[] {
 }
 
 const UNIT_VALUES = ["m³", "t", "loads", "L", "each"];
-const BLANK_UNIT = "__blank__";
 
 const CONTROL_CLASS =
   "h-11 w-full rounded-lg border-[color:var(--input)] bg-[color:var(--row-alt)] px-3 text-[15px] text-[color:var(--ink)] " +
@@ -65,23 +63,18 @@ export function FieldEditor({
             <div className="field" key={f.label}>
               <label htmlFor={id}>{f.label}</label>
               {f.label === "Unit" ? (
-                <Select
-                  value={UNIT_VALUES.includes(f.value) ? f.value : BLANK_UNIT}
-                  onValueChange={(v) => onChange(f.label, !v || v === BLANK_UNIT ? "" : v)}
+                <select
+                  id={id}
+                  className={CONTROL_CLASS}
+                  value={UNIT_VALUES.includes(f.value) ? f.value : ""}
+                  onChange={(e) => onChange(f.label, e.target.value)}
                   disabled={disabled}
                 >
-                  <SelectTrigger id={id} className={CONTROL_CLASS}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {UNIT_VALUES.map((u) => (
-                      <SelectItem key={u} value={u}>
-                        {u}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value={BLANK_UNIT}>(blank)</SelectItem>
-                  </SelectContent>
-                </Select>
+                  {UNIT_VALUES.map((u) => (
+                    <option key={u} value={u}>{u}</option>
+                  ))}
+                  <option value="">(blank)</option>
+                </select>
               ) : f.label === "Material" ? (
                 <Input
                   id={id}

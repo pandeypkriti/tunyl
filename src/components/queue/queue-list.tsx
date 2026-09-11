@@ -21,7 +21,7 @@ function shorten(text: string, max = 64): string {
 export function chipFor(r: RecordRow): { cls: string; text: string } {
   if (r.status === "held") return { cls: "hold", text: "Held" };
   if (r.type !== "feed") {
-    const toCheck = r.fields.filter((f) => f.state === "check" || f.state === "unreadable").length;
+    const toCheck = r.fields.filter((f) => (f.state === "check" || f.state === "unreadable") && f.label !== "Purchase order").length;
     if (toCheck > 0) return { cls: "check", text: `${toCheck} field${toCheck === 1 ? "" : "s"} to check` };
   }
   return { cls: "check", text: shorten(r.why || "Waiting on the office") };

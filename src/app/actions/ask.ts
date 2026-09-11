@@ -76,7 +76,7 @@ async function noDocketIntent(q: string): Promise<AskResult | null> {
 
 async function documentNumberIntent(q: string): Promise<AskResult | null> {
   const looksLikeDoc = /docket|invoice|document|instruction|purchase order|\bpo\b/i.test(q);
-  const tokens = q.match(/[A-Za-z]{1,4}-?\d{2,6}/g) || [];
+  const tokens = q.match(/\b(?:[A-Za-z]{1,4}-?\d{2,6}|\d{4,7})\b/g) || [];
   if (!looksLikeDoc || !tokens.length) return null;
   const [allRecords, allPOs, projects] = await Promise.all([
     db.select().from(records),

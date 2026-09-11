@@ -66,6 +66,7 @@ export async function approveRecord(id: string, opts: { qty?: number | null; uni
   const mat = row.materialId ? mats.find((m) => m.id === row.materialId) ?? null : findMaterial(mats, row.materialText);
   const qty = opts.qty ?? row.qty ?? null;
   const unit = opts.unit ?? row.unit;
+  if ((row.type === "docket" || row.type === "feed") && qty != null && !(qty > 0)) throw new Error("Quantity must be above zero");
   let qtyContract: number | null = null, fed = row.fed;
   let status: RecordStatus = "ticked";
   if (row.type === "docket" || row.type === "feed") {

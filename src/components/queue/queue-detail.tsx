@@ -39,13 +39,13 @@ export function QueueDetail({ record, materials }: { record: RecordRow; material
 
   const converted = material ? toContractUnits(qty, record.unit, material.unit, material.tPerM3) : null;
   const unitLabel = material?.unit ?? record.unit ?? "units";
-  const approveLabel = approveLabelFor(record.type, converted ? converted.qty : qty, unitLabel);
+  const approveLabel = qty > 0 ? approveLabelFor(record.type, converted ? converted.qty : qty, unitLabel) : "Quantity must be above zero";
 
   const quantityFieldIndex = record.fields.findIndex((f) => f.label.toLowerCase() === "quantity");
   const canApprove = ticked && qty > 0 && !pending;
 
   function onQuantityChange(raw: string) {
-    const parsed = parseFloat(raw.replace(/[^0-9.]/g, ""));
+    const parsed = parseFloat(raw.replace(/[^0-9.\-]/g, ""));
     setQty(Number.isFinite(parsed) ? parsed : 0);
   }
 
@@ -68,15 +68,15 @@ export function QueueDetail({ record, materials }: { record: RecordRow; material
 
   return (
     <div className="grid gap-5">
-      <div className="grid gap-5 lg:grid-cols-[232px_minmax(0,1fr)]">
+      <div className="grid gap-5">
         {record.imageUrl ? (
-          <div className="doc">
+          <div className="doc max-w-[380px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={record.imageUrl} alt={record.title || "The docket"} />
             <div className="cap">{record.title}{record.supplier ? `, ${record.supplier}` : ""}</div>
           </div>
         ) : (
-          <div className="card self-start !p-4">
+          <div className="card max-w-[380px] self-start !p-4">
             <p className="text-[12px] text-[color:var(--ink2)]">{record.stored || "No photo on file"}</p>
             <p className="mt-1 text-[15px] font-semibold">{record.title || "Untitled record"}</p>
             <dl className="mt-3 grid gap-2 text-[13px]">
