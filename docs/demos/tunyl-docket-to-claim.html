@@ -1,0 +1,1195 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tunyl Docket to Claim</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:wght@400;600&family=Caveat:wght@600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --canvas:#FAF9F7; --surface:#FFFFFF; --border:#E7E4DF; --ink:#1A1C20; --ink2:#5A5F66;
+  --panel:#16181D; --panel-ink:#F2F1EE; --panel-ink2:#9BA0A8;
+  --accent:#E8590C; --btn:#C94A08; --btn-hover:#A83D06; --tint:#FDEEE3; --tint-ink:#A83D06;
+  --crit-ink:#C92A2A; --crit-bg:#FBEAEA; --high-ink:#B03D06;
+  --med-ink:#8A5C00; --med-bg:#FBF3E0; --ok-ink:#2B7A3D; --ok-bg:#E9F4EC;
+  --row-alt:#F4F2EE; --shadow:0 1px 2px rgb(0 0 0 / .04);
+}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:Archivo,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-block:24px 80px;padding-inline:20px}
+.read{max-width:760px;margin:0 auto}
+h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:36px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:18px;font-weight:600}
+p{margin:10px 0;max-width:66ch}
+ul,ol{max-width:66ch;padding-left:22px}
+li{margin:6px 0}
+.muted{color:var(--ink2)}
+.small{font-size:13px}
+a{color:var(--tint-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit}
+b,strong{font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;padding:8px 0 28px}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand b{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand span{color:var(--ink2);font-size:15px}
+.topright{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;background:var(--tint);color:var(--tint-ink);white-space:nowrap}
+.hero{padding:8px 0 8px}
+.hero p{font-size:18px;color:var(--ink2);margin-top:12px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;border:1px solid transparent;font-weight:600;font-size:15px;cursor:pointer;background:var(--btn);color:#fff;transition:background .15s}
+.btn:hover{background:var(--btn-hover)}
+.btn.secondary{background:var(--surface);color:var(--ink);border-color:var(--border)}
+.btn.secondary:hover{background:var(--row-alt)}
+.btn.secondary[aria-pressed="true"]{background:var(--tint);border-color:var(--accent);color:var(--tint-ink)}
+.btn.quiet{background:transparent;color:var(--tint-ink);padding:6px 8px;border:0}
+.btn.quiet:hover{background:var(--tint)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{font-size:13px;padding:6px 10px}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+label.btn:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+
+figure.flow{margin:24px 0 0;padding:20px 20px 16px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+figure.flow .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+figure.flow svg{display:block;width:100%;height:auto;min-width:940px}
+figure.flow .swipe{margin:0 0 10px}
+.flow-list{display:none;margin:0;padding:0;list-style:none;counter-reset:fl}
+.flow-list li{display:grid;grid-template-columns:30px 1fr;gap:2px 10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;margin:0}
+.flow-list li > *{grid-column:2}
+.flow-list li:last-child{border-bottom:0}
+.flow-list li::before{counter-increment:fl;content:counter(fl);width:24px;height:24px;border-radius:50%;background:var(--tint);color:var(--tint-ink);font-weight:700;font-size:12px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
+.flow-list li.hi::before{background:var(--btn);color:#fff}
+.flow-list .lane{display:block;font-size:11px;font-weight:700;color:var(--ink2);letter-spacing:.02em}
+.flow-list b{display:block}
+.flow-list span.d{display:block;color:var(--ink2);font-size:13px}
+.flow-note{display:none;margin:0 0 8px}
+@media (max-width:700px){figure.flow .scroll,figure.flow .swipe{display:none !important}.flow-note{display:block}}
+figure.flow figcaption{font-size:14px;color:var(--ink2);margin-top:12px;max-width:80ch}
+.plain{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+@media (max-width:700px){.plain{grid-template-columns:1fr}}
+.plain > div{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.plain .who{font-size:12px;font-weight:600;color:var(--tint-ink)}
+.plain .does{font-size:16px;font-weight:600;margin-top:2px}
+.plain p{font-size:13px;color:var(--ink2);margin:6px 0 0}
+
+.section{margin-top:56px}
+.section > h2{font-size:28px}
+.section > h2 + p{margin-top:10px;font-size:17px;color:var(--ink2)}
+
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden;margin-top:20px}
+.nav{background:var(--row-alt);border-right:1px solid var(--border);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.nav .who{font-size:12px;color:var(--ink2);padding:12px 12px 4px;font-weight:500}
+.nav .who:first-child{padding-top:4px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid transparent;background:transparent;font-weight:500;font-size:14px;cursor:pointer;color:var(--ink2);transition:background .15s}
+.nav button:hover{background:var(--surface)}
+.nav button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow);border-color:var(--border)}
+.nav button .step{flex:none;width:22px;height:22px;border-radius:50%;background:var(--tint);color:var(--tint-ink);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.nav button[aria-selected="true"] .step{background:var(--btn);color:#fff}
+.nav button .n{margin-left:auto;font-size:12px;padding:1px 8px;border-radius:12px;background:var(--tint);color:var(--tint-ink);font-weight:600}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--border);padding:10px;gap:6px}
+  .nav button{white-space:nowrap;width:auto}
+  .nav .who{display:none}
+}
+.main{padding:24px;min-width:0}
+@media (max-width:600px){.main{padding:18px 16px}}
+.screen{display:none}
+.screen[data-on]{display:block}
+.screen-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 16px;margin-bottom:18px}
+.screen-head p{margin:4px 0 0;color:var(--ink2)}
+.said{font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;background:var(--row-alt);color:var(--ink2);white-space:nowrap;margin-top:4px}
+.note{display:none;margin-top:22px;background:var(--panel);color:var(--panel-ink);border-radius:12px;padding:16px 20px;font-size:14px}
+.note .lbl{color:var(--panel-ink2);font-size:12px;font-weight:600;margin:0 0 6px}
+.note p{margin:6px 0;max-width:72ch}
+.note q{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:15px}
+body[data-notes] .note{display:block}
+
+.examples{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media (max-width:600px){.examples{grid-template-columns:1fr}}
+.thumb{display:block;width:100%;padding:0;border:1px solid var(--border);border-radius:12px;background:#EFEDE8;overflow:hidden;cursor:pointer;text-align:left;transition:border-color .15s}
+.thumb:hover,.thumb[aria-pressed="true"]{border-color:var(--accent)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb .cap{display:block;padding:10px 12px;background:var(--surface);border-top:1px solid var(--border);font-size:13px;font-weight:500}
+.thumb .cap small{display:block;color:var(--ink2);font-weight:400}
+.upload{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.upload p{margin:0;flex:1 1 320px}
+.status{display:none;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--row-alt);font-size:14px}
+.status[data-on]{display:flex}
+.status .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:none}
+.status[data-busy] .dot{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+.status.err{background:var(--crit-bg);color:var(--crit-ink)}
+.status.warn{background:var(--med-bg);color:var(--med-ink)}
+.reader{display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.reader[data-on]{display:block}
+.section-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.detail{display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;margin-top:16px}
+@media (max-width:1000px){.detail{grid-template-columns:1fr}}
+.doc{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#EFEDE8;align-self:start}
+.doc svg{display:block;width:100%;height:auto}
+.doc img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
+.doc .cap{padding:8px 12px;font-size:12px;color:var(--ink2);border-top:1px solid var(--border);background:var(--surface)}
+.fields{display:grid;gap:10px}
+.field{display:grid;grid-template-columns:132px minmax(0,1fr) auto;gap:6px 12px;align-items:center}
+@media (max-width:640px){.field{grid-template-columns:1fr auto}.field label{grid-column:1 / -1}}
+.field label{font-size:13px;color:var(--ink2);font-weight:500}
+.field input,.field select{width:100%;font:inherit;font-size:14px;padding:7px 10px;border:1px solid #C9C4BC;border-radius:12px;background:var(--row-alt);color:var(--ink)}
+.field input::placeholder{color:#8A8F96;font-style:italic}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--tint)}
+.flags{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px;max-width:none}
+.flags li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--med-bg);color:var(--med-ink);font-size:14px;margin:0}
+.flags li.crit{background:var(--crit-bg);color:var(--crit-ink)}
+.flags li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:currentColor;margin-top:7px}
+.actions{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.actions label.tick{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;flex:1 1 260px;padding-block:4px}
+.actions input[type=checkbox]{width:20px;height:20px;accent-color:var(--btn);margin:0}
+.posture{margin-top:12px;font-size:13px;color:var(--ink2)}
+.empty{padding:32px 20px;text-align:center;color:var(--ink2);border:1px dashed #C9C4BC;border-radius:12px}
+
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:12px;white-space:nowrap;line-height:1.3}
+.chip.clear{color:var(--ok-ink);background:var(--ok-bg)}
+.chip.check{color:var(--med-ink);background:var(--med-bg)}
+.chip.unreadable,.chip.hold{color:var(--crit-ink);background:var(--crit-bg)}
+.chip.neutral{color:var(--ink2);background:var(--row-alt)}
+.chip.wrap{white-space:normal}
+
+.split{display:grid;grid-template-columns:272px minmax(0,1fr);gap:20px}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+.qlist{display:grid;gap:8px;align-self:start}
+.qitem{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface);cursor:pointer;transition:border-color .15s}
+.qitem:hover{border-color:#C9C4BC}
+.qitem[aria-pressed="true"]{border-color:var(--accent);background:var(--tint)}
+.qitem b{display:block;font-size:14px}
+.qitem span{display:block;font-size:13px;color:var(--ink2);margin-top:2px}
+.qitem .chip{margin-top:8px}
+.qmore{font-size:13px;color:var(--ink2);padding:4px 2px}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:460px){.tiles{grid-template-columns:1fr}}
+.tile{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.tile .name{font-size:13px;color:var(--ink2);font-weight:500}
+.tile .num{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.15}
+.tile .sub{font-size:12px;color:var(--ink2);margin-top:6px}
+.tile.hold .num{color:var(--high-ink)}
+.tbl{overflow-x:auto;margin-top:18px;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums;min-width:680px}
+th,td{text-align:left;vertical-align:middle;padding:10px 12px;border-bottom:1px solid var(--border)}
+th{font-weight:600;background:var(--row-alt);white-space:nowrap;font-size:13px}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+td .sub{display:block;font-size:12px;color:var(--ink2);margin-top:2px}
+tr.new td{background:var(--tint)}
+tr.bf td{color:var(--ink2)}
+.swipe{display:none;font-size:13px;color:var(--ink2);margin:8px 0 0}
+.swipe[data-on]{display:block}
+.bar{position:relative;height:8px;border-radius:12px;background:var(--row-alt);margin-top:6px;overflow:hidden;min-width:120px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:12px}
+.selrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:12px}
+.selrow label{font-size:13px;color:var(--ink2);font-weight:500}
+select.sel{font:inherit;font-size:15px;padding:8px 32px 8px 10px;border:1px solid #C9C4BC;border-radius:12px;background:var(--row-alt) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%235A5F66' stroke-width='1.6'/></svg>") no-repeat right 12px center;color:var(--ink);appearance:none;-webkit-appearance:none;min-width:220px;max-width:100%}
+select.sel:focus{outline:none;border-color:var(--accent);background-color:var(--surface);box-shadow:0 0 0 3px var(--tint)}
+.out{display:none;margin-top:18px;padding:18px 20px;border:1px solid var(--border);border-radius:12px;background:var(--row-alt)}
+.out[data-on]{display:block}
+.out h3{font-size:16px}
+.out .lines{margin-top:10px;overflow-x:auto}
+.out table{min-width:420px;font-size:14px}
+.out th{background:transparent}
+.out td,.out th{padding:6px 10px}
+.out tfoot td{font-weight:700;border-top:2px solid var(--border);border-bottom:0}
+.mail pre{margin:10px 0 0;white-space:pre-wrap;font:inherit;font-size:14px;line-height:1.5;max-width:70ch}
+.mail .hdr{font-size:13px;color:var(--ink2)}
+h3.sub{font-size:16px;margin-top:24px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow);margin-top:20px}
+.card > h3 + p{margin-top:6px}
+.panel{background:var(--panel);color:var(--panel-ink);border-radius:16px;padding:24px 28px;margin-top:20px}
+.panel .lbl{color:var(--panel-ink2);font-size:13px;margin:0 0 10px}
+.panel blockquote{margin:0;font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:18px;line-height:1.5;max-width:60ch}
+.panel cite{display:block;font-style:normal;font-size:13px;color:var(--panel-ink2);margin-top:10px}
+.cmp table{min-width:720px}
+.cmp td{vertical-align:top}
+.cmp td:first-child{font-weight:600;white-space:nowrap}
+.wedge{counter-reset:w;list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px;max-width:none}
+.wedge li{display:grid;grid-template-columns:34px 1fr;gap:2px 12px;align-items:start;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface);margin:0}
+.wedge li > *{grid-column:2}
+.wedge li::before{counter-increment:w;content:counter(w);width:26px;height:26px;border-radius:50%;background:var(--tint);color:var(--tint-ink);font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px}
+.wedge b{display:block;font-size:15px}
+.wedge .lane{display:block;font-size:11px;font-weight:700;color:var(--tint-ink);letter-spacing:.02em;margin-bottom:2px}
+.steps{margin-top:18px}
+.wedge span{display:block;font-size:14px;color:var(--ink2);margin-top:2px}
+.ask{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--row-alt);margin-bottom:20px}
+.ask label{font-size:13px;font-weight:600;color:var(--tint-ink);white-space:nowrap}
+.ask input{flex:1 1 260px;font:inherit;font-size:15px;padding:8px 12px;border:1px solid #C9C4BC;border-radius:12px;background:var(--surface);color:var(--ink);min-width:0}
+.ask input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--tint)}
+.ask .tries{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}
+.ask .tries button{font-size:12px;padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink2);cursor:pointer}
+.ask .tries button:hover{border-color:var(--accent);color:var(--tint-ink)}
+.ask-out{display:none;flex-basis:100%;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--border);font-size:14px}
+.ask-out[data-on]{display:block}
+.ask-out .lbl{font-size:12px;font-weight:600;color:var(--ink2);margin:0 0 4px}
+.ask-out p{margin:0;max-width:none}
+.ask-out .foot{margin:8px 0 0;padding:0;border:0;font-size:12px;color:var(--ink2)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.filters button{font-size:13px;padding:5px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink2);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--tint);border-color:var(--accent);color:var(--tint-ink);font-weight:600}
+.where{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+@media (max-width:760px){.where{grid-template-columns:1fr}}
+.where > div{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.where .lbl{font-size:12px;font-weight:600;color:var(--tint-ink)}
+.where .val{font-size:15px;font-weight:600;margin-top:2px}
+.where p{font-size:13px;color:var(--ink2);margin:6px 0 0}
+.wa{display:none;margin-top:16px;max-width:380px;border:1px solid var(--border);border-radius:16px;background:#EFEDE8;padding:12px 12px 8px}
+.wa[data-on]{display:block}
+.wa .hdr{font-size:12px;color:var(--ink2);font-weight:600;margin:0 0 8px}
+.wa .b{max-width:88%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.45;margin:6px 0;background:var(--surface);border:1px solid var(--border)}
+.wa .b.me{margin-left:auto;background:var(--tint);border-color:#F3D3BF}
+.wa .b .t{display:block;font-size:11px;color:var(--ink2);margin-top:4px;text-align:right}
+.wa .b .ph{display:block;width:120px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:6px;background:#E6E3DD}
+.wa .b .ph svg{display:block;width:100%;height:auto}
+.wa .b .ph img{display:block;width:100%;height:auto}
+.bpage{padding:0;overflow:hidden}
+.bpage .bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 16px;background:var(--panel);color:var(--panel-ink2);font-size:12px}
+.bpage .bar b{color:var(--panel-ink);font-weight:600}
+.bpage .body{padding:18px 20px}
+.bpage details{border:1px solid var(--border);border-radius:12px;background:var(--surface);margin-top:8px}
+.bpage summary{cursor:pointer;padding:10px 14px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.bpage summary b{flex:1 1 200px}
+.bpage summary .num{font-variant-numeric:tabular-nums}
+.bpage .dk{padding:0 14px 12px;overflow-x:auto}
+.bpage .dk table{min-width:0;font-size:13px}
+.bpage .dk td,.bpage .dk th{padding:6px 8px}
+.bpage .total{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;margin-top:10px;border-top:2px solid var(--border);font-weight:700;font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,8px);background:var(--panel);color:var(--panel-ink);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:5;max-width:calc(100vw - 32px);text-align:center}
+.toast[data-on]{opacity:1;transform:translate(-50%,0)}
+.foot{margin-top:48px;padding-top:16px;border-top:1px solid var(--border);font-size:13px;color:var(--ink2)}
+@media (prefers-reduced-motion:no-preference){
+  .app,.card,.panel,figure.flow{animation:rise .24s ease-out both}
+  .card:nth-of-type(2){animation-delay:.06s}.card:nth-of-type(3){animation-delay:.12s}
+}
+@keyframes rise{from{opacity:.9;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><b>Tunyl</b><span>Docket to claim</span></div>
+    <div class="topright">
+      <span class="badge">Prototype for feedback, example data</span>
+      <button class="btn secondary sm" id="notes" aria-pressed="false">Show presenter notes</button>
+      <button class="btn quiet sm" id="reset">Reset demo</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>The site photographs the docket. The office gets the claim.</h1>
+    <p>Paper comes in from suppliers, hauliers and builders you do not control. Tunyl reads it, a rule or a person checks it, and it comes out as a quantities ledger, a progress claim in the builder's format, and one view the directors can read. Nobody outside the office installs anything.</p>
+  </section>
+
+  <section class="section" style="margin-top:40px">
+    <h2>The problem it solves</h2>
+    <p>A civil or earthworks subcontractor moves material by the truckload, hundreds of thousands of cubic metres over a job. Every load arrives with a piece of paper from someone the subcontractor does not control: a weighbridge docket from the quarry, a delivery docket from the concrete plant, a tipping docket from the haulier.</p>
+    <p>Today a person on site collects the paper and a person in the office types it into a spreadsheet, days later. Nobody matches those dockets against the supplier's invoice until an argument forces it. The progress claim to the builder is built from that spreadsheet, so it goes out late, and the builder's project manager sends it back asking for proof.</p>
+    <div class="plain">
+      <div><div class="who">Cost one: hours</div><div class="does">Typing every docket</div><p>One person writes, another types. The office is three to five days behind the site.</p></div>
+      <div><div class="who">Cost two: money</div><div class="does">Leaking between docket and invoice</div><p>Loads billed with no docket behind them get paid, because nobody had the paper next to the invoice.</p></div>
+      <div><div class="who">Cost three: cash</div><div class="does">Claims lodged late</div><p>The claim waits for the spreadsheet, then waits again while the builder asks for proof.</p></div>
+    </div>
+    <div class="panel"><p class="lbl">Rob, construction manager at a civil subcontractor, 7 September 2026, 05:06</p><blockquote>There's a few things that are still pretty data-entry driven, which obviously we're looking at AI to resolve. There's data entry things. We track materials on site, and you might be doing hundreds of thousands of cubic metres. So that's obviously a long process.</blockquote><cite>Said unprompted, when asked what takes too much time.</cite></div>
+  </section>
+
+  <section class="section" style="margin-top:40px">
+    <h2>The flow in one picture</h2>
+    <p>Three lanes: what the site does, what Tunyl does, what the office does. Money only leaves through the ledger.</p>
+  <figure class="flow">
+    <p class="swipe">The chart is wider than this screen. Slide it sideways.</p>
+    <div class="scroll"><svg viewBox="0 0 1180 412" role="img" aria-label="Flow from paper on site, through the reader and a purchase-order match, to the ledger, with exceptions held in a review queue until a person ticks them, then out as a claim, Xero and the board view" font-family="Archivo, Arial, sans-serif" color="#1A1C20">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+<rect x="8" y="16" width="1164" height="120" rx="12" fill="currentColor" opacity=".035"/><rect x="8" y="148" width="1164" height="120" rx="12" fill="currentColor" opacity=".035"/><rect x="8" y="280" width="1164" height="120" rx="12" fill="currentColor" opacity=".035"/>
+<text x="24" y="38" font-size="12" font-weight="700" fill="#5A5F66">ON SITE</text><text x="24" y="170" font-size="12" font-weight="700" fill="#5A5F66">TUNYL</text><text x="24" y="302" font-size="12" font-weight="700" fill="#5A5F66">IN THE OFFICE</text>
+<rect x="90" y="37" width="200" height="78" rx="12" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/><text x="190" y="64" font-size="15" font-weight="700" text-anchor="middle" fill="currentColor">Paper arrives</text><text x="190" y="84" font-size="12" text-anchor="middle" fill="#5A5F66">docket, invoice,</text><text x="190" y="100" font-size="12" text-anchor="middle" fill="#5A5F66">site instruction</text>
+<line x1="290" y1="76" x2="438" y2="76" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/><text x="365" y="64" font-size="12" text-anchor="middle" fill="#5A5F66">no change for the site</text>
+<rect x="440" y="37" width="200" height="78" rx="12" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/><text x="540" y="64" font-size="15" font-weight="700" text-anchor="middle" fill="currentColor">Sent in</text><text x="540" y="84" font-size="12" text-anchor="middle" fill="#5A5F66">phone photo, email,</text><text x="540" y="100" font-size="12" text-anchor="middle" fill="#5A5F66">or a docket-app feed</text>
+<line x1="540" y1="115" x2="540" y2="167" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/><text x="552" y="146" font-size="12" fill="#5A5F66">photo or PDF</text>
+<path d="M640 66 L778 160" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ar)"/><text x="662" y="54" font-size="12" fill="#5A5F66">a digital feed skips the reader</text>
+<rect x="440" y="169" width="200" height="78" rx="12" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/><text x="540" y="196" font-size="15" font-weight="700" text-anchor="middle" fill="currentColor">Reader</text><text x="540" y="216" font-size="12" text-anchor="middle" fill="#5A5F66">9 fields, each read ok,</text><text x="540" y="232" font-size="12" text-anchor="middle" fill="#5A5F66">check or unreadable</text>
+<line x1="640" y1="208" x2="678" y2="208" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/>
+<polygon points="780,162 880,208 780,254 680,208" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/><text x="780" y="205" font-size="13" font-weight="600" text-anchor="middle" fill="currentColor">Matches the</text><text x="780" y="221" font-size="13" font-weight="600" text-anchor="middle" fill="currentColor">purchase order?</text>
+<line x1="880" y1="208" x2="978" y2="208" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/><text x="929" y="186" font-size="12" font-weight="600" text-anchor="middle" fill="#5A5F66">yes, by rule</text><text x="929" y="200" font-size="11" text-anchor="middle" fill="#5A5F66">205 of 212</text>
+<rect x="980" y="169" width="180" height="78" rx="12" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/><text x="1070" y="196" font-size="15" font-weight="700" text-anchor="middle" fill="currentColor">Ledger</text><text x="1070" y="216" font-size="12" text-anchor="middle" fill="#5A5F66">ordered, delivered,</text><text x="1070" y="232" font-size="12" text-anchor="middle" fill="#5A5F66">invoiced, claimed</text>
+<line x1="780" y1="254" x2="780" y2="299" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/><text x="792" y="274" font-size="12" font-weight="600" fill="#5A5F66">no, a person looks</text><text x="792" y="289" font-size="11" fill="#5A5F66">7 of 212</text>
+<rect x="680" y="301" width="200" height="78" rx="12" fill="#FDEEE3" stroke="#E8590C" stroke-width="1.6"/><text x="780" y="328" font-size="15" font-weight="700" text-anchor="middle" fill="#A83D06">Review queue</text><text x="780" y="348" font-size="12" text-anchor="middle" fill="#A83D06">the office ticks</text><text x="780" y="364" font-size="12" text-anchor="middle" fill="#A83D06">the exceptions</text>
+<path d="M880 326 L930 326 L930 228 L978 228" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/><text x="938" y="296" font-size="12" fill="#5A5F66">ticked</text>
+<line x1="1070" y1="247" x2="1070" y2="299" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/><text x="1080" y="278" font-size="12" fill="#5A5F66">verified only</text>
+<rect x="980" y="301" width="180" height="78" rx="12" fill="#FFFFFF" stroke="currentColor" stroke-width="1.2"/><text x="1070" y="328" font-size="15" font-weight="700" text-anchor="middle" fill="currentColor">Out the door</text><text x="1070" y="348" font-size="12" text-anchor="middle" fill="#5A5F66">progress claim,</text><text x="1070" y="364" font-size="12" text-anchor="middle" fill="#5A5F66">Xero, board view</text>
+</svg></div>
+    <p class="flow-note small muted">The chart appears on a wider screen. The seven steps below say the same thing.</p>
+    <figcaption>One path from paper to money. Whatever arrives is read into fields, each marked read ok, check or unreadable. If every field reads ok and it matches the purchase order, it goes into the ledger under a rule the office wrote. If not, it waits in the review queue until a person ticks it. Only what reached the ledger can be claimed. A haulier that already runs a docket app sends data instead of paper and skips the reader.</figcaption>
+  </figure>
+
+  <div class="plain">
+    <div><div class="who">The site does one thing</div><div class="does">Photograph the docket</div><p>Or forward the email. No app, no typing, no login. The paper stays the record.</p></div>
+    <div><div class="who">Tunyl does the middle</div><div class="does">Read, match, add up, draft</div><p>Fields with a state each. A rule for the clean ones. A running ledger. The claim written from it.</p></div>
+    <div><div class="who">The office does one thing</div><div class="does">Tick the exceptions</div><p>Seven a week, not two hundred. Paper and fields side by side. Nothing enters silently.</p></div>
+  </div>
+  </section>
+
+  <section class="section">
+    <h2>The workflow, in the order it happens</h2>
+    <p>Seven steps. The site does the first two, Tunyl does the middle, the office ticks the exceptions, and the outputs leave from the ledger.</p>
+    <ol class="wedge steps">
+      <li><b><span class="lane">On site</span>Paper arrives</b><span>The driver hands the docket to your site supervisor at the gate, who signs for the load. Supplier invoices arrive by email. Site instructions come from the builder's site engineer.</span></li>
+      <li><b><span class="lane">On site</span>Sent in</b><span>The supervisor photographs the docket, or forwards the email, or the haulier's docket app sends it as data. That is the whole job for the site. On WhatsApp it is one message.</span></li>
+      <li><b><span class="lane">Tunyl</span>Read</b><span>The photo becomes nine fields, each marked read ok, check or unreadable. Nothing is invented. A field that cannot be read stays blank.</span></li>
+      <li><b><span class="lane">Tunyl</span>Matched or held</b><span>If every field reads ok and the docket matches a purchase order, it goes straight into the ledger under a rule the office wrote. If not, it waits in the review queue. Last week: 205 of 212 passed by rule, 7 waited.</span></li>
+      <li><b><span class="lane">In the office</span>Ticked</b><span>A person sees the paper and the fields side by side and ticks each exception. Supplier invoices are matched here too, so an invoice billing 26 loads with 24 dockets is held before it reaches ApprovalMax.</span></li>
+      <li><b><span class="lane">Tunyl</span>Ledger</b><span>Every material carries four numbers: ordered, delivered, invoiced, claimed, in the contract's units. The gap between them is the money.</span></li>
+      <li><b><span class="lane">Out the door</span>Claim, Xero, board view</b><span>The progress claim is drafted from verified dockets only, in the builder's format, with a no-login link where their project manager opens every line to the dockets behind it. Matched invoices go to Xero. The directors get a board view built from the same records, with the payment clock running on each lodged claim.</span></li>
+    </ol>
+    <div class="plain">
+      <div><div class="who">Who it is for</div><div class="does">The subcontractor</div><p>The site supervisor supplies the photo, the contracts administrator and accounts use it, the directors buy it. Builders and suppliers touch it without installing anything.</p></div>
+      <div><div class="who">What it never does</div><div class="does">Enter a number silently</div><p>Everything in the ledger got there by a rule the office can read or a tick a person made, with the time and the name.</p></div>
+      <div><div class="who">What it never asks</div><div class="does">Anyone outside to sign up</div><p>Suppliers email. Hauliers send data. Builders open a link. The site sends a photo.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Try it, in the order it happens</h2>
+    <p>Follow the steps left to right. Send a docket from the site, watch where it lands, draft the claim, then look at the board view.</p>
+
+    <div class="app" aria-label="Prototype">
+      <nav class="nav" role="tablist" aria-label="Steps">
+        <div class="who">The flow</div>
+        <button role="tab" id="tab-site" aria-controls="site" aria-selected="true" data-tab="site"><span class="step">1</span>Site: read a docket</button>
+        <button role="tab" id="tab-queue" aria-controls="queue" aria-selected="false" data-tab="queue"><span class="step">2</span>Office: review queue <span class="n" id="qcount">7</span></button>
+        <button role="tab" id="tab-ledger" aria-controls="ledger" aria-selected="false" data-tab="ledger"><span class="step">3</span>Ledger and claim</button>
+        <button role="tab" id="tab-board" aria-controls="board" aria-selected="false" data-tab="board"><span class="step">4</span>Board view</button>
+        <div class="who">Records</div>
+        <button role="tab" id="tab-docs" aria-controls="docs" aria-selected="false" data-tab="docs">Documents <span class="n" id="dcount">0</span></button>
+        <div class="who">Later modules</div>
+        <button role="tab" id="tab-formats" aria-controls="formats" aria-selected="false" data-tab="formats">Builder formats</button>
+        <button role="tab" id="tab-waits" aria-controls="waits" aria-selected="false" data-tab="waits">Waiting on</button>
+      </nav>
+
+      <div class="main">
+        <form class="ask" id="ask" autocomplete="off">
+          <label for="ask-q">Ask Tunyl</label>
+          <input id="ask-q" placeholder="Ask about quantities, invoices, dockets or claims" aria-label="Ask Tunyl">
+          <button class="btn sm" type="submit">Ask</button>
+          <div class="tries" aria-label="Examples">
+            <button type="button" data-q="What is unclaimed on Kellyville Ridge?">What is unclaimed on Kellyville Ridge?</button>
+            <button type="button" data-q="Which invoices have loads with no docket?">Which invoices have loads with no docket?</button>
+            <button type="button" data-q="Where is docket 88212?">Where is docket 88212?</button>
+            <button type="button" data-q="Draft claim 6">Draft claim 6</button>
+          </div>
+          <div class="ask-out" id="ask-out" role="status" aria-live="polite"></div>
+        </form>
+
+        <section class="screen" id="site" role="tabpanel" aria-labelledby="tab-site" data-on>
+          <div class="screen-head">
+            <div><h2>Read a docket</h2><p>Pick an example, or take a photo of a real docket. Then send it to the office and watch where it lands.</p></div>
+            <span class="said">Rob, 05:06</span>
+          </div>
+          <div class="examples" id="examples"></div>
+          <div class="upload">
+            <p class="muted small" id="upload-note">Read your own: a photo of a concrete, weighbridge or tipping docket.</p>
+            <label class="btn secondary" for="photo">Take or choose a photo<input type="file" id="photo" accept="image/*" capture="environment"></label>
+          </div>
+          <div class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="status-text"></span><button class="btn quiet sm" id="stop" hidden>Stop</button></div>
+          <div class="reader" id="reader">
+            <div class="section-head"><h3>What was read</h3><span class="chip neutral" id="read-source">Example reading</span></div>
+            <div class="detail">
+              <div class="doc" id="docket-view"></div>
+              <div>
+                <div class="fields" id="fields"></div>
+                <ul class="flags" id="flags"></ul>
+                <div class="actions">
+                  <span class="small muted" id="rule-hint" style="flex:1 1 260px"></span>
+                  <button class="btn quiet" id="discard">Discard</button>
+                  <button class="btn" id="send">Send to the office</button>
+                  <button class="btn secondary" id="wa-btn" type="button">Show it as WhatsApp</button>
+                </div>
+                <p class="posture">The site does not tick anything. If every field reads ok and the docket matches the purchase order, it goes straight to the ledger. Otherwise it waits for the office.</p>
+                <div class="wa" id="wa"></div>
+              </div>
+            </div>
+          </div>
+          <div class="note"><p class="lbl">Presenter note</p><p>Rob, 05:06: <q>We track materials on site, and you might be doing hundreds of thousands of cubic metres. So that's obviously a long process.</q></p><p>Open the quarry docket first: every field reads ok and the purchase order is printed on it, so it goes straight to the ledger by rule. Then open the handwritten tipping docket: the quantity could be 12 or 17 and nobody signed, so it goes to the office. That contrast is the whole product. Click "Show it as WhatsApp" to show the same exchange as two messages: the site never opens an app. The live photo reader works when this page is opened inside claude.ai.</p></div>
+        </section>
+
+        <section class="screen" id="queue" role="tabpanel" aria-labelledby="tab-queue">
+          <div class="screen-head">
+            <div><h2>Review queue</h2><p>212 dockets came in this week. 205 matched the purchase order on every field and passed by rule. These are the exceptions, and a person ticks each one.</p></div>
+            <span class="said">Rob, 10:18</span>
+          </div>
+          <div class="split">
+            <div class="qlist" id="qlist"></div>
+            <div id="qdetail"></div>
+          </div>
+          <div class="note"><p class="lbl">Presenter note</p><p>The data entry does not disappear, it turns into checking, and most of the checking is a rule. The site photographs, the office ticks the exceptions, nobody types. Framework (Toronto) uses the same pending-review pattern for AI-found contacts, and it dropped fully automatic email agents in 2025 because they were wrong too often. If a haulier already runs Kynection, its dockets land here as data, like the Hume Haulage item. Ask the room: who would be doing the ticking?</p></div>
+        </section>
+
+        <section class="screen" id="ledger" role="tabpanel" aria-labelledby="tab-ledger">
+          <div class="screen-head">
+            <div><h2>Quantities and claims</h2><p>Ordered from the purchase order. Delivered from matched and ticked dockets. Invoiced from matched supplier invoices. Claimed from lodged claims. The gap column is the money.</p></div>
+            <span class="said">Rob, 05:06</span>
+          </div>
+          <div class="selrow"><label for="proj">Project</label><select id="proj" class="sel"><option value="kellyville">Kellyville Ridge bulk earthworks</option><option value="boxhill">Box Hill detention basin</option></select><span class="small muted" id="proj-meta"></span></div>
+          <div class="tbl"><table id="lg"><thead><tr><th>Material</th><th>Unit</th><th class="num">Ordered</th><th class="num">Delivered</th><th class="num">Invoiced</th><th class="num">Claimed</th><th>Gap</th></tr></thead><tbody></tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <p class="small muted">Trucks deliver tonnes. Contracts measure cubic metres. The conversion factor is set once per material on the purchase order and shown on every docket, never hidden.</p>
+          <div class="actions">
+            <button class="btn" id="draft">Draft progress claim</button>
+            <button class="btn secondary" data-toast="In the real prototype this creates the sales invoice in Xero, with the docket list attached.">Send to Xero as a sales invoice</button>
+            <button class="btn secondary" data-toast="In the real prototype this fills the builder's own claim spreadsheet, column for column.">Builder's claim template</button>
+          </div>
+          <div class="out" id="claim"></div>
+          <div class="out bpage" id="bpage"></div>
+          <h3 class="sub">The dockets behind these numbers</h3>
+          <p class="small muted" style="margin-top:4px">Every delivered figure above is the sum of rows like these. Click into any number in a meeting and this is what is underneath.</p>
+          <div class="tbl"><table id="dk"><thead><tr><th>Date</th><th>Docket</th><th>Supplier</th><th>Material</th><th class="num">Quantity</th><th>How it got in</th></tr></thead><tbody></tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <div class="actions">
+            <button class="btn secondary" id="csv">Download docket list (CSV)</button>
+            <button class="btn secondary" id="xero">Download Xero bill lines</button>
+          </div>
+          <p class="small muted">Bill lines cover supplier dockets only, for the accounts team to import. Add rates and account codes before importing.</p>
+          <div class="note"><p class="lbl">Presenter note</p><p>Ask what their quantities spreadsheet looks like today, who fills it, and from what. Ask whether they claim in tonnes or cubic metres, because that conversion is where the arguments with suppliers and builders live. Then click Draft progress claim and say: this claim only contains dockets that were matched by rule or ticked by a person. Switch to Box Hill to show the other half of the story: a supplier has invoiced more concrete than the dockets say was delivered, and the row holds the invoice before it becomes a dispute. Then click "Preview the builder\u2019s link": the builder\u2019s project manager opens every claim line to the dockets behind it, with no login, which is where certification stalls today.</p></div>
+        </section>
+
+        <section class="screen" id="board" role="tabpanel" aria-labelledby="tab-board">
+          <div class="screen-head">
+            <div><h2>All projects</h2><p>Every figure is a sum of records that passed by rule or by tick. Nothing on this screen is typed in.</p></div>
+            <span class="said">Rob, 10:18</span>
+          </div>
+          <div class="tiles">
+            <div class="tile"><div class="name">Dockets in this week</div><div class="num">212</div><div class="sub">205 matched by rule, 7 for a person</div></div>
+            <div class="tile"><div class="name">Waiting on a person</div><div class="num" id="t-queue">7</div><div class="sub">in the review queue</div></div>
+            <div class="tile"><div class="name">Ready to claim</div><div class="num" id="t-claim">$0</div><div class="sub">3 projects, verified quantities only</div></div>
+            <div class="tile hold"><div class="name">Held from ApprovalMax</div><div class="num">2 loads</div><div class="sub">billed with no docket on file, $1,429, held before it became a dispute</div></div>
+          </div>
+          <div class="tbl"><table id="ov"><thead><tr><th>Project</th><th>Client and their platform</th><th>Headline material, delivered against ordered</th><th class="num">Needs a person</th><th>Claim</th></tr></thead><tbody></tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <h3 class="sub">Claims lodged, waiting on money</h3>
+          <p class="small muted" style="margin-top:4px">Under the Security of Payment Act the builder has 10 business days to serve a payment schedule. The clock starts the day the claim leaves this page.</p>
+          <div class="tbl"><table id="cl"><thead><tr><th>Claim</th><th>Builder</th><th class="num">Amount</th><th>Lodged</th><th>Payment schedule</th><th>Payment</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <div class="note"><p class="lbl">Presenter note</p><p>Rob, 10:18: <q>that information has to get back to head office and be analysed… bring that information to one central heart, so the board of directors can sit around that and make business decisions.</q></p><p>Show this last. If someone asks where a number comes from, go back to step 3 and show the docket list. A board view that is only ever built from paper a rule or a person has checked is the pitch. The claims table under it is the directors\u2019 real question: what is lodged, what is certified, what is late, with the Security of Payment clock running on each.</p></div>
+        </section>
+
+        <section class="screen" id="docs" role="tabpanel" aria-labelledby="tab-docs">
+          <div class="screen-head">
+            <div><h2>Documents</h2><p>Every piece of paper, stored once against its project, with what was read from it, who let it in, and what it fed.</p></div>
+            <span class="said">Rob, 12:36</span>
+          </div>
+          <div class="selrow"><label for="doc-proj">Project</label><select id="doc-proj" class="sel"><option value="kellyville">Kellyville Ridge bulk earthworks</option><option value="boxhill">Box Hill detention basin</option><option value="marsden">Marsden Park roads, stage 3</option></select><span class="small muted" id="doc-meta"></span></div>
+          <div class="filters" id="doc-filters" role="group" aria-label="Document type"></div>
+          <div class="tbl"><table id="dt"><thead><tr><th>Date</th><th>Document</th><th>From</th><th>Stored as</th><th>Status</th><th>Fed into</th><th></th></tr></thead><tbody></tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <div class="where">
+            <div><div class="lbl">What is kept</div><div class="val">The original, the reading, the decision</div><p>The photo, PDF, email or data feed as it arrived. The nine fields as read and as corrected. The rule that matched it or the person who ticked it, with the time. What it fed: a ledger line, an invoice approval, a claim line.</p></div>
+            <div><div class="lbl">Where it lives</div><div class="val">Against the project, for seven years</div><p>One record per document, filed under its project and type. Nothing is retyped and nothing is duplicated. Kept for the seven years Rob's business already keeps everything.</p></div>
+            <div><div class="lbl">Where else it goes</div><div class="val">Your SharePoint, nightly</div><p>Each project folder gets a PDF of every document and a CSV of the register, so the record does not depend on Tunyl and the office keeps working the way it does now.</p></div>
+          </div>
+          <h3 class="sub">Who hands over each piece of paper</h3>
+          <div class="tbl"><table><thead><tr><th>Document</th><th>Produced by</th><th>Handed to</th><th>How it reaches Tunyl</th></tr></thead><tbody>
+            <tr><td><b>Delivery or weighbridge docket</b></td><td>The supplier or haulier's driver (quarry, concrete plant, tipper)</td><td>Your site supervisor or foreman, who signs for the load at the gate</td><td>They photograph it, or the haulier's app sends it as data</td></tr>
+            <tr><td><b>Supplier invoice</b></td><td>The supplier's accounts department</td><td>Your accounts inbox</td><td>Forwarded to the project inbox address</td></tr>
+            <tr><td><b>Site instruction or variation</b></td><td>The builder's site engineer or project manager</td><td>Your project manager or foreman</td><td>Forwarded email, logged and raised as a variation</td></tr>
+            <tr><td><b>Purchase order</b></td><td>Your own office, to the supplier</td><td>The supplier</td><td>Read from Xero, sets ordered quantities and rates</td></tr>
+            <tr><td><b>Progress claim</b></td><td>Your contracts administrator, from the ledger</td><td>The builder's project manager, certified by their contracts team</td><td>Drafted here, sent in the builder's format</td></tr>
+          </tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <div class="note"><p class="lbl">Presenter note</p><p>Rob, 12:36: <q>once that job happens, it's what happens to all that information. We have to keep it, because we're a construction business. We can't just bin it. So we keep everything for seven years minimum.</q> And at 11:49: they just moved from Dropbox to SharePoint for live files. Say: the register lives here, the files also land in your SharePoint every night, and nothing is retyped between the two.</p></div>
+        </section>
+
+        <section class="screen" id="formats" role="tabpanel" aria-labelledby="tab-formats">
+          <div class="screen-head">
+            <div><h2>Builder formats</h2><p>One master document from your BMS. Mapped once per builder platform. Regenerated for every job after that.</p></div>
+            <span class="said">Rob, 04:05</span>
+          </div>
+          <div class="selrow"><label>Document</label><span class="small"><b>SWMS-014 Bulk excavation</b>, from the BMS, revision 7</span></div>
+          <div class="selrow"><label for="bld">Builder</label><select id="bld" class="sel"><option value="a">Harrowgate Constructions</option><option value="b">Meridian Build Group</option><option value="c">Stoneleigh Developments</option></select><span class="small muted" id="bld-meta"></span></div>
+          <div class="tbl"><table id="map"><thead><tr><th>Our field</th><th>Their field</th><th>Status</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <div class="actions"><button class="btn" id="gen">Generate the pack</button></div>
+          <div class="out" id="pack"></div>
+          <div class="note"><p class="lbl">Presenter note</p><p>Rob, 04:05: <q>each job you've got to tailor it to whatever they're using, which is a bit annoying… A lot of these companies are so big that they just build their own.</q> A "we could also" screen. Show it only if they raise the pain themselves.</p></div>
+        </section>
+
+        <section class="screen" id="waits" role="tabpanel" aria-labelledby="tab-waits">
+          <div class="screen-head">
+            <div><h2>Waiting on</h2><p>Every external approval with its KPI clock running. The chaser is written before anyone needs it.</p></div>
+            <span class="said">Joanne, 07:06</span>
+          </div>
+          <div class="tbl"><table id="wt"><thead><tr><th>Waiting for</th><th>From</th><th>Job</th><th class="num">KPI</th><th class="num">Day</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+          <p class="swipe">Swipe the table sideways.</p>
+          <div class="out mail" id="mail"></div>
+          <p class="small muted">Builder-side module. For a subcontractor the same register holds what the builder owes you: variation approvals, claim certification, answers to requests for information.</p>
+          <div class="note"><p class="lbl">Presenter note</p><p>Joanne, 07:06: <q>BASIX can take up to seven days, engineering up to seven days, surveys and soils two weeks… they've all got different KPIs.</q> The one thing she conceded after saying nothing was left to automate. Show it only to a builder's ops team.</p></div>
+        </section>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="read">
+
+    <section class="section">
+      <h2>What makes it different</h2>
+      <p>Everyone in this list does something real. The question is where each one stops, seen from the desk of a subcontractor who receives paper from people it does not control.</p>
+      <div class="tbl cmp"><table><thead><tr><th>Who</th><th>What they do well</th><th>Where they stop</th></tr></thead><tbody>
+        <tr><td>A spreadsheet and a person typing<span class="sub">what Rob has today</span></td><td>Works for any docket from anyone. Everyone understands it.</td><td>One person writes, another types. Three to five days behind. Nobody matches dockets to invoices until a dispute forces it.</td></tr>
+        <tr><td>Datamolino and ApprovalMax<span class="sub">Rob's accounts stack</span></td><td>Read a supplier invoice into Xero and route it for approval.</td><td>Only see the invoice. Cannot tell that 2 of 26 loads on it have no docket, because they never see what was delivered.</td></tr>
+        <tr><td>Kynection, Docketbook, Assignar<span class="sub">Australian docket apps</span></td><td>Make the docket digital at the source when your own driver creates it. Reconcile to jobs, two-way Xero.</td><td>Stop at the edge of their own app. No reading of a paper or PDF docket from a quarry, a concrete plant or a haulier not on their system.</td></tr>
+        <tr><td>Framework<span class="sub">Toronto document AI</span></td><td>Read the builder's PDFs: drawings, specs, RFIs, takeoffs, with citations.</td><td>No site capture, no dockets, no accounting, no Australia. Built for the builder receiving subcontractor paperwork.</td></tr>
+        <tr><td>Dashpivot, SafetyCulture<span class="sub">site forms</span></td><td>Site forms, photos, audits, safety records.</td><td>Not quantities, not claims, not money.</td></tr>
+        <tr><td>The builders' own platforms<span class="sub">Procore, HammerTech, in-house</span></td><td>Run the builder's job end to end.</td><td>Built for the builder. The subcontractor must feed each one in its own format, per job.</td></tr>
+      </tbody></table></div>
+      <p class="swipe">Swipe the table sideways.</p>
+      <ol class="wedge">
+        <li><b>It reads paper from people you do not control.</b><span>The quarry, the concrete plant and the tipper driver will not install anything for a subcontractor. A photo and an email address are the only intake they will ever use.</span></li>
+        <li><b>It matches four numbers per material, not one.</b><span>Ordered, delivered, invoiced, claimed. The gap between them is the money: loads billed without a docket, quantities delivered and never claimed.</span></li>
+        <li><b>It is built for the subcontractor.</b><span>Every other product in the table serves the builder or serves a company that controls its own trucks. Rob's company is neither.</span></li>
+        <li><b>It is Australian in the details that cause arguments.</b><span>Tonnes on the docket, cubic metres in the contract, loose against bank volume, progress claims the way they are lodged here, and the platforms the big builders actually use.</span></li>
+        <li><b>Nothing enters silently.</b><span>By rule the office wrote, or by a person's tick. That is the answer to "what if the AI is wrong", and it is what a slow, careful committee needs to hear.</span></li>
+        <li><b>It fits the tools they already pay for.</b><span>Xero, ApprovalMax, SharePoint, Outlook. No login for the site, the supplier or the builder.</span></li>
+      </ol>
+      <div class="card">
+        <h3>What is not different, said honestly</h3>
+        <p>Reading a document with a vision model is a commodity. Reconciling dockets to invoices is an old idea. Kynection has a two-way Xero sync today and this prototype does not. The difference is the combination, who it is for, and the fact that it was built from Rob's sentences rather than a feature list.</p>
+        <p>Your own edge only counts if it is in the product. The tonnes-to-cubic-metres factor on every docket, the loose-versus-bank note on a tipping docket, the claim in the builder's format, the map to each builder's platform: those are the civil engineering degree and the door-knocking showing up as fields on a screen. Keep adding details like that. They are the moat, not the reader.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What each screen answers</h2>
+      <p>Every screen traces to a sentence from the two meetings on 7 September 2026.</p>
+      <div class="tbl cmp"><table><thead><tr><th>Screen</th><th>Who, when</th><th>Their words</th></tr></thead><tbody>
+        <tr><td>1. Site</td><td>Rob, 05:06</td><td>"We track materials on site, and you might be doing hundreds of thousands of cubic metres. So that's obviously a long process."</td></tr>
+        <tr><td>2. Review queue</td><td>Rob, 05:06</td><td>"There's a few things that are still pretty data-entry driven, which obviously we're looking at AI to resolve."</td></tr>
+        <tr><td>3. Ledger and claim</td><td>Rob, 10:59</td><td>"we use other tools like Xero… I think AI is just going to bring all of them together in a way, way more seamless way."</td></tr>
+        <tr><td>4. Board view</td><td>Rob, 10:18</td><td>"bring that information to one central heart, so the board of directors can sit around that and make business decisions."</td></tr>
+        <tr><td>Builder formats</td><td>Rob, 04:05</td><td>"each job you've got to tailor it to whatever they're using, which is a bit annoying."</td></tr>
+        <tr><td>Waiting on</td><td>Joanne, 07:06</td><td>"BASIX can take up to seven days, engineering can take up to seven days, surveys and soils can take two weeks… they've all got different KPIs."</td></tr>
+      </tbody></table></div>
+      <p class="swipe">Swipe the table sideways.</p>
+    </section>
+
+    <section class="section">
+      <h2>What is real on this page, and what is next</h2>
+      <div class="card">
+        <div class="tbl cmp"><table><thead><tr><th>Part</th><th>In this demo</th><th>In the working prototype</th></tr></thead><tbody>
+          <tr><td>Reading</td><td>Example dockets are pre-read. Your own photo is read live when the page is opened inside claude.ai; elsewhere it is shown and typed.</td><td>One vision-model call per document into a fixed schema, a state per field. Cents per document.</td></tr>
+          <tr><td>The rule</td><td>Works: all fields read ok plus a purchase order number on the docket goes straight to the ledger.</td><td>Rules written per supplier and purchase order, visible in the app, with tolerances.</td></tr>
+          <tr><td>Ticking</td><td>Works, and edited quantities flow into the ledger.</td><td>Same, saved with who ticked and when.</td></tr>
+          <tr><td>Claim and exports</td><td>Claim draft works from the demo ledger. CSV downloads work. Xero and the builder template are buttons that explain themselves.</td><td>CSV first, then Xero (sales invoice out, matched bills in), then builder templates.</td></tr>
+          <tr><td>Ask Tunyl</td><td>Answers a fixed set of questions from the demo data. Inside claude.ai, other questions go to the model with the demo data as its only source.</td><td>The same over the real database. Anything that moves money comes back as a draft.</td></tr>
+          <tr><td>Documents</td><td>A register of invented records that updates as dockets are sent and ticked. Open explains itself.</td><td>Originals in object storage, the register in Postgres, a nightly PDF and CSV drop into the SharePoint project folder.</td></tr>
+          <tr><td>WhatsApp view</td><td>A mock of the messages, built from the current reading.</td><td>A WhatsApp Business number on Twilio; the site sends the photo, the reader replies. Same for SMS.</td></tr>
+          <tr><td>Builder’s claim link</td><td>A mock of the page, built from the demo ledger. Certify and Query explain themselves.</td><td>A signed read-only link per claim, no login, expiring after certification; certifying starts the payment clock.</td></tr>
+          <tr><td>Claims waiting on money</td><td>Four invented claims with hand-set dates.</td><td>Dates computed in business days from the lodged claim; chasers drafted with the Act’s timeframes quoted.</td></tr>
+          <tr><td>Later modules</td><td>Illustrative, invented builders and jobs.</td><td>Built only when a customer names the platforms or asks for the register.</td></tr>
+        </tbody></table></div>
+        <p class="swipe">Swipe the table sideways.</p>
+      </div>
+      <div class="card">
+        <h3>Order of work</h3>
+        <ol>
+          <li><b>Ask Rob's team for twenty real dockets and one supplier invoice.</b> It also tells you whether they track in tonnes or cubic metres, and which hauliers already run a docket app.</li>
+          <li><b>Reader and review queue on those twenty.</b> Count fields right per docket. A clean docket should come back with eight of nine fields read ok.</li>
+          <li><b>Ledger and a claim export</b> in whatever format their claims already use.</li>
+          <li><b>Xero.</b> Sales invoice out, matched bills in.</li>
+          <li><b>Builder formats and Waiting on</b>, only when someone asks.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>How to show it</h2>
+      <div class="card">
+        <ol>
+          <li>Do not open with the screen. Ask who tracks materials today and what they type it into.</li>
+          <li>Step 1. Open the quarry docket, send it, watch it pass by rule. Open the handwritten one, send it, watch it wait.</li>
+          <li>Step 2. Tick the handwritten one. Say: the office ticks seven a week, not two hundred.</li>
+          <li>Step 3. Draft the claim. Say: only matched or ticked dockets are in it, in your units.</li>
+          <li>Step 4. Show the board view last. That is the central heart Rob described.</li>
+          <li>If someone asks "where does that number come from", type the docket number into Ask Tunyl, or open Documents.</li>
+          <li>Then ask: who fills the spreadsheet today; tonnes or cubic metres; where does the number go next; how many dockets on a busy day and how many already come from a haulier's app; which builder platforms did you feed this year; what would make the committee say no.</li>
+        </ol>
+      </div>
+    </section>
+
+    <p class="foot">Example data. Every project, company, docket, person and figure on this page is invented for the demo. Readings are indicators to check against the paper, not a record on their own. Live reading of your own photo runs inside claude.ai and uses the viewer's Claude usage. Built for feedback, not for sale. Tunyl, September 2026.</p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var num=function(n,d){return Number(n).toLocaleString('en-AU',{maximumFractionDigits:d==null?0:d})};
+var money=function(n){return '$'+num(n)};
+var fmtDate=function(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');if(!m)return iso||'';return m[3]+'/'+m[2]+'/'+m[1].slice(2)};
+var toastT;
+function toast(msg){var t=$('toast');t.textContent=msg;t.setAttribute('data-on','');clearTimeout(toastT);toastT=setTimeout(function(){t.removeAttribute('data-on')},3400)}
+function smooth(){return matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}
+
+/* ---------- example dockets (invented) ---------- */
+var paper=function(inner,rot){return '<svg viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg" font-family="Archivo, Arial, Helvetica, sans-serif" role="img" aria-label="Example docket"><rect width="360" height="470" fill="#E6E3DD"/><g transform="'+(rot?'rotate(-2 180 235)':'')+'"><rect x="18" y="16" width="324" height="438" fill="#000" opacity=".08" transform="translate(4 5)"/><rect x="18" y="16" width="324" height="438" fill="#fff"/>'+inner+'</g></svg>'};
+var scribble=function(x,y){return '<path d="M'+x+' '+y+' c6 -14 10 -6 14 -2 s8 -12 14 -4 10 4 18 -6 8 -10 14 -2 12 -6 18 2" fill="none" stroke="#2b3a7a" stroke-width="1.6" stroke-linecap="round"/>'};
+var hand=function(x,y,t,size){return '<text x="'+x+'" y="'+y+'" font-family="Caveat, \'Segoe Script\', \'Bradley Hand\', cursive" font-size="'+(size||17)+'" font-weight="600" fill="#1E2A78">'+t+'</text>'};
+
+var DOCKET_1=paper('<rect x="18" y="16" width="324" height="52" fill="#1F3A5F"/><text x="34" y="40" fill="#fff" font-size="14" font-weight="700">WESTLINE CONCRETE PTY LTD</text><text x="34" y="57" fill="#C9D4E2" font-size="8.5">ABN 00 000 000 000 · Plant: Eastern Creek · 1300 000 000</text><text x="34" y="92" font-size="11" font-weight="700" fill="#1A1C20">DELIVERY DOCKET</text><text x="326" y="92" font-size="13" font-weight="700" text-anchor="end" fill="#1A1C20">No. 48213</text><line x1="34" y1="100" x2="326" y2="100" stroke="#1A1C20" stroke-width=".8"/><text x="34" y="122" font-size="9" fill="#5A5F66">DATE</text><text x="34" y="136" font-size="11" fill="#1A1C20">09/09/2026</text><text x="130" y="122" font-size="9" fill="#5A5F66">LOADED</text><text x="130" y="136" font-size="11" fill="#1A1C20">06:42</text><text x="200" y="122" font-size="9" fill="#5A5F66">TRUCK</text><text x="200" y="136" font-size="11" fill="#1A1C20">WC-14</text><text x="262" y="122" font-size="9" fill="#5A5F66">DRIVER</text><text x="262" y="136" font-size="11" fill="#1A1C20">M. Osei</text><text x="34" y="160" font-size="9" fill="#5A5F66">CUSTOMER</text><text x="34" y="174" font-size="11" fill="#1A1C20">Your company (demo)</text><text x="34" y="196" font-size="9" fill="#5A5F66">SITE / POUR</text><text x="34" y="210" font-size="11" fill="#1A1C20">Kellyville Ridge, basement slab, pour 3</text><rect x="34" y="228" width="292" height="20" fill="#EEF1F5"/><text x="40" y="242" font-size="9" font-weight="600" fill="#1A1C20">CODE</text><text x="110" y="242" font-size="9" font-weight="600" fill="#1A1C20">DESCRIPTION</text><text x="320" y="242" font-size="9" font-weight="600" fill="#1A1C20" text-anchor="end">QTY</text><text x="40" y="264" font-size="10.5" fill="#1A1C20">N32-20-100</text><text x="110" y="264" font-size="10.5" fill="#1A1C20">N32 20mm agg, 100 slump</text><text x="320" y="264" font-size="12" font-weight="700" fill="#1A1C20" text-anchor="end">7.0 m³</text><line x1="34" y1="274" x2="326" y2="274" stroke="#E7E4DF"/><text x="34" y="296" font-size="9" fill="#5A5F66">ADDITIVES</text><text x="34" y="310" font-size="10.5" fill="#1A1C20">None</text><text x="200" y="296" font-size="9" fill="#5A5F66">WATER ADDED ON SITE</text><text x="200" y="310" font-size="10.5" fill="#1A1C20">____ L</text><text x="34" y="352" font-size="9" fill="#5A5F66">RECEIVED BY (SIGN)</text>'+scribble(38,382)+'<line x1="34" y1="388" x2="180" y2="388" stroke="#1A1C20" stroke-width=".6"/><text x="200" y="352" font-size="9" fill="#5A5F66">PRINT NAME</text><text x="200" y="382" font-size="10.5" fill="#8A8F96">J. Ma</text><text x="222" y="382" font-size="10.5" fill="#C5C8CC">____</text><line x1="200" y1="388" x2="326" y2="388" stroke="#1A1C20" stroke-width=".6"/><text x="34" y="420" font-size="7" fill="#8A8F96">Goods remain the property of the supplier until paid in full. Slump tested at plant. Time on site limited to 30 minutes.</text><text x="34" y="432" font-size="7" fill="#8A8F96">Water added on site at customer\'s risk and voids strength warranty.</text>',false);
+
+var DOCKET_2=paper('<rect x="18" y="16" width="324" height="52" fill="#2F5D3A"/><text x="34" y="40" fill="#fff" font-size="14" font-weight="700">KURRAJONG QUARRIES</text><text x="34" y="57" fill="#CFE0D3" font-size="8.5">Weighbridge · Pit 2 · Certified scale, verified 03/2026</text><text x="34" y="92" font-size="11" font-weight="700" fill="#1A1C20">WEIGHBRIDGE DOCKET</text><text x="326" y="92" font-size="13" font-weight="700" text-anchor="end" fill="#1A1C20">2026-091553</text><line x1="34" y1="100" x2="326" y2="100" stroke="#1A1C20" stroke-width=".8"/><text x="34" y="122" font-size="9" fill="#5A5F66">DATE</text><text x="34" y="136" font-size="11" fill="#1A1C20">09/09/2026</text><text x="130" y="122" font-size="9" fill="#5A5F66">OUT</text><text x="130" y="136" font-size="11" fill="#1A1C20">10:15</text><text x="200" y="122" font-size="9" fill="#5A5F66">VEHICLE</text><text x="200" y="136" font-size="11" fill="#1A1C20">XQ 07 RT</text><text x="34" y="160" font-size="9" fill="#5A5F66">PRODUCT</text><text x="34" y="174" font-size="11" fill="#1A1C20">DGB20 road base (AS 2758.1)</text><text x="34" y="196" font-size="9" fill="#5A5F66">DELIVER TO</text><text x="34" y="210" font-size="11" fill="#1A1C20">Kellyville Ridge, haul road</text><text x="230" y="196" font-size="9" fill="#5A5F66">ORDER</text><text x="230" y="210" font-size="11" fill="#1A1C20">PO-4471</text><rect x="34" y="232" width="292" height="92" fill="#F1F5F1"/><text x="46" y="254" font-size="9" fill="#5A5F66">GROSS</text><text x="150" y="254" font-size="11" fill="#1A1C20" text-anchor="end">38.42 t</text><text x="46" y="276" font-size="9" fill="#5A5F66">TARE</text><text x="150" y="276" font-size="11" fill="#1A1C20" text-anchor="end">13.56 t</text><line x1="46" y1="286" x2="150" y2="286" stroke="#1A1C20" stroke-width=".6"/><text x="46" y="308" font-size="10" font-weight="700" fill="#1A1C20">NET</text><text x="150" y="310" font-size="16" font-weight="700" fill="#1A1C20" text-anchor="end">24.86 t</text><text x="190" y="254" font-size="9" fill="#5A5F66">MOISTURE</text><text x="190" y="268" font-size="10.5" fill="#1A1C20">4.1 %</text><text x="190" y="292" font-size="9" fill="#5A5F66">OPERATOR</text><text x="190" y="306" font-size="10.5" fill="#1A1C20">DK</text><text x="34" y="352" font-size="9" fill="#5A5F66">DRIVER SIGNATURE</text>'+scribble(38,382)+'<line x1="34" y1="388" x2="180" y2="388" stroke="#1A1C20" stroke-width=".6"/><text x="200" y="352" font-size="9" fill="#5A5F66">RECEIVED ON SITE</text><text x="200" y="382" font-size="10.5" fill="#1A1C20">R. Tan</text><line x1="200" y1="388" x2="326" y2="388" stroke="#1A1C20" stroke-width=".6"/><text x="34" y="420" font-size="7" fill="#8A8F96">Net weight is the quantity supplied. Tare from last calibrated weigh of this vehicle. Claims within 24 hours.</text>',false);
+
+var DOCKET_3=paper('<text x="34" y="46" font-size="15" font-weight="700" fill="#1A1C20">MULLINS HAULAGE</text><text x="34" y="62" font-size="8.5" fill="#5A5F66">Tipper &amp; dog · 0400 000 000 · Riverstone</text><text x="34" y="92" font-size="11" font-weight="700" fill="#1A1C20">TIPPING / CARTAGE DOCKET</text><text x="326" y="92" font-size="12" font-weight="700" text-anchor="end" fill="#1A1C20">No. 0917</text><line x1="34" y1="100" x2="326" y2="100" stroke="#1A1C20" stroke-width=".8"/><text x="34" y="128" font-size="9" fill="#5A5F66">DATE</text><line x1="70" y1="132" x2="180" y2="132" stroke="#B9BDC3" stroke-width=".6"/>'+hand(78,129,'8/9/26')+'<text x="200" y="128" font-size="9" fill="#5A5F66">TRUCK</text><line x1="240" y1="132" x2="326" y2="132" stroke="#B9BDC3" stroke-width=".6"/>'+hand(246,129,'MH 22')+'<text x="34" y="164" font-size="9" fill="#5A5F66">FROM</text><line x1="70" y1="168" x2="326" y2="168" stroke="#B9BDC3" stroke-width=".6"/>'+hand(78,165,'Kellyville Ridge  bulk exc')+'<text x="34" y="200" font-size="9" fill="#5A5F66">TO</text><line x1="70" y1="204" x2="326" y2="204" stroke="#B9BDC3" stroke-width=".6"/>'+hand(78,201,'Riverstone tip')+'<text x="34" y="236" font-size="9" fill="#5A5F66">MATERIAL</text><line x1="90" y1="240" x2="326" y2="240" stroke="#B9BDC3" stroke-width=".6"/>'+hand(98,237,'ENM spoil')+'<text x="34" y="272" font-size="9" fill="#5A5F66">LOADS</text><line x1="70" y1="276" x2="120" y2="276" stroke="#B9BDC3" stroke-width=".6"/>'+hand(84,273,'1')+'<text x="150" y="272" font-size="9" fill="#5A5F66">QTY</text><line x1="176" y1="276" x2="260" y2="276" stroke="#B9BDC3" stroke-width=".6"/>'+hand(184,274,'12 m³',19)+'<text x="270" y="272" font-size="9" fill="#5A5F66">LOOSE</text><rect x="304" y="262" width="12" height="12" fill="none" stroke="#5A5F66" stroke-width=".8"/>'+hand(305,273,'✓',13)+'<text x="34" y="320" font-size="9" fill="#5A5F66">DRIVER</text><path d="M40 348 c8 -18 12 -4 18 -6 s10 -14 16 -4 8 8 16 -4 6 -12 14 -4 10 2 14 -2 14 -10 22 -2" fill="none" stroke="#1E2A78" stroke-width="1.8" stroke-linecap="round"/><line x1="34" y1="354" x2="180" y2="354" stroke="#1A1C20" stroke-width=".6"/><text x="200" y="320" font-size="9" fill="#5A5F66">SITE SUPERVISOR</text><line x1="200" y1="354" x2="326" y2="354" stroke="#1A1C20" stroke-width=".6"/><text x="34" y="392" font-size="7" fill="#8A8F96">Classification per EPA waste classification guidelines. Loose volume unless stated. Tip fees on account.</text><rect x="20" y="380" width="120" height="70" fill="#000" opacity=".05"/>',true);
+
+var FIELDS=[['supplier','Supplier'],['docket','Docket number'],['date','Date'],['material','Material'],['quantity','Quantity'],['unit','Unit'],['truck','Truck or rego'],['deliveredTo','Delivered to'],['signedBy','Received by']];
+var MATERIALS=['Select fill','DGB20 road base','N32 concrete','Spoil out (ENM)','GP sand','Topsoil'];
+var EXAMPLES=[
+  {id:'ex1',title:'Concrete delivery',sub:'Printed, one field to check',kind:'Concrete delivery docket',svg:DOCKET_1,po:'',
+   fields:{supplier:['Westline Concrete Pty Ltd','clear'],docket:['48213','clear'],date:['2026-09-09','clear'],material:['N32 concrete','clear'],quantity:['7.0','clear'],unit:['m³','clear'],truck:['WC-14','clear'],deliveredTo:['Kellyville Ridge, basement slab, pour 3','clear'],signedBy:['J. Ma…','check']},
+   flags:[['check','Printed name is faded after "J. Ma". Confirm who received the load.'],['check','No purchase order number on the docket. The office matches it to the concrete order by hand the first time.']]},
+  {id:'ex2',title:'Quarry weighbridge',sub:'Every field reads ok, PO printed',kind:'Weighbridge docket',svg:DOCKET_2,po:'PO-4471',
+   fields:{supplier:['Kurrajong Quarries','clear'],docket:['2026-091553','clear'],date:['2026-09-09','clear'],material:['DGB20 road base','clear'],quantity:['24.86','clear'],unit:['t','clear'],truck:['XQ 07 RT','clear'],deliveredTo:['Kellyville Ridge, haul road','clear'],signedBy:['R. Tan','clear']},
+   flags:[['check','Net weight used, not gross. Order PO-4471 is printed on the docket and matches the purchase order for this site.']]},
+  {id:'ex3',title:'Spoil out, tipping',sub:'Handwritten, quantity needs a look',kind:'Tipping docket',svg:DOCKET_3,po:'',
+   fields:{supplier:['Mullins Haulage','clear'],docket:['0917','clear'],date:['2026-09-08','check'],material:['Spoil out (ENM)','clear'],quantity:['12','check'],unit:['m³','check'],truck:['MH 22','clear'],deliveredTo:['Riverstone tip, from Kellyville Ridge bulk excavation','clear'],signedBy:['','unreadable']},
+   flags:[['crit','Quantity is handwritten. Read as 12, could be 17. Check the paper before this row counts.'],['check','Loose box is ticked. 12 m³ loose is not 12 m³ in the ground. The ledger tracks bank volume, so apply the bulking factor.'],['check','Date is handwritten as 8/9/26. Read as 8 September 2026.'],['crit','Site supervisor signature is blank. Nobody on your side has signed for this load.']]}
+];
+
+/* ---------- ledger data (invented) ---------- */
+function freshLedger(){return {
+  kellyville:{name:'Kellyville Ridge bulk earthworks',client:'Harrowgate Constructions',platform:'their own portal',claim:6,
+    rows:[
+      {m:'Select fill, supply and place',u:'m³',ord:12000,del:8640,inv:8200,cl:4740,rate:42,keys:['select fill'],tpm3:1.8},
+      {m:'DGB20 road base',u:'t',ord:2400,del:1116,inv:1116,cl:476,rate:46.5,keys:['dgb20','road base'],tpm3:2.1},
+      {m:'N32 concrete',u:'m³',ord:120,del:84,inv:84,cl:70,rate:285,keys:['n32','concrete'],tpm3:2.4},
+      {m:'Spoil out (ENM), cartage',u:'m³',ord:900,del:388,inv:388,cl:300,rate:18.5,keys:['spoil','enm'],tpm3:1.6},
+      {m:'GP sand',u:'t',ord:1200,del:480,inv:480,cl:100,rate:29,keys:['sand'],tpm3:1.5},
+      {m:'Topsoil',u:'m³',ord:900,del:0,inv:0,cl:0,rate:35,keys:['topsoil'],tpm3:1.3}
+    ],
+    extra:[{m:'Dewatering, day rate',qty:4,u:'days',rate:1955}],
+    dockets:[
+      {date:'2026-09-08',docket:'88212',supplier:'Kellyville Quarries',material:'Select fill',qty:31.40,unit:'t',note:'17.44 m³ at 1.8 t/m³',how:'rule'},
+      {date:'2026-09-08',docket:'88211',supplier:'Kellyville Quarries',material:'Select fill',qty:31.88,unit:'t',note:'17.71 m³ at 1.8 t/m³',how:'rule'},
+      {date:'2026-09-08',docket:'HH-30976',supplier:'Hume Haulage',material:'Cartage, select fill',qty:11,unit:'loads',note:'from their docket app',how:'tick'},
+      {date:'2026-09-07',docket:'2026-091540',supplier:'Kurrajong Quarries',material:'DGB20 road base',qty:24.62,unit:'t',note:'',how:'rule'},
+      {date:'2026-09-07',docket:'48198',supplier:'Westline Concrete Pty Ltd',material:'N32 concrete',qty:7,unit:'m³',note:'pour 2',how:'rule'},
+      {date:'2026-09-06',docket:'0916',supplier:'Mullins Haulage',material:'Spoil out (ENM)',qty:12,unit:'m³',note:'loose, bulking applied',how:'tick'},
+      {date:'2026-09-05',docket:'Brought forward, 1,140 dockets',supplier:'',material:'',qty:null,unit:'',note:'',how:'bf'}
+    ]},
+  boxhill:{name:'Box Hill detention basin',client:'Stoneleigh Developments',platform:'HammerTech',claim:9,
+    rows:[
+      {m:'N20 concrete, 20 mm',u:'m³',ord:640,del:610,inv:630,cl:400,rate:285,keys:['n20'],tpm3:2.4},
+      {m:'N32 concrete, kerb',u:'m³',ord:160,del:120,inv:120,cl:60,rate:310,keys:['kerb'],tpm3:2.4},
+      {m:'Select fill, supply and place',u:'m³',ord:2100,del:2100,inv:2100,cl:1700,rate:42,keys:['select fill'],tpm3:1.8},
+      {m:'Geofabric',u:'m²',ord:4000,del:3400,inv:3400,cl:2200,rate:6.5,keys:['geofabric'],tpm3:1}
+    ],
+    extra:[{m:'20 t excavator, hours',qty:100,u:'h',rate:398.5}],
+    dockets:[
+      {date:'2026-09-09',docket:'C-20990',supplier:'Westgate Concrete',material:'N20 concrete',qty:6,unit:'m³',note:'',how:'rule'},
+      {date:'2026-09-08',docket:'C-20984',supplier:'Westgate Concrete',material:'N20 concrete',qty:6,unit:'m³',note:'',how:'rule'},
+      {date:'2026-09-05',docket:'Brought forward, 410 dockets',supplier:'',material:'',qty:null,unit:'',how:'bf'}
+    ]}
+}}
+var statics={
+  marsden:{name:'Marsden Park roads, stage 3',client:'Meridian Build Group',platform:'Procore',mat:'DGB20 road base',u:'t',del:3120,ord:4500,claim:'Claim 4 lodged 2 Sep',val:0},
+  schofields:{name:'Schofields drainage package',client:'Harrowgate Constructions',platform:'their own portal',mat:'GP sand',u:'t',del:480,ord:1200,claim:'Claim 2 draft',val:63000}
+};
+var hidden={kellyville:0,marsden:0,boxhill:3,schofields:0};
+
+/* ---------- review queue seed (invented) ---------- */
+function linesSvg(d){
+  var lines=d.lines,h=64+lines.length*22+18,y=84;
+  var rows=lines.map(function(l){var s='<text x="16" y="'+y+'" font-size="10.5" fill="#5A5F66">'+esc(l[0])+'</text><text x="92" y="'+y+'" font-size="11.5" font-weight="600" fill="#1A1C20">'+esc(l[1])+'</text>';y+=22;return s}).join('');
+  return '<svg viewBox="0 0 232 '+h+'" role="img" aria-label="'+esc(d.title+', '+d.sub)+'" font-family="Archivo, Arial, sans-serif"><rect x="0" y="0" width="232" height="'+h+'" fill="#FFFFFF"/><rect x="0" y="0" width="232" height="44" fill="#F4F2EE"/><text x="16" y="20" font-size="12" font-weight="700" fill="#1A1C20">'+esc(d.title)+'</text><text x="16" y="35" font-size="10" fill="#5A5F66">'+esc(d.sub)+'</text><line x1="0" y1="60" x2="232" y2="60" stroke="#E7E4DF"/>'+rows+'</svg>';
+}
+function seedQueue(){return [
+  {id:'q1',docId:'doc-c20991',docDone:'Ticked by you, just now',docFed:'N20 concrete, 6.0 m³, signature chased',type:'Delivery docket',from:'Westgate Concrete',ref:'Docket C-20991',proj:'boxhill',projName:'Box Hill basin',state:'unreadable',stateText:'2 fields unreadable',
+    docHtml:linesSvg({title:'Westgate Concrete',sub:'Delivery docket C-20991',lines:[['Date','09/09/2026'],['Mix','N20, 20 mm, slump 100'],['Quantity','6.0 m³'],['Batched','06:42'],['On site','(smudged)'],['Received by','(signature)'],['Site','Box Hill detention basin']]}),cap:'Photo from the site, 9 Sep 07:15, low light',
+    fields:[['Supplier','Westgate Concrete','clear'],['Docket number','C-20991','clear'],['Date','9 Sep 2026','clear'],['Product','N20 concrete, 20 mm, slump 100','clear'],['Quantity','6.0 m³','clear'],['Time batched','06:42','clear'],['Time on site','','unreadable'],['Received by','','unreadable'],['Project','Box Hill detention basin','clear']],
+    flags:[['crit','Time on site and the signature cannot be read from this photo. The quantity is clear, so the 6.0 m³ can be added now and the signature chased, or the docket sent back for a better photo.']],
+    qty:{field:4,unit:'m³',fallback:6},row:{proj:'boxhill',key:'n20'},
+    approve:function(v){return 'Add '+num(v,1)+' m³, chase the signature'},done:function(v){return 'Docket C-20991 added, '+num(v,1)+' m³. Site asked to photograph the signature block again.'},
+    docketRow:function(v){return {date:'2026-09-09',docket:'C-20991',supplier:'Westgate Concrete',material:'N20 concrete',qty:v,unit:'m³',note:'signature chased',how:'tick'}}},
+  {id:'q2',docId:'doc-inv4471',docDone:'Approved 24 loads, 2 held',docFed:'24 loads to ApprovalMax with dockets attached',type:'Supplier invoice',from:'Kellyville Quarries',ref:'INV-4471',proj:'kellyville',projName:'Kellyville Ridge',state:'hold',stateText:'2 loads have no docket',
+    docHtml:linesSvg({title:'Kellyville Quarries',sub:'Tax invoice INV-4471',lines:[['Period','1 to 7 Sep 2026'],['Site','Kellyville Ridge'],['Loads','26'],['Net tonnes','812.4 t'],['Rate','$22.50 per t'],['Subtotal','$18,279.00'],['GST','$1,827.90'],['Total','$20,106.90']]}),cap:'Emailed to the project inbox, 8 Sep 16:02',
+    fields:[['Supplier','Kellyville Quarries','clear'],['Invoice number','INV-4471','clear'],['Period','1 to 7 Sep 2026','clear'],['Loads billed','26','clear'],['Dockets on file','24','check'],['Tonnes billed','812.4 t','clear'],['Tonnes on dockets','748.9 t','check'],['Rate','$22.50 per tonne, matches the purchase order','clear'],['Total ex GST','$18,279.00','clear']],
+    flags:[['crit','Two loads on the invoice, dockets 88190 and 88191, have no docket on file. That is 63.5 t, or $1,428.75, billed without paper.'],['check','The 24 matched loads can go to ApprovalMax now with their dockets attached. The two unmatched loads stay held until the site finds the paper.']],
+    approve:function(){return 'Approve 24 matched loads, hold 2'},done:function(){return '24 loads sent to ApprovalMax with dockets attached. Two loads held, site asked for the paper.'}},
+  {id:'q3',docId:'doc-si31',docDone:'Logged, V-08 raised',docFed:'Variation V-08, quantity set by dockets',type:'Site instruction',from:'Meridian Build Group',ref:'SI-31, by email',proj:'marsden',projName:'Marsden Park roads',state:'check',stateText:'Quantity is approximate',
+    docHtml:linesSvg({title:'Email',sub:'From: site engineer, Meridian Build Group',lines:[['Received','09/09/2026 07:12'],['Subject','SI-31 extra road base'],['','Ch 1200 to 1350'],['Body','Please supply and place'],['','approx 400 t DGB20 between'],['','Ch 1200 and 1350, to be'],['','measured on completion.'],['Attached','SI-31.pdf']]}),cap:'Forwarded to the project inbox by the foreman',
+    fields:[['From','Site engineer, Meridian Build Group','clear'],['Received','9 Sep 2026, 07:12','clear'],['Instruction number','SI-31','clear'],['Material','DGB20 road base','clear'],['Quantity','400 t, stated as approximate','check'],['Location','Chainage 1200 to 1350','clear'],['Suggested action','Raise variation V-08 against the instruction','neutral']],
+    flags:[['check','The email says "approx 400 t". Log the instruction now, raise V-08, and let the dockets set the final tonnage. The variation is claimable only against measured quantities.']],
+    approve:function(){return 'Log SI-31 and raise V-08'},done:function(){return 'SI-31 logged against Marsden Park. Variation V-08 opened, quantity to be set by dockets.'}},
+  {id:'q4',docId:'doc-hh30977',docDone:'Ticked by you, paired with 88202 to 88213',docFed:'Cartage, 12 loads, 9.5 h to ApprovalMax',type:'Digital docket',from:'Hume Haulage',ref:'HH-30977, from their app',proj:'kellyville',projName:'Kellyville Ridge',state:'check',stateText:'Loads against tonnes',
+    docHtml:linesSvg({title:'Hume Haulage',sub:'Digital docket HH-30977',lines:[['Date','08/09/2026'],['Truck','XR 44 PQ, truck and dog'],['From','Kellyville Quarries pit'],['To','Kellyville Ridge, gate 2'],['Material','Select fill'],['Loads','12'],['Hours','9.5'],['Signed','driver, in app, 16:10']]}),cap:'Arrived as data from the haulier’s Kynection app. Nothing to read.',
+    fields:[['Source','Hume Haulage, Kynection docket feed, received as data','neutral'],['Docket number','HH-30977','clear'],['Date','8 Sep 2026','clear'],['Truck','XR 44 PQ, truck and dog','clear'],['Cartage','Kellyville Quarries pit to Kellyville Ridge','clear'],['Loads','12','clear'],['Hours','9.5','clear'],['Rate','$148 per hour cartage, matches the purchase order','clear'],['Weighbridge dockets','12 of 12 found, 88202 to 88213, by rego and time','check']],
+    flags:[['check','Cartage is billed by the hour, material by the tonne. The rule cannot pair loads with tonnes on its own, so a person confirms once that these 12 loads are weighbridge dockets 88202 to 88213. After that the pairing runs by itself for this haulier.']],
+    approve:function(){return 'Match 12 loads to 12 dockets'},done:function(){return 'HH-30977 matched to dockets 88202 to 88213. 9.5 cartage hours ready for ApprovalMax.'},
+    docketRow:function(){return {date:'2026-09-08',docket:'HH-30977',supplier:'Hume Haulage',material:'Cartage, select fill',qty:12,unit:'loads',note:'paired with 88202 to 88213',how:'tick'}}}
+];}
+
+/* ---------- later modules data ---------- */
+var B={
+  a:{name:'Harrowgate Constructions',platform:'their own portal, CSV upload',rows:[['Document title','doc_title','auto',''],['High risk construction work','hrcw_code','check','Their codes are numbered 1 to 18. Ours are named. Map once, remembered after that.'],['PCBU and ABN','abn','auto',''],['Site supervisor','supervisor_name','auto',''],['Plant and equipment','plant_items, one per line','auto',''],['Hazards and controls','controls, plus hierarchy_level','check','They want the control hierarchy as its own column. Ours is inside the text.'],['Sign-on register','separate PDF upload','missing','Their portal takes the sign-on sheet as a second file.'],['Review date','review_date, dd/mm/yyyy','auto',''],['Emergency contacts','not accepted','missing','Not a field in their portal. Stays in our copy.']]},
+  b:{name:'Meridian Build Group',platform:'Procore',rows:[['Document title','Title','auto',''],['High risk construction work','Trade, from their picklist','check','Their picklist is by trade, not by risk category. Pick once.'],['PCBU and ABN','Company','auto','Pulled from their vendor record.'],['Site supervisor','Responsible person','auto',''],['Plant and equipment','Equipment','auto',''],['Hazards and controls','Hazard analysis table','auto','Same columns as ours.'],['Sign-on register','Attachment','auto','Uploaded alongside as a PDF.'],['Review date','Expiry','auto',''],['Emergency contacts','Attachment','auto','']]},
+  c:{name:'Stoneleigh Developments',platform:'HammerTech',rows:[['Document title','Activity','auto',''],['High risk construction work','HRCW','auto','Same list as the WHS Regulation.'],['PCBU and ABN','Subcontractor','auto',''],['Site supervisor','Supervisor','auto',''],['Plant and equipment','Plant','auto',''],['Hazards and controls','Hazard, risk, control, residual risk','check','Their residual risk is a 1 to 25 score. Ours is low, medium, high. Pick the conversion once.'],['Sign-on register','not needed','auto','Workers sign the SWMS in their app.'],['Review date','Expiry','auto',''],['Emergency contacts','Site emergency plan','missing','Held at their site level, not per SWMS.']]}
+};
+var W=[
+  {what:'BASIX certificate',from:'BASIX consultant',who:'Priya',job:'Lot 214 The Gables',jobno:'26-0412',kpi:7,day:9,asked:'1 September'},
+  {what:'Structural engineering',from:'Engineer',who:'Sam',job:'Lot 214 The Gables',jobno:'26-0412',kpi:7,day:4,asked:'6 September'},
+  {what:'Survey and soils',from:'Surveyor',who:'Dean',job:'Lot 88 Box Hill',jobno:'26-0388',kpi:14,day:15,asked:'26 August'},
+  {what:'Sydney Water approval',from:'Sydney Water',who:'the case officer',job:'Lot 214 The Gables',jobno:'26-0412',kpi:10,day:10,asked:'31 August'},
+  {what:'Construction certificate',from:'Private certifier',who:'Mel',job:'Lot 31 Thornton',jobno:'26-0431',kpi:5,day:2,asked:'8 September'},
+  {what:'Colour selections',from:'Client',who:'the client',job:'Lot 88 Box Hill',jobno:'26-0388',kpi:14,day:21,asked:'20 August'}
+];
+
+/* ---------- state ---------- */
+var L=freshLedger(),Q=seedQueue(),sel=Q[0].id,reading=null,lastDocket=null,sampleFn=null,samplePhotos=false,downloadsFn=null,abort=null,sentCount=0;
+
+/* ---------- helpers ---------- */
+function findRow(proj,material){
+  var m=String(material||'').toLowerCase();var rows=L[proj].rows;
+  for(var i=0;i<rows.length;i++){for(var k=0;k<rows[i].keys.length;k++){if(m.indexOf(rows[i].keys[k])>=0)return rows[i]}}
+  return null;
+}
+function toRowUnits(row,qty,unit){
+  if(!row)return {q:qty,note:''};
+  if(unit===row.u||!unit||unit==='loads'||unit==='each')return {q:qty,note:''};
+  if(unit==='t'&&row.u==='m³')return {q:qty/row.tpm3,note:num(qty/row.tpm3,2)+' m³ at '+row.tpm3+' t/m³'};
+  if(unit==='m³'&&row.u==='t')return {q:qty*row.tpm3,note:num(qty*row.tpm3,2)+' t at '+row.tpm3+' t/m³'};
+  return {q:qty,note:''};
+}
+function claimLines(key){var p=L[key],lines=[];p.rows.forEach(function(r){var q=r.del-r.cl;if(q>0)lines.push({m:r.m,q:q,u:r.u,rate:r.rate,amt:q*r.rate})});p.extra.forEach(function(e){lines.push({m:e.m,q:e.qty,u:e.u,rate:e.rate,amt:e.qty*e.rate})});return lines}
+function claimTotal(key){return claimLines(key).reduce(function(s,l){return s+l.amt},0)}
+function needs(key){return Q.filter(function(i){return i.proj===key}).length+(hidden[key]||0)}
+function pct(a,b){return Math.max(0,Math.min(100,Math.round(a/b*100)))}
+function chipClass(s){return s==='clear'?'clear':s==='check'?'check':s==='unreadable'||s==='hold'?s:'neutral'}
+function chipText(s){return s==='clear'?'Read ok':s==='check'?'Check':s==='unreadable'?'Unreadable':s==='hold'?'Hold':'Derived'}
+function howChip(h){return h==='rule'?'<span class="chip clear">By rule</span>':h==='tick'?'<span class="chip check">Ticked</span>':'<span class="chip neutral">Brought forward</span>'}
+
+/* ---------- step 1: site ---------- */
+function renderExamples(){
+  $('examples').innerHTML=EXAMPLES.map(function(e){return '<button class="thumb" data-ex="'+e.id+'" aria-pressed="false">'+e.svg+'<span class="cap">'+esc(e.title)+'<small>'+esc(e.sub)+'</small></span></button>'}).join('');
+  $$('.thumb',$('examples')).forEach(function(b){b.addEventListener('click',function(){openExample(b.getAttribute('data-ex'))})});
+}
+function setPressed(id){$$('.thumb',$('examples')).forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-ex')===id?'true':'false')})}
+function status(text,opts){
+  opts=opts||{};var el=$('status');el.className='status'+(opts.kind?' '+opts.kind:'');
+  if(!text){el.removeAttribute('data-on');el.removeAttribute('data-busy');$('stop').hidden=true;return}
+  el.setAttribute('data-on','');if(opts.busy)el.setAttribute('data-busy','');else el.removeAttribute('data-busy');
+  $('status-text').textContent=text;$('stop').hidden=!opts.stoppable;
+}
+function openExample(id){
+  var e=EXAMPLES.filter(function(x){return x.id===id})[0];if(!e)return;
+  setPressed(id);status('Reading docket…',{busy:true});
+  setTimeout(function(){status('');var f={};for(var k in e.fields){f[k]={value:e.fields[k][0],confidence:e.fields[k][1]}}
+    showReading({source:'example',label:'Example reading',kind:e.kind,image:e.svg,fields:f,flags:e.flags.map(function(x){return {level:x[0],text:x[1]}}),po:e.po})},500);
+}
+function readerValues(){var v={};$$('[data-k]',$('fields')).forEach(function(el){v[el.getAttribute('data-k')]=el.value.trim()});return v}
+function ruleCheck(){
+  if(!reading)return {pass:false,why:''};
+  var v=readerValues();
+  var notClear=FIELDS.filter(function(f){return (reading.fields[f[0]]||{}).confidence!=='clear'}).length;
+  var row=findRow('kellyville',v.material);
+  if(notClear)return {pass:false,why:notClear+(notClear===1?' field needs':' fields need')+' a look, so it goes to the office.'};
+  if(!row)return {pass:false,why:'The material is not on the purchase order, so it goes to the office.'};
+  if(!reading.po)return {pass:false,why:'No purchase order number on the docket, so it goes to the office.'};
+  return {pass:true,why:'Every field reads ok and '+reading.po+' matches the purchase order. This one goes straight to the ledger.'};
+}
+function showReading(r){
+  reading=r;
+  $('read-source').textContent=r.label;
+  $('docket-view').innerHTML=(r.image.indexOf('data:')===0?'<img src="'+r.image+'" alt="Your docket photo">':r.image);
+  $('fields').innerHTML=FIELDS.map(function(pair){
+    var k=pair[0],label=pair[1],f=r.fields[k]||{value:'',confidence:'unreadable'};
+    var conf=['clear','check','unreadable'].indexOf(f.confidence)>=0?f.confidence:'check';
+    var id='s-'+k,input;
+    if(k==='unit')input='<select id="'+id+'" data-k="unit">'+['m³','t','loads','L','each',''].map(function(u){return '<option value="'+u+'" '+(u===(f.value||'')?'selected':'')+'>'+(u||'(none)')+'</option>'}).join('')+'</select>';
+    else if(k==='material')input='<input id="'+id+'" data-k="material" list="mats" value="'+esc(f.value)+'"><datalist id="mats">'+MATERIALS.map(function(m){return '<option value="'+esc(m)+'">'}).join('')+'</datalist>';
+    else if(k==='date')input='<input id="'+id+'" data-k="date" type="date" value="'+esc(f.value)+'">';
+    else if(k==='quantity')input='<input id="'+id+'" data-k="quantity" type="number" step="0.01" inputmode="decimal" value="'+esc(f.value)+'">';
+    else input='<input id="'+id+'" data-k="'+k+'" value="'+esc(f.value)+'" '+(f.value===''?'placeholder="left blank on purpose"':'')+'>';
+    return '<div class="field"><label for="'+id+'">'+label+'</label>'+input+'<span class="chip '+conf+'">'+chipText(conf)+'</span></div>';
+  }).join('');
+  $('flags').innerHTML=(r.flags||[]).map(function(f){return '<li class="'+(f.level==='crit'?'crit':'')+'">'+esc(f.text)+'</li>'}).join('');
+  var rc=ruleCheck();$('rule-hint').textContent=rc.why;
+  $('wa').removeAttribute('data-on');$('wa-btn').textContent='Show it as WhatsApp';
+  $('reader').setAttribute('data-on','');
+  $('reader').scrollIntoView({behavior:smooth(),block:'start'});
+}
+$('send').addEventListener('click',function(){
+  if(!reading)return;
+  var v=readerValues(),qty=parseFloat(v.quantity);
+  if(!v.material||!isFinite(qty)||qty<=0){status('A material and a quantity above zero are needed before it can be sent.',{kind:'warn'});setTimeout(function(){status('')},3500);return}
+  var rc=ruleCheck(),row=findRow('kellyville',v.material);
+  sentCount++;
+  if(rc.pass){
+    var conv=toRowUnits(row,qty,v.unit);row.del+=conv.q;
+    L.kellyville.dockets.unshift({date:v.date||'',docket:v.docket||'',supplier:v.supplier||'',material:v.material,qty:qty,unit:v.unit,note:conv.note,how:'rule',fresh:true});
+    lastDocket=v.docket;
+    DOCS.unshift(docFromReading(v,'By rule',row.m.split(',')[0]+', '+num(conv.q,2)+' '+row.u));renderDocs();
+    toast('Matched by rule. '+num(conv.q,2)+' '+row.u+' of '+row.m.split(',')[0].toLowerCase()+' is in the ledger. Nobody typed it.');
+    closeReader();renderLedger();renderBoard();
+    showTab($('tab-ledger'),false);
+  }else{
+    var item=queueFromReading(reading,v,qty,row);
+    Q.unshift(item);sel=item.id;
+    var nd=docFromReading(v,'Waiting',(row?row.m.split(',')[0]:v.material)+', '+num(qty,2)+' '+(v.unit||''));item.docId=nd.id;DOCS.unshift(nd);renderDocs();
+    toast('Sent to the office. '+rc.why);
+    closeReader();renderQueue();renderBoard();
+    showTab($('tab-queue'),false);
+  }
+});
+$('discard').addEventListener('click',closeReader);
+function closeReader(){$('reader').removeAttribute('data-on');reading=null;setPressed(null);$('wa').removeAttribute('data-on');$('wa-btn').textContent='Show it as WhatsApp'}
+function queueFromReading(r,v,qty,row){
+  var fields=FIELDS.map(function(pair){var k=pair[0];var f=r.fields[k]||{};var conf=['clear','check','unreadable'].indexOf(f.confidence)>=0?f.confidence:'check';return [pair[1],v[k]||'',conf]});
+  var bad=fields.filter(function(f){return f[2]!=='clear'}).length;
+  var unit=v.unit||'';
+  return {id:'s'+sentCount,type:r.kind||'Docket',from:v.supplier||'Unknown supplier',ref:'Docket '+(v.docket||'?')+', from the site',proj:'kellyville',projName:'Kellyville Ridge',
+    state:fields.some(function(f){return f[2]==='unreadable'})?'unreadable':'check',stateText:bad?bad+(bad===1?' field to check':' fields to check'):'No purchase order on it',
+    docHtml:(r.image.indexOf('data:')===0?'<img src="'+r.image+'" alt="Docket photo">':r.image),cap:r.source==='photo'?'Your photo, read by AI':'Sent from the site just now',
+    fields:fields,flags:(r.flags||[]).map(function(f){return [f.level,f.text]}),
+    qty:{field:4,unit:unit,fallback:qty},rowRef:row,
+    approve:function(q){var c=toRowUnits(row,q,unit);return row?'Add '+num(c.q,2)+' '+row.u+' to the ledger':'Log it without a ledger line'},
+    done:function(q){var c=toRowUnits(row,q,unit);return row?'Docket '+(v.docket||'')+' added. '+row.m.split(',')[0]+' is up '+num(c.q,2)+' '+row.u+'.':'Docket logged. No purchase order line to add it to.'},
+    docketRow:function(q){var c=toRowUnits(row,q,unit);return {date:v.date||'',docket:v.docket||'',supplier:v.supplier||'',material:v.material,qty:q,unit:unit,note:c.note,how:'tick'}}};
+}
+
+/* ---------- step 2: review queue ---------- */
+function renderQueue(){
+  var list=$('qlist');
+  var qn=Q.length+3;$('t-queue').textContent=qn;$('qcount').textContent=qn;
+  if(!Q.length){list.innerHTML='';$('qdetail').innerHTML='<div class="empty">Nothing left to check here. Three more items from a site not in this demo are still waiting.</div>';return}
+  if(!Q.some(function(i){return i.id===sel}))sel=Q[0].id;
+  list.innerHTML=Q.map(function(i){return '<button class="qitem" aria-pressed="'+(i.id===sel)+'" data-id="'+i.id+'"><b>'+esc(i.type)+'</b><span>'+esc(i.from)+', '+esc(i.ref)+'</span><span>'+esc(i.projName)+'</span><span class="chip '+chipClass(i.state)+'">'+esc(i.stateText)+'</span></button>'}).join('')+'<div class="qmore">Showing '+Q.length+' of '+qn+'. Three more are from a site not in this demo.</div>';
+  var it=Q.filter(function(i){return i.id===sel})[0];
+  var fields=it.fields.map(function(f,ix){var id='f-'+it.id+'-'+ix;return '<div class="field"><label for="'+id+'">'+esc(f[0])+'</label><input id="'+id+'" value="'+esc(f[1])+'" '+(f[1]===''?'placeholder="left blank on purpose"':'')+'><span class="chip '+chipClass(f[2])+'">'+chipText(f[2])+'</span></div>'}).join('');
+  var flags=it.flags.map(function(f){return '<li class="'+(f[0]==='crit'?'crit':'')+'">'+esc(f[1])+'</li>'}).join('');
+  function qtyNow(){if(!it.qty)return 0;var raw=parseFloat(String($('f-'+it.id+'-'+it.qty.field).value).replace(/[^0-9.\-]/g,''));return isFinite(raw)?raw:0}
+  function refreshApprove(){var q=qtyNow(),ok=!it.qty||q>0;$('approve').textContent=ok?it.approve(q):'Quantity must be above zero';$('approve').disabled=!(ok&&$('tick').checked)}
+  $('qdetail').innerHTML='<div class="detail"><div class="doc">'+it.docHtml+'<div class="cap">'+esc(it.cap)+'</div></div><div><div class="fields">'+fields+'</div><ul class="flags">'+flags+'</ul></div></div>'+
+    '<div class="actions"><label class="tick"><input type="checkbox" id="tick"> Checked against the paper</label><button class="btn" id="approve" disabled></button><button class="btn secondary" id="back">Send back to site</button></div>';
+  refreshApprove();
+  if(it.qty){$('f-'+it.id+'-'+it.qty.field).addEventListener('input',refreshApprove)}
+  $('tick').addEventListener('change',refreshApprove);
+  $('approve').addEventListener('click',function(){
+    var q=qtyNow();if(it.qty&&!(q>0))return;
+    var row=it.rowRef||(it.row?L[it.row.proj].rows.filter(function(r){return r.keys.indexOf(it.row.key)>=0})[0]:null);
+    if(row&&it.qty){var c=toRowUnits(row,q,it.qty.unit);row.del+=c.q}
+    if(it.docketRow){var d=it.docketRow(q);d.fresh=true;L[it.proj].dockets.unshift(d)}
+    if(it.docId){var dd=docById(it.docId);if(dd){dd.status=it.docDone||'Ticked by you, just now';dd.fed=it.docFed||dd.fed;dd.fresh=true}}
+    renderDocs();
+    Q=Q.filter(function(i){return i.id!==it.id});
+    toast(it.done(q));renderQueue();renderBoard();renderLedger();$('claim').removeAttribute('data-on');
+  });
+  $('back').addEventListener('click',function(){Q=Q.filter(function(i){return i.id!==it.id});if(it.docId){var db=docById(it.docId);if(db)db.status='Sent back to site'}renderDocs();toast(it.ref+' sent back to site with a note asking for a clearer photo.');renderQueue();renderBoard()});
+  $$('.qitem',list).forEach(function(b){b.addEventListener('click',function(){sel=b.getAttribute('data-id');renderQueue()})});
+}
+
+/* ---------- step 3: ledger and claim ---------- */
+function gapChip(r){
+  if(r.inv>r.del)return '<span class="chip hold wrap">Invoiced '+num(r.inv-r.del)+' '+esc(r.u)+' more than delivered. Hold the invoice.</span>';
+  if(r.del===0)return '<span class="chip neutral">Not started</span>';
+  var q=r.del-r.cl;
+  if(q>0)return '<span class="chip clear wrap">'+num(q)+' '+esc(r.u)+' verified, not yet claimed</span>';
+  return '<span class="chip neutral">Fully claimed</span>';
+}
+function renderLedger(){
+  var key=$('proj').value,p=L[key];
+  $('proj-meta').textContent=p.client+', '+p.platform+'. Purchase order rates loaded once.';
+  $('lg').querySelector('tbody').innerHTML=p.rows.map(function(r){return '<tr><td>'+esc(r.m)+'</td><td>'+esc(r.u)+'</td><td class="num">'+num(r.ord)+'</td><td class="num">'+num(r.del)+'</td><td class="num">'+num(r.inv)+'</td><td class="num">'+num(r.cl)+'</td><td>'+gapChip(r)+'</td></tr>'}).join('');
+  $('dk').querySelector('tbody').innerHTML=p.dockets.map(function(d){
+    if(d.how==='bf')return '<tr class="bf"><td>'+esc(fmtDate(d.date))+'</td><td colspan="4">'+esc(d.docket)+'</td><td>'+howChip('bf')+'</td></tr>';
+    return '<tr class="'+(d.fresh?'new':'')+'"><td>'+esc(fmtDate(d.date))+'</td><td>'+esc(d.docket)+'</td><td>'+esc(d.supplier)+'</td><td>'+esc(d.material)+(d.note?'<span class="sub">'+esc(d.note)+'</span>':'')+'</td><td class="num">'+num(d.qty,2)+' '+esc(d.unit)+'</td><td>'+howChip(d.how)+'</td></tr>';
+  }).join('');
+  if($('claim').hasAttribute('data-on'))renderClaim();
+  hints();
+}
+function renderClaim(){
+  var key=$('proj').value,p=L[key],lines=claimLines(key),tot=claimTotal(key);
+  $('claim').innerHTML='<h3>Progress claim '+p.claim+', '+esc(p.name)+'</h3><p class="small muted">To '+esc(p.client)+'. Period to 9 September 2026. Quantities are matched and ticked dockets less what has already been claimed. Rates from the contract schedule. Drafted the day the period closed; on paper the office typed every docket first.</p>'+
+    '<div class="lines"><table><thead><tr><th>Item</th><th class="num">Qty</th><th>Unit</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead><tbody>'+lines.map(function(l){return '<tr><td>'+esc(l.m)+'</td><td class="num">'+num(l.q,2)+'</td><td>'+esc(l.u)+'</td><td class="num">'+money(l.rate)+'</td><td class="num">'+money(l.amt)+'</td></tr>'}).join('')+'</tbody><tfoot><tr><td colspan="4">Total ex GST</td><td class="num">'+money(tot)+'</td></tr></tfoot></table></div><div class="actions"><button class="btn secondary" id="bview" type="button">Preview the builder\u2019s link</button><span class="small muted">What the builder\u2019s project manager opens, with no login.</span></div>';
+  $('claim').setAttribute('data-on','');
+  $('bpage').removeAttribute('data-on');
+  $('bview').addEventListener('click',renderBuilderPage);
+}
+var csvCell=function(v){var s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+function docketCsv(){
+  var key=$('proj').value,p=L[key];
+  var head=['Date','Docket','Supplier','Material','Quantity','Unit','Note','How it got in','Project'];
+  var lines=p.dockets.filter(function(d){return d.how!=='bf'}).map(function(d){return [d.date,d.docket,d.supplier,d.material,d.qty,d.unit,d.note||'',d.how==='rule'?'By rule':'Ticked',p.name]});
+  return [head].concat(lines).map(function(l){return l.map(csvCell).join(',')}).join('\r\n');
+}
+function xeroCsv(){
+  var key=$('proj').value,p=L[key];
+  var head=['*ContactName','*InvoiceNumber','*InvoiceDate','*DueDate','Description','*Quantity','*UnitAmount','*AccountCode','TaxType','TrackingName1','TrackingOption1'];
+  var lines=p.dockets.filter(function(d){return d.how!=='bf'&&d.unit!=='loads'}).map(function(d){return [d.supplier,'DKT-'+d.docket,d.date,d.date,d.material+' '+num(d.qty,2)+' '+d.unit+', docket '+d.docket,d.qty,'0.00','300','GST on Expenses','Job',p.name]});
+  return [head].concat(lines).map(function(l){return l.map(csvCell).join(',')}).join('\r\n');
+}
+function offer(filename,data){
+  if(downloadsFn){downloadsFn.save({filename:filename,data:data}).catch(function(e){if(e&&e.code!=='declined')toast('The download could not be offered here. Open the page in claude.ai or a browser to save files.')});return}
+  try{var blob=new Blob([data],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)}catch(e){}
+}
+$('csv').addEventListener('click',function(){offer('tunyl-dockets-'+$('proj').value+'.csv',docketCsv())});
+$('xero').addEventListener('click',function(){offer('tunyl-xero-bills-'+$('proj').value+'.csv',xeroCsv())});
+$('proj').addEventListener('change',function(){$('claim').removeAttribute('data-on');$('bpage').removeAttribute('data-on');renderLedger()});
+$('draft').addEventListener('click',renderClaim);
+
+/* ---------- step 4: board view ---------- */
+function renderBoard(){
+  var k=L.kellyville,b=L.boxhill;
+  var rows=[
+    {name:k.name,client:k.client+', '+k.platform,mat:k.rows[0].m,u:k.rows[0].u,del:k.rows[0].del,ord:k.rows[0].ord,need:needs('kellyville'),claim:'Claim '+k.claim+' draft, '+money(claimTotal('kellyville'))},
+    {name:statics.marsden.name,client:statics.marsden.client+', '+statics.marsden.platform,mat:statics.marsden.mat,u:statics.marsden.u,del:statics.marsden.del,ord:statics.marsden.ord,need:needs('marsden'),claim:statics.marsden.claim},
+    {name:b.name,client:b.client+', '+b.platform,mat:b.rows[0].m,u:b.rows[0].u,del:b.rows[0].del,ord:b.rows[0].ord,need:needs('boxhill'),claim:'Claim '+b.claim+' draft, '+money(claimTotal('boxhill'))},
+    {name:statics.schofields.name,client:statics.schofields.client+', '+statics.schofields.platform,mat:statics.schofields.mat,u:statics.schofields.u,del:statics.schofields.del,ord:statics.schofields.ord,need:needs('schofields'),claim:statics.schofields.claim+', '+money(statics.schofields.val)}
+  ];
+  $('ov').querySelector('tbody').innerHTML=rows.map(function(r){return '<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.client)+'</td><td>'+esc(r.mat)+'<span class="sub">'+num(r.del)+' of '+num(r.ord)+' '+esc(r.u)+', '+pct(r.del,r.ord)+'%</span><div class="bar" aria-hidden="true"><i style="width:'+pct(r.del,r.ord)+'%"></i></div></td><td class="num">'+(r.need?'<span class="chip check">'+r.need+'</span>':'<span class="chip clear">0</span>')+'</td><td>'+esc(r.claim)+'</td></tr>'}).join('');
+  $('t-claim').textContent=money(claimTotal('kellyville')+claimTotal('boxhill')+statics.schofields.val);
+  hints();
+}
+
+/* ---------- later modules ---------- */
+function renderMap(){
+  var b=B[$('bld').value];$('bld-meta').textContent=b.platform;
+  $('map').querySelector('tbody').innerHTML=b.rows.map(function(r){var c=r[2]==='auto'?'<span class="chip clear">Auto</span>':r[2]==='check'?'<span class="chip check">Check once</span>':'<span class="chip unreadable">No home</span>';return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+c+'</td><td class="small muted">'+esc(r[3])+'</td></tr>'}).join('');
+  $('pack').removeAttribute('data-on');
+}
+function renderPack(){
+  var b=B[$('bld').value];
+  var a=b.rows.filter(function(r){return r[2]==='auto'}).length,c=b.rows.filter(function(r){return r[2]==='check'}).length,m=b.rows.filter(function(r){return r[2]==='missing'}).length;
+  $('pack').innerHTML='<h3>SWMS-014 revision 7, formatted for '+esc(b.name)+'</h3><p>Mapped into '+esc(b.platform)+'. '+a+' fields filled automatically. '+(c?c+(c===1?' needs':' need')+' a person the first time, then the choice is remembered. ':'')+(m?m+(m===1?' has':' have')+' nowhere to go in their system and stay in our copy. ':'')+'Next job for '+esc(b.name)+': nothing to map.</p>';
+  $('pack').setAttribute('data-on','');
+}
+function wStatus(w){if(w.day>w.kpi){var d=w.day-w.kpi;return '<span class="chip unreadable">Overdue '+d+' day'+(d===1?'':'s')+'</span>'}if(w.day===w.kpi)return '<span class="chip check">Due today</span>';return '<span class="chip clear">On track</span>'}
+function renderWaits(){
+  $('wt').querySelector('tbody').innerHTML=W.map(function(w,ix){return '<tr><td><b>'+esc(w.what)+'</b></td><td>'+esc(w.from)+'</td><td>'+esc(w.job)+'<span class="sub">'+esc(w.jobno)+', asked '+esc(w.asked)+'</span></td><td class="num">'+w.kpi+' days</td><td class="num">'+w.day+'</td><td>'+wStatus(w)+'</td><td><button class="btn quiet sm" data-w="'+ix+'">Draft chaser</button></td></tr>'}).join('');
+  $$('#wt [data-w]').forEach(function(b){b.addEventListener('click',function(){renderMail(W[+b.getAttribute('data-w')])})});
+}
+function renderMail(w){
+  var body;
+  if(w.from==='Client'){body='Hi,\n\nA reminder that your colour selections for '+w.job+' (job '+w.jobno+') are still outstanding. We asked on '+w.asked+' and we cannot release the job to construction until they are in.\n\nThe colour consultant can meet you this week. Reply with a day that suits and we will book it.\n\nThanks,\n[your name], client project coordinator'}
+  else{var late=w.day>w.kpi?', so it is now holding the job':'';body='Hi '+w.who+',\n\nFollowing up on the '+w.what.toLowerCase()+' for '+w.job+' (job '+w.jobno+'), requested on '+w.asked+'. Our programme allows '+w.kpi+' days for this and we are at day '+w.day+late+'. Could you let me know where it is up to and when we can expect it?\n\nThe current plans and the original request are attached again for reference.\n\nThanks,\n[your name], client project coordinator'}
+  $('mail').innerHTML='<h3>Chaser, ready to send</h3><p class="hdr">To: '+esc(w.who)+', '+esc(w.from)+'<br>Subject: '+esc(w.what)+', '+esc(w.job)+', requested '+esc(w.asked)+'</p><pre>'+esc(body)+'</pre><div class="actions"><button class="btn" data-toast="In the real prototype this opens the draft in Outlook from the shared mailbox.">Open in Outlook</button><button class="btn secondary" id="copy">Copy text</button></div>';
+  $('mail').setAttribute('data-on','');
+  $('copy').addEventListener('click',function(){try{navigator.clipboard.writeText(body).then(function(){toast('Copied.')},function(){toast('Select the text and copy it.')})}catch(e){toast('Select the text and copy it.')}});
+  $('mail').scrollIntoView({behavior:smooth(),block:'nearest'});
+}
+
+/* ---------- live reading (inside claude.ai) ---------- */
+var PROMPT='You are reading a photo of a construction delivery docket from an Australian site: a concrete delivery docket, a quarry weighbridge docket, or a tipping/cartage docket for spoil. Extract the fields and answer with JSON only, exactly this shape:\n{"isDocket": true, "supplier": {"value": "", "confidence": "clear"}, "docket": {"value": "", "confidence": "clear"}, "date": {"value": "YYYY-MM-DD", "confidence": "clear"}, "material": {"value": "", "confidence": "clear"}, "quantity": {"value": 0, "confidence": "clear"}, "unit": {"value": "m³", "confidence": "clear"}, "truck": {"value": "", "confidence": "clear"}, "deliveredTo": {"value": "", "confidence": "clear"}, "signedBy": {"value": "", "confidence": "clear"}, "purchaseOrder": {"value": "", "confidence": "clear"}, "flags": [{"level": "check", "text": ""}]}\nRules. confidence is one of "clear" (printed and unambiguous), "check" (handwritten, partly obscured, or could be read two ways), "unreadable" (cannot be read; leave value empty or null). unit is one of m³, t, loads, L, each, or empty. On a weighbridge docket the quantity is the NET weight, never gross. purchaseOrder is any order or PO number printed on the docket, else empty. Never invent a value: if it is not on the docket, leave it empty and mark unreadable. flags are short notes, one per thing a person should check against the paper, with level "check" or "crit" (crit for a missing signature, an ambiguous quantity, or a quantity and unit that do not match the material). If the photo is not a docket at all, set isDocket to false and put one flag explaining what the photo shows.';
+$('photo').addEventListener('change',function(ev){
+  var file=ev.target.files&&ev.target.files[0];if(!file)return;ev.target.value='';
+  var fr=new FileReader();
+  fr.onload=function(){
+    var dataUrl=fr.result;
+    if(!sampleFn||!samplePhotos){showReading({source:'photo',label:'Photo only',kind:'Docket',image:dataUrl,fields:{},flags:[{level:'check',text:'Live reading runs inside claude.ai. Open this page there to have the docket read. You can type the fields in by hand here.'}],po:''});return}
+    abort=new AbortController();status('Reading docket… this can take up to a minute.',{busy:true,stoppable:true});setPressed(null);
+    sampleFn.json(PROMPT,{images:file,modelTier:'default',signal:abort.signal}).then(function(data){
+      status('');
+      if(!data||data.isDocket===false){showReading({source:'photo',label:'Read by AI',kind:'Docket',image:dataUrl,fields:{},flags:[{level:'crit',text:(data&&data.flags&&data.flags[0]&&data.flags[0].text)||'This does not look like a delivery docket.'}],po:''});return}
+      var fields={};FIELDS.forEach(function(pair){var k=pair[0],f=data[k]||{};fields[k]={value:f.value==null?'':String(f.value),confidence:f.confidence||'check'}});
+      var flags=(Array.isArray(data.flags)?data.flags:[]).filter(function(f){return f&&f.text}).map(function(f){return {level:f.level==='crit'?'crit':'check',text:String(f.text)}});
+      var po=(data.purchaseOrder&&data.purchaseOrder.value)?String(data.purchaseOrder.value):'';
+      showReading({source:'photo',label:'Read by AI',kind:'Docket',image:dataUrl,fields:fields,flags:flags,po:po});
+    }).catch(function(e){
+      var code=e&&e.code;
+      if(code==='cancelled'){status('');return}
+      if(code==='not_granted')status('Reading was not allowed on this page, so the photo is shown without a reading.',{kind:'warn'});
+      else if(code==='rate_limited')status('Too many readings in a row. Wait a minute and try again.',{kind:'warn'});
+      else if(code==='image_rejected')status('That image could not be used. Try a JPEG or PNG under 20 MB.',{kind:'err'});
+      else status('The reading did not finish. Try again, or type the fields in by hand.',{kind:'err'});
+      showReading({source:'photo',label:'Photo only',kind:'Docket',image:dataUrl,fields:{},flags:[],po:''});
+    }).then(function(){abort=null});
+  };
+  fr.readAsDataURL(file);
+});
+$('stop').addEventListener('click',function(){if(abort)abort.abort()});
+function lightUp(){
+  if(!(window.claude&&typeof window.claude.use==='function'))return;
+  Promise.all([claude.use('sample').catch(function(){return null}),claude.use('downloads').catch(function(){return null})]).then(function(res){
+    var s=res[0],d=res[1];downloadsFn=d||null;
+    var finish=function(){$('upload-note').textContent=(sampleFn&&samplePhotos)?'Read your own: a photo of a concrete, weighbridge or tipping docket. The AI reads it here.':'Read your own: a photo of a concrete, weighbridge or tipping docket. Live reading works inside claude.ai; elsewhere the photo is shown and the fields are typed in.'};
+    if(s){sampleFn=s;s.limits().then(function(caps){samplePhotos=!!(caps&&caps.images);if(samplePhotos&&caps.images.mediaTypes)$('photo').accept=caps.images.mediaTypes.join(',');finish()}).catch(finish)}else finish();
+  });
+}
+
+/* ---------- documents register (invented) ---------- */
+function seedDocs(){return [
+  {id:'doc-88212',proj:'kellyville',type:'Docket',date:'2026-09-08',title:'Weighbridge docket 88212',from:'Kellyville Quarries, driver to the site supervisor',stored:'Photo',status:'By rule',fed:'Select fill, 17.44 m³'},
+  {id:'doc-88211',proj:'kellyville',type:'Docket',date:'2026-09-08',title:'Weighbridge docket 88211',from:'Kellyville Quarries, driver to the site supervisor',stored:'Photo',status:'By rule',fed:'Select fill, 17.71 m³'},
+  {id:'doc-hh30977',proj:'kellyville',type:'Docket',date:'2026-09-08',title:'Haulage docket HH-30977',from:'Hume Haulage, from their app',stored:'Data feed',status:'Waiting',fed:'Cartage, 12 loads, to pair'},
+  {id:'doc-hh30976',proj:'kellyville',type:'Docket',date:'2026-09-08',title:'Haulage docket HH-30976',from:'Hume Haulage, from their app',stored:'Data feed',status:'Ticked by Mel R., 8 Sep 17:02',fed:'Cartage, 11 loads, 8.5 h to ApprovalMax'},
+  {id:'doc-inv4471',proj:'kellyville',type:'Supplier invoice',date:'2026-09-08',title:'Tax invoice INV-4471',from:'Kellyville Quarries accounts, to the project inbox',stored:'PDF, emailed',status:'Held',fed:'26 loads billed, 24 with dockets'},
+  {id:'doc-091540',proj:'kellyville',type:'Docket',date:'2026-09-07',title:'Weighbridge docket 2026-091540',from:'Kurrajong Quarries, driver to the site supervisor',stored:'Photo',status:'By rule',fed:'DGB20 road base, 24.62 t'},
+  {id:'doc-48198',proj:'kellyville',type:'Docket',date:'2026-09-07',title:'Concrete docket 48198',from:'Westline Concrete, driver to the foreman',stored:'Photo',status:'By rule',fed:'N32 concrete, 7.0 m³, pour 2'},
+  {id:'doc-0916',proj:'kellyville',type:'Docket',date:'2026-09-06',title:'Tipping docket 0916',from:'Mullins Haulage, driver to the site supervisor',stored:'Photo',status:'Ticked by Mel R., 6 Sep 16:40',fed:'Spoil out, 12 m³ loose, bulking applied'},
+  {id:'doc-po4471',proj:'kellyville',type:'Purchase order',date:'2026-08-12',title:'PO-4471, DGB20 road base',from:'Our office, to Kurrajong Quarries',stored:'PDF from Xero',status:'Open',fed:'2,400 t ordered at $46.50'},
+  {id:'doc-po4468',proj:'kellyville',type:'Purchase order',date:'2026-08-05',title:'PO-4468, select fill',from:'Our office, to Kellyville Quarries',stored:'PDF from Xero',status:'Open',fed:'12,000 m³ ordered at $42.00, 1.8 t/m³'},
+  {id:'doc-claim5',proj:'kellyville',type:'Progress claim',date:'2026-09-01',title:'Claim 5, August',from:'Our contracts administrator, to Harrowgate',stored:'Builder template xlsx and PDF',status:'Certified 9 Sep',fed:'$188,300 ex GST'},
+  {id:'doc-claim6',proj:'kellyville',type:'Progress claim',date:'2026-09-09',title:'Claim 6, September',from:'Our contracts administrator, to Harrowgate',stored:'Draft',status:'Draft',fed:'From the ledger, not yet lodged'},
+  {id:'doc-c20991',proj:'boxhill',type:'Docket',date:'2026-09-09',title:'Concrete docket C-20991',from:'Westgate Concrete, driver to the foreman',stored:'Photo',status:'Waiting',fed:'N20 concrete, 6.0 m³, signature unreadable'},
+  {id:'doc-c20990',proj:'boxhill',type:'Docket',date:'2026-09-09',title:'Concrete docket C-20990',from:'Westgate Concrete, driver to the foreman',stored:'Photo',status:'By rule',fed:'N20 concrete, 6.0 m³'},
+  {id:'doc-c20984',proj:'boxhill',type:'Docket',date:'2026-09-08',title:'Concrete docket C-20984',from:'Westgate Concrete, driver to the foreman',stored:'Photo',status:'By rule',fed:'N20 concrete, 6.0 m³'},
+  {id:'doc-po4490',proj:'boxhill',type:'Purchase order',date:'2026-08-20',title:'PO-4490, N20 concrete',from:'Our office, to Westgate Concrete',stored:'PDF from Xero',status:'Open',fed:'640 m³ ordered at $285'},
+  {id:'doc-claim9',proj:'boxhill',type:'Progress claim',date:'2026-09-09',title:'Claim 9, September',from:'Our contracts administrator, to Stoneleigh',stored:'Draft',status:'Draft',fed:'From the ledger, not yet lodged'},
+  {id:'doc-si31',proj:'marsden',type:'Site instruction',date:'2026-09-09',title:'SI-31, extra road base Ch 1200 to 1350',from:'Meridian Build Group site engineer, to our foreman',stored:'Email and PDF',status:'Waiting',fed:'Variation V-08 to raise'},
+  {id:'doc-po4455',proj:'marsden',type:'Purchase order',date:'2026-07-28',title:'PO-4455, DGB20 road base',from:'Our office, to Kurrajong Quarries',stored:'PDF from Xero',status:'Open',fed:'4,500 t ordered'},
+  {id:'doc-claim4',proj:'marsden',type:'Progress claim',date:'2026-09-02',title:'Claim 4, August',from:'Our contracts administrator, to Meridian',stored:'Procore upload and PDF',status:'Lodged 2 Sep',fed:'$96,400 ex GST'}
+]}
+var DOCS=seedDocs(),docType='All';
+var DOC_TYPES=['All','Docket','Supplier invoice','Site instruction','Purchase order','Progress claim'];
+function docById(id){return DOCS.filter(function(d){return d.id===id})[0]}
+function docStatusChip(st){
+  var c=/^By rule|^Ticked|^Certified|^Lodged|^Approved|^Logged/.test(st)?'clear':/^Waiting/.test(st)?'check':/^Held/.test(st)?'hold':'neutral';
+  return '<span class="chip '+c+' wrap">'+esc(st)+'</span>';
+}
+function docFromReading(v,status,fed){
+  var kind=/weigh|quarr/i.test(v.supplier+' '+v.material)?'Weighbridge docket':/concrete/i.test(v.material)?'Concrete docket':/spoil|tip/i.test(v.material)?'Tipping docket':'Delivery docket';
+  return {id:'doc-'+(v.docket||('site'+sentCount)),proj:'kellyville',type:'Docket',date:v.date||'2026-09-10',title:kind+' '+(v.docket||''),from:(v.supplier||'Supplier')+', driver to the site supervisor',stored:'Photo, just now',status:status,fed:fed,fresh:true};
+}
+function renderDocs(){
+  var proj=$('doc-proj').value;
+  var all=DOCS.filter(function(d){return d.proj===proj});
+  var list=all.filter(function(d){return docType==='All'||d.type===docType});
+  $('doc-meta').textContent=all.length+' documents on this project, '+all.filter(function(d){return /^Waiting|^Held/.test(d.status)}).length+' need a person.';
+  $('doc-filters').innerHTML=DOC_TYPES.map(function(t){var n=t==='All'?all.length:all.filter(function(d){return d.type===t}).length;return '<button type="button" aria-pressed="'+(t===docType)+'" data-type="'+t+'">'+t+(t==='All'?'':'s')+' ('+n+')</button>'}).join('');
+  $$('#doc-filters button').forEach(function(b){b.addEventListener('click',function(){docType=b.getAttribute('data-type');renderDocs()})});
+  $('dt').querySelector('tbody').innerHTML=list.length?list.map(function(d){return '<tr class="'+(d.fresh?'new':'')+'"><td>'+esc(fmtDate(d.date))+'</td><td><b>'+esc(d.title)+'</b><span class="sub">'+esc(d.type)+'</span></td><td>'+esc(d.from)+'</td><td>'+esc(d.stored)+'</td><td>'+docStatusChip(d.status)+'</td><td>'+esc(d.fed)+'</td><td><button class="btn quiet sm" data-toast="In the real prototype this opens the original photo, PDF or email, with the reading beside it.">Open</button></td></tr>'}).join(''):'<tr><td colspan="7" class="muted">No documents of this type on this project.</td></tr>';
+  $('dcount').textContent=DOCS.filter(function(d){return /^Waiting|^Held/.test(d.status)}).length;
+  hints();
+}
+$('doc-proj').addEventListener('change',renderDocs);
+
+/* ---------- Ask Tunyl ---------- */
+function answer(html,foot){$('ask-out').innerHTML='<p class="lbl">Ask Tunyl</p><p>'+html+'</p>'+(foot?'<p class="foot">'+esc(foot)+'</p>':'');$('ask-out').setAttribute('data-on','')}
+function projFrom(s){if(/box hill/.test(s))return 'boxhill';if(/marsden/.test(s))return 'marsden';if(/kellyville|ridge/.test(s))return 'kellyville';return $('proj').value}
+function ask(q){
+  var s=String(q||'').toLowerCase().trim();if(!s)return;
+  var proj=projFrom(s),p=L[proj],pn=p?p.name:statics[proj].name;
+  var m;
+  if(/paid|payment|aging|owed|owe us|cash|claims?\b.*overdue|overdue\b.*claims?/.test(s)){
+    var late=CLAIMS.filter(function(c){return c.st!=='ok'});answer(money(CLAIMS.reduce(function(t,c){return t+c.amt},0))+' is lodged across '+CLAIMS.length+' claims. '+(late.length?late.length+' need chasing: '+esc(late.map(function(c){return c.claim+' ('+c.status.toLowerCase()+')'}).join('; '))+'.':'All on track.'),'Chasers are drafted from the board view. Nothing is sent without a person.');showTab($('tab-board'),false);return}
+  if(/draft|prepare|write/.test(s)&&/claim/.test(s)){
+    var cm=/claim\s*(\d+)/.exec(s);if(cm){Object.keys(L).forEach(function(k){if(L[k].claim===+cm[1]){proj=k;p=L[k];pn=p.name}})}
+    if(!p){answer('Marsden Park claims are lodged from the static example, so there is nothing to draft there. Try Kellyville Ridge or Box Hill.');return}
+    $('proj').value=proj;renderLedger();renderClaim();showTab($('tab-ledger'),false);
+    answer('Claim '+p.claim+' for '+esc(pn)+' is drafted under the ledger: <b>'+money(claimTotal(proj))+'</b> ex GST from matched and ticked dockets only. Nothing has been sent.','Anything that moves money comes back as a draft for a person to confirm.');return}
+  if(/no docket|without (a )?docket|unmatched|held|hold/.test(s)){
+    var inv=Q.filter(function(i){return i.id==='q2'})[0];
+    answer(inv?'One. <b>INV-4471</b> from Kellyville Quarries bills 26 loads. 24 have dockets on file, 2 do not (88190 and 88191): 63.5 t, $1,428.75. It is held in the review queue and has not gone to ApprovalMax.':'No supplier invoices are held right now. INV-4471 was approved for its 24 matched loads and the 2 unmatched loads are still with the site.');return}
+  if(/unclaimed|not (yet )?claimed|ready to claim|to claim|left to claim/.test(s)){
+    if(!p){answer(esc(pn)+': '+esc(statics[proj].claim)+'. Quantities for that project are static in this demo.');return}
+    var parts=p.rows.filter(function(r){return r.del-r.cl>0}).map(function(r){return num(r.del-r.cl)+' '+r.u+' of '+r.m.split(',')[0].toLowerCase()});
+    answer(parts.length?'On '+esc(pn)+': '+esc(parts.join(', '))+'. With the schedule rates that is <b>'+money(claimTotal(proj))+'</b> ex GST ready for claim '+p.claim+'.':'Nothing is unclaimed on '+esc(pn)+'.');return}
+  m=/docket\s*([a-z]{0,2}-?\d[\w-]*)/.exec(s)||/\b(\d{4,}[\w-]*)\b/.exec(s);
+  if(m){var id=m[1].toUpperCase();var d=DOCS.filter(function(x){return x.title.toUpperCase().indexOf(id)>=0})[0];
+    if(d){var proj2=d.proj;var name=L[proj2]?L[proj2].name:statics[proj2].name;answer('<b>'+esc(d.title)+'</b> is filed under '+esc(name)+', stored as '+esc(d.stored.toLowerCase())+', from '+esc(d.from)+'. Status: '+esc(d.status)+'. It fed: '+esc(d.fed)+'.','Open the Documents tab to see it in the register.');$('doc-proj').value=proj2;docType='All';renderDocs();showTab($('tab-docs'),false);return}
+    answer('No document with the number '+esc(id)+' is on file for any project. If the site has the paper, a photo of it lands in the review queue.');return}
+  var row=p?findRow(proj,s):null;
+  if(row&&/delivered|how much|so far|ordered|invoiced|claimed|total/.test(s)){
+    answer('On '+esc(pn)+', '+esc(row.m.split(',')[0].toLowerCase())+': ordered '+num(row.ord)+' '+row.u+', delivered '+num(row.del)+', invoiced '+num(row.inv)+', claimed '+num(row.cl)+'. '+(row.inv>row.del?'Invoiced is above delivered, so the invoice is held.':row.del-row.cl>0?num(row.del-row.cl)+' '+row.u+' is verified and not yet claimed.':'Fully claimed.'));return}
+  if(/overdue|waiting on|basix|approval|engineer|survey|certif/.test(s)){
+    var od=W.filter(function(w){return w.day>w.kpi});answer(od.length+' external approvals are overdue: '+esc(od.map(function(w){return w.what+' for '+w.job+', '+(w.day-w.kpi)+' day'+(w.day-w.kpi===1?'':'s')}).join('; '))+'. Chasers are drafted on the Waiting on tab.');showTab($('tab-waits'),false);return}
+  if(/queue|to check|exception|to do|for a person|waiting(?! on)|review/.test(s)){
+    answer(Q.length?(Q.length+3)+' items are waiting for a person: '+esc(Q.map(function(i){return i.type.toLowerCase()+' '+i.ref.split(',')[0]}).join(', '))+', plus three from a site not in this demo.':'The queue is clear apart from three items from a site not in this demo.');showTab($('tab-queue'),false);return}
+  if(/xero|send|lodge|approve/.test(s)){answer('Not done, drafted. Sending to Xero, lodging a claim or approving an invoice always comes back as a draft for a person to confirm. Open the ledger and use the buttons there.');return}
+  if(/sharepoint|stored|where (do|are)|kept|retention|seven years/.test(s)){answer('Every document is stored once against its project: the original, the reading, who let it in and what it fed. Kept seven years. A PDF of each document and a CSV of the register land in your SharePoint project folder nightly.');showTab($('tab-docs'),false);return}
+  if(sampleFn){
+    answer('Thinking…');
+    var ctx={projects:Object.keys(L).map(function(k){var pp=L[k];return {name:pp.name,client:pp.client,claim:pp.claim,materials:pp.rows.map(function(r){return {material:r.m,unit:r.u,ordered:r.ord,delivered:Math.round(r.del*100)/100,invoiced:r.inv,claimed:r.cl,rate:r.rate}}),dockets:pp.dockets.filter(function(d){return d.how!=='bf'})}}),
+      review_queue:Q.map(function(i){return {type:i.type,from:i.from,ref:i.ref,project:i.projName,why:i.stateText}}),
+      documents:DOCS.map(function(d){return {project:d.proj,type:d.type,title:d.title,date:d.date,stored:d.stored,status:d.status,fed:d.fed}}),
+      waiting_on:W};
+    sampleFn('You are Ask Tunyl, an assistant inside a construction subcontractor\'s back office. Answer the question in at most three plain sentences using ONLY the JSON data below. Quote numbers exactly as they appear. If the data does not contain the answer, say so in one sentence. If the question asks to do something that moves money (send, lodge, approve, pay), say it would be prepared as a draft for a person to confirm and do nothing else. No markdown.\n\nDATA:\n'+JSON.stringify(ctx)+'\n\nQUESTION: '+q,{modelTier:'quick'}).then(function(r){answer(esc(r.text||'No answer came back.'),'Answered by the model from the demo data only.')}).catch(function(e){answer('The question could not be answered right now. Try one of the examples.','Reason: '+((e&&e.code)||'unknown'))});
+    return}
+  answer('I can answer from the ledger, the review queue, the documents register and the waiting-on list. Try: what is unclaimed on Box Hill, how much select fill was delivered, which invoices have loads with no docket, where is docket 48198, or draft claim 9.','Outside claude.ai this box answers a fixed set of questions. Inside claude.ai, other questions go to the model with the demo data as its only source.');
+}
+$('ask').addEventListener('submit',function(e){e.preventDefault();ask($('ask-q').value)});
+$$('#ask .tries button').forEach(function(b){b.addEventListener('click',function(){$('ask-q').value=b.getAttribute('data-q');ask(b.getAttribute('data-q'))})});
+
+/* ---------- WhatsApp version of the site step ---------- */
+function waMock(){
+  if(!reading)return '';
+  var v=readerValues(),rc=ruleCheck();
+  var bad=FIELDS.filter(function(f){return (reading.fields[f[0]]||{}).confidence!=='clear'}).map(function(f){return f[1].toLowerCase()});
+  var ph=reading.image.indexOf('data:')===0?'<img src="'+reading.image+'" alt="">':reading.image;
+  var read='Read: '+esc(v.supplier||'supplier')+', docket '+esc(v.docket||'?')+', '+esc(v.material||'material')+' '+esc(v.quantity||'?')+' '+esc(v.unit||'')+(reading.po?', '+esc(reading.po):'')+'. '+(bad.length?bad.length+' to check: '+esc(bad.join(', '))+'.':'Every field reads ok.');
+  var next=rc.pass?'Matched the purchase order. It is in the ledger. Reply FIX if the paper says otherwise.':'Sent to the office. '+esc(rc.why.replace(/, so it goes to the office\.$/,'.'))+' Reply with the number if you can read it, or send a clearer photo.';
+  return '<p class="hdr">How this reads on WhatsApp</p><div class="b me"><span class="ph">'+ph+'</span>Docket from gate 2<span class="t">11:47</span></div><div class="b">'+read+'<span class="t">11:47</span></div><div class="b">'+next+'<span class="t">11:47</span></div>';
+}
+$('wa-btn').addEventListener('click',function(){var w=$('wa');if(w.hasAttribute('data-on')){w.removeAttribute('data-on');this.textContent='Show it as WhatsApp'}else{w.innerHTML=waMock();w.setAttribute('data-on','');this.textContent='Hide the WhatsApp view'}});
+
+/* ---------- the builder's no-login claim page ---------- */
+function renderBuilderPage(){
+  var key=$('proj').value,p=L[key],lines=claimLines(key),tot=claimTotal(key);
+  var slug=p.client.split(' ')[0].toLowerCase();
+  var rows=lines.map(function(l){
+    var row=p.rows.filter(function(r){return r.m===l.m})[0];
+    var dks=row?p.dockets.filter(function(d){return d.how!=='bf'&&row.keys.some(function(k){return String(d.material).toLowerCase().indexOf(k)>=0})}):[];
+    var body=dks.length?'<div class="dk"><table><thead><tr><th>Date</th><th>Docket</th><th>Supplier</th><th class="num">Qty</th><th>How</th></tr></thead><tbody>'+dks.map(function(d){return '<tr><td>'+esc(fmtDate(d.date))+'</td><td>'+esc(d.docket)+'</td><td>'+esc(d.supplier)+'</td><td class="num">'+num(d.qty,2)+' '+esc(d.unit)+'</td><td>'+howChip(d.how)+'</td></tr>'}).join('')+'</tbody></table><p class="small muted" style="margin:8px 0 0">'+dks.length+' of the dockets behind this line are shown. Each opens to the photo in the real page.</p></div>':'<div class="dk"><p class="small muted" style="margin:0 0 6px">Day-rate or plant line. The timesheet behind it is attached in the real page.</p></div>';
+    return '<details><summary><b>'+esc(l.m)+'</b><span class="num">'+num(l.q,2)+' '+esc(l.u)+' at '+money(l.rate)+'</span><span class="num">'+money(l.amt)+'</span></summary>'+body+'</details>';
+  }).join('');
+  $('bpage').innerHTML='<div class="bar"><b>tunyl.app/c/'+esc(slug)+'/claim-'+p.claim+'</b><span>No login</span><span>Read only</span><span>Link expires 30 days after certification</span></div><div class="body"><h3>Progress claim '+p.claim+', '+esc(p.name)+'</h3><p class="small muted">From your company to '+esc(p.client)+'. Period to 9 September 2026. Every line opens to the dockets behind it.</p>'+rows+'<div class="total"><span>Total ex GST</span><span>'+money(tot)+'</span></div><div class="actions"><button class="btn" data-toast="In the real page the builder’s contracts team certifies here and the payment schedule clock starts.">Certify</button><button class="btn secondary" data-toast="In the real page a query on a line goes back to your contracts administrator with the docket attached.">Query a line</button></div><p class="small muted" style="margin:12px 0 0">This is what the builder’s project manager sees. Nothing to install, nothing to sign up to.</p></div>';
+  $('bpage').setAttribute('data-on','');
+  $('bpage').scrollIntoView({behavior:smooth(),block:'nearest'});
+}
+
+/* ---------- claims lodged, waiting on money (invented) ---------- */
+var CLAIMS=[
+  {claim:'Claim 5, Kellyville Ridge',builder:'Harrowgate Constructions',amt:188300,lodged:'2026-09-01',sched:'Received 9 Sep',pay:'Due 29 Sep',st:'ok',status:'Certified in full'},
+  {claim:'Claim 4, Marsden Park roads',builder:'Meridian Build Group',amt:96400,lodged:'2026-09-02',sched:'Due 16 Sep, day 7 of 10',pay:'',st:'ok',status:'On track'},
+  {claim:'Claim 8, Box Hill basin',builder:'Stoneleigh Developments',amt:121750,lodged:'2026-08-25',sched:'Due 8 Sep, not received',pay:'',st:'hold',status:'Schedule 2 days late'},
+  {claim:'Claim 3, Schofields drainage',builder:'Harrowgate Constructions',amt:58200,lodged:'2026-08-04',sched:'Received 12 Aug',pay:'Was due 1 Sep',st:'hold',status:'Payment 9 days overdue'}
+];
+function renderClaims(){
+  $('cl').querySelector('tbody').innerHTML=CLAIMS.map(function(c,ix){
+    var chip=c.st==='ok'?'<span class="chip clear">'+esc(c.status)+'</span>':'<span class="chip hold wrap">'+esc(c.status)+'</span>';
+    var act=c.st==='ok'?'':'<button class="btn quiet sm" data-toast="Chaser drafted to '+esc(c.builder)+' with the claim date and the Security of Payment timeframe quoted. Nothing sent.">Draft chaser</button>';
+    return '<tr><td><b>'+esc(c.claim)+'</b></td><td>'+esc(c.builder)+'</td><td class="num">'+money(c.amt)+'</td><td>'+esc(fmtDate(c.lodged))+'</td><td>'+esc(c.sched)+'</td><td>'+esc(c.pay)+'</td><td>'+chip+'</td><td>'+act+'</td></tr>';
+  }).join('');
+  hints();
+}
+
+/* ---------- swipe hints from real overflow ---------- */
+function hints(){
+  $$('.tbl').forEach(function(c){var h=c.nextElementSibling;if(h&&h.classList.contains('swipe')){if(c.scrollWidth>c.clientWidth+2)h.setAttribute('data-on','');else h.removeAttribute('data-on')}});
+  var fs=document.querySelector('figure.flow .scroll'),fh=document.querySelector('figure.flow .swipe');
+  if(fs&&fh){if(fs.scrollWidth>fs.clientWidth+2)fh.setAttribute('data-on','');else fh.removeAttribute('data-on')}
+}
+window.addEventListener('resize',hints);
+/* ---------- tabs, notes, reset ---------- */
+var tabs=$$('.nav [role=tab]');
+function showTab(t,focus){
+  tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);x.setAttribute('tabindex',on?'0':'-1')});
+  $$('.screen').forEach(function(s){if(s.id===t.getAttribute('data-tab'))s.setAttribute('data-on','');else s.removeAttribute('data-on')});
+  if(focus)t.focus();
+  hints();
+}
+tabs.forEach(function(t,ix){
+  t.setAttribute('tabindex',t.getAttribute('aria-selected')==='true'?'0':'-1');
+  t.addEventListener('click',function(){showTab(t,false)});
+  t.addEventListener('keydown',function(e){var k=e.key,j=null;if(k==='ArrowRight'||k==='ArrowDown')j=(ix+1)%tabs.length;else if(k==='ArrowLeft'||k==='ArrowUp')j=(ix-1+tabs.length)%tabs.length;else if(k==='Home')j=0;else if(k==='End')j=tabs.length-1;if(j!==null){e.preventDefault();showTab(tabs[j],true)}});
+});
+$('notes').addEventListener('click',function(){var on=document.body.hasAttribute('data-notes');if(on){document.body.removeAttribute('data-notes');this.setAttribute('aria-pressed','false');this.textContent='Show presenter notes'}else{document.body.setAttribute('data-notes','');this.setAttribute('aria-pressed','true');this.textContent='Hide presenter notes'}});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-toast]');if(b)toast(b.getAttribute('data-toast'))});
+$('reset').addEventListener('click',function(){L=freshLedger();Q=seedQueue();sel=Q[0].id;sentCount=0;DOCS=seedDocs();docType='All';renderDocs();$('ask-out').removeAttribute('data-on');$('ask-q').value='';closeReader();$('claim').removeAttribute('data-on');renderQueue();renderLedger();renderBoard();toast('Demo reset.');showTab($('tab-site'),false)});
+$('bld').addEventListener('change',renderMap);
+$('gen').addEventListener('click',renderPack);
+
+renderExamples();renderQueue();renderLedger();renderBoard();renderDocs();renderClaims();renderMap();renderWaits();lightUp();hints();setTimeout(hints,300);
+})();
+</script>

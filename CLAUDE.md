@@ -1,8 +1,8 @@
 # Tunyl — docket to claim
 
 The site photographs the docket. The office gets the claim. A back-office product for civil and
-earthworks subcontractors. This repo is the demo (`../site-hazard-ai/docs/demos/tunyl-docket-to-claim.html`)
-made real. Read `DESIGN.md` before touching UI.
+earthworks subcontractors. This repo is the demo (`docs/demos/tunyl-docket-to-claim.html`) made real. It is a separate
+product from site-hazard-ai: docket collection and financing for construction subcontractors. Read `DESIGN.md` before touching UI.
 
 ## Stack
 Next.js 16 (App Router, TypeScript, React 19), Tailwind 4 + shadcn/ui (tokens in `src/app/globals.css`),

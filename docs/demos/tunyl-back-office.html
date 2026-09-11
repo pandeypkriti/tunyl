@@ -1,0 +1,714 @@
+<meta charset="utf-8">
+<title>Tunyl Back Office</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --canvas:#FAF9F7; --surface:#FFFFFF; --border:#E7E4DF; --ink:#1A1C20; --ink2:#5A5F66;
+  --panel:#16181D; --panel-ink:#F2F1EE; --panel-ink2:#9BA0A8; --panel-rule:#2A2D34;
+  --accent:#E8590C; --btn:#C94A08; --btn-hover:#A83D06; --tint:#FDEEE3; --tint-ink:#A83D06;
+  --crit-ink:#C92A2A; --crit-bg:#FBEAEA; --high-ink:#B03D06; --high-bg:#FDEEE3;
+  --med-ink:#8A5C00; --med-bg:#FBF3E0; --ok-ink:#2B7A3D; --ok-bg:#E9F4EC;
+  --row-alt:#F4F2EE; --shadow:0 1px 2px rgb(0 0 0 / .04);
+}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:Archivo,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-block:24px 80px;padding-inline:20px}
+.read{max-width:760px;margin:0 auto}
+h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:36px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:18px;font-weight:600}
+p{margin:10px 0;max-width:66ch}
+ul,ol{max-width:66ch;padding-left:22px}
+li{margin:6px 0}
+.muted{color:var(--ink2)}
+.small{font-size:13px}
+a{color:var(--tint-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit}
+b,strong{font-weight:600}
+
+.topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;padding:8px 0 28px}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand b{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand span{color:var(--ink2);font-size:15px}
+.topright{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;background:var(--tint);color:var(--tint-ink);white-space:nowrap}
+
+.hero{padding:8px 0 8px}
+.hero p{font-size:18px;color:var(--ink2);margin-top:12px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;border:1px solid transparent;font-weight:600;font-size:15px;cursor:pointer;background:var(--btn);color:#fff;transition:background .15s}
+.btn:hover{background:var(--btn-hover)}
+.btn.secondary{background:var(--surface);color:var(--ink);border-color:var(--border)}
+.btn.secondary:hover{background:var(--row-alt)}
+.btn.secondary[aria-pressed="true"]{background:var(--tint);border-color:var(--accent);color:var(--tint-ink)}
+.btn.quiet{background:transparent;color:var(--tint-ink);padding:6px 8px;border:0}
+.btn.quiet:hover{background:var(--tint)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{font-size:13px;padding:6px 10px}
+
+.app{display:grid;grid-template-columns:212px minmax(0,1fr);border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden;margin-top:24px}
+.nav{background:var(--row-alt);border-right:1px solid var(--border);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.nav .who{font-size:12px;color:var(--ink2);padding:12px 12px 4px;font-weight:500}
+.nav .who:first-child{padding-top:4px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid transparent;background:transparent;font-weight:500;font-size:14px;cursor:pointer;color:var(--ink2);transition:background .15s}
+.nav button:hover{background:var(--surface)}
+.nav button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow);border-color:var(--border)}
+.nav button .n{margin-left:auto;font-size:12px;padding:1px 8px;border-radius:12px;background:var(--tint);color:var(--tint-ink);font-weight:600}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--border);padding:10px;gap:6px}
+  .nav button{white-space:nowrap;width:auto}
+  .nav .who{display:none}
+}
+.main{padding:24px;min-width:0}
+@media (max-width:600px){.main{padding:18px 16px}}
+.screen{display:none}
+.screen[data-on]{display:block}
+.screen-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 16px;margin-bottom:18px}
+.screen-head p{margin:4px 0 0;color:var(--ink2)}
+.said{font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;background:var(--row-alt);color:var(--ink2);white-space:nowrap;margin-top:4px}
+
+.note{display:none;margin-top:22px;background:var(--panel);color:var(--panel-ink);border-radius:12px;padding:16px 20px;font-size:14px}
+.note .lbl{color:var(--panel-ink2);font-size:12px;font-weight:600;margin:0 0 6px}
+.note p{margin:6px 0;max-width:72ch}
+.note q{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:15px}
+body[data-notes] .note{display:block}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:460px){.tiles{grid-template-columns:1fr}}
+.tile{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.tile .name{font-size:13px;color:var(--ink2);font-weight:500}
+.tile .num{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.15}
+.tile .sub{font-size:12px;color:var(--ink2);margin-top:6px}
+.tile.hold .num{color:var(--high-ink)}
+
+.tbl{overflow-x:auto;margin-top:18px;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums;min-width:680px}
+th,td{text-align:left;vertical-align:middle;padding:10px 12px;border-bottom:1px solid var(--border)}
+th{font-weight:600;background:var(--row-alt);white-space:nowrap;font-size:13px}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+td .sub{display:block;font-size:12px;color:var(--ink2);margin-top:2px}
+.swipe{display:none;font-size:13px;color:var(--ink2);margin:8px 0 0}
+@media (max-width:760px){.swipe{display:block}}
+.bar{position:relative;height:8px;border-radius:12px;background:var(--row-alt);margin-top:6px;overflow:hidden;min-width:120px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:12px}
+
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:12px;white-space:nowrap;line-height:1.3}
+.chip.clear{color:var(--ok-ink);background:var(--ok-bg)}
+.chip.check{color:var(--med-ink);background:var(--med-bg)}
+.chip.unreadable,.chip.hold{color:var(--crit-ink);background:var(--crit-bg)}
+.chip.neutral{color:var(--ink2);background:var(--row-alt)}
+.chip.wrap{white-space:normal}
+
+.split{display:grid;grid-template-columns:272px minmax(0,1fr);gap:20px}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+.qlist{display:grid;gap:8px;align-self:start}
+.qitem{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface);cursor:pointer;transition:border-color .15s}
+.qitem:hover{border-color:#C9C4BC}
+.qitem[aria-pressed="true"]{border-color:var(--accent);background:var(--tint)}
+.qitem b{display:block;font-size:14px}
+.qitem span{display:block;font-size:13px;color:var(--ink2);margin-top:2px}
+.qitem .chip{margin-top:8px}
+.qmore{font-size:13px;color:var(--ink2);padding:4px 2px}
+.detail{display:grid;grid-template-columns:232px minmax(0,1fr);gap:20px}
+@media (max-width:1000px){.detail{grid-template-columns:1fr}}
+.doc{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#EFEDE8;align-self:start}
+.doc svg{display:block;width:100%;height:auto}
+.doc .cap{padding:8px 12px;font-size:12px;color:var(--ink2);border-top:1px solid var(--border);background:var(--surface)}
+.fields{display:grid;gap:10px}
+.field{display:grid;grid-template-columns:132px minmax(0,1fr) auto;gap:6px 12px;align-items:center}
+@media (max-width:640px){.field{grid-template-columns:1fr auto}.field label{grid-column:1 / -1}}
+.field label{font-size:13px;color:var(--ink2);font-weight:500}
+.field input{width:100%;font:inherit;font-size:14px;padding:7px 10px;border:1px solid #C9C4BC;border-radius:12px;background:var(--row-alt);color:var(--ink)}
+.field input::placeholder{color:#8A8F96;font-style:italic}
+.field input:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--tint)}
+.flags{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px;max-width:none}
+.flags li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--med-bg);color:var(--med-ink);font-size:14px;margin:0}
+.flags li.crit{background:var(--crit-bg);color:var(--crit-ink)}
+.flags li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:currentColor;margin-top:7px}
+.actions{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.actions label.tick{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;flex:1 1 260px;padding-block:4px}
+.actions input[type=checkbox]{width:20px;height:20px;accent-color:var(--btn);margin:0}
+.empty{padding:32px 20px;text-align:center;color:var(--ink2);border:1px dashed #C9C4BC;border-radius:12px}
+
+.selrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:12px}
+.selrow label{font-size:13px;color:var(--ink2);font-weight:500}
+select.sel{font:inherit;font-size:15px;padding:8px 32px 8px 10px;border:1px solid #C9C4BC;border-radius:12px;background:var(--row-alt) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%235A5F66' stroke-width='1.6'/></svg>") no-repeat right 12px center;color:var(--ink);appearance:none;-webkit-appearance:none;min-width:220px;max-width:100%}
+select.sel:focus{outline:none;border-color:var(--accent);background-color:var(--surface);box-shadow:0 0 0 3px var(--tint)}
+.out{display:none;margin-top:18px;padding:18px 20px;border:1px solid var(--border);border-radius:12px;background:var(--row-alt)}
+.out[data-on]{display:block}
+.out h3{font-size:16px}
+.out .lines{margin-top:10px;overflow-x:auto}
+.out table{min-width:420px;font-size:14px}
+.out th{background:transparent}
+.out td,.out th{padding:6px 10px}
+.out tfoot td{font-weight:700;border-top:2px solid var(--border);border-bottom:0}
+.mail pre{margin:10px 0 0;white-space:pre-wrap;font:inherit;font-size:14px;line-height:1.5;max-width:70ch}
+.mail .hdr{font-size:13px;color:var(--ink2)}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,8px);background:var(--panel);color:var(--panel-ink);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:5;max-width:calc(100vw - 32px);text-align:center}
+.toast[data-on]{opacity:1;transform:translate(-50%,0)}
+
+.section{margin-top:56px}
+.section > h2{font-size:28px}
+.section > h2 + p{margin-top:10px;font-size:17px;color:var(--ink2)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow);margin-top:20px}
+.card > h3 + p{margin-top:6px}
+.panel{background:var(--panel);color:var(--panel-ink);border-radius:16px;padding:24px 28px;margin-top:20px}
+.panel .lbl{color:var(--panel-ink2);font-size:13px;margin:0 0 10px}
+.panel blockquote{margin:0;font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:18px;line-height:1.5;max-width:60ch}
+.panel cite{display:block;font-style:normal;font-size:13px;color:var(--panel-ink2);margin-top:10px}
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:18px;background:var(--surface)}
+@media (max-width:900px){.pipe{grid-template-columns:1fr}}
+.pipe > div{padding:16px 16px 18px;border-right:1px solid var(--border)}
+.pipe > div:last-child{border-right:0}
+@media (max-width:900px){.pipe > div{border-right:0;border-bottom:1px solid var(--border)}.pipe > div:last-child{border-bottom:0}}
+.pipe .step{font-size:12px;color:var(--tint-ink);font-weight:600}
+.pipe .val{font-size:15px;font-weight:600;margin-top:4px}
+.pipe p{font-size:13px;color:var(--ink2);margin:6px 0 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+@media (max-width:640px){.two{grid-template-columns:1fr}}
+.two > div{padding:16px 18px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.two h3{font-size:15px}
+.two p,.two li{font-size:14px}
+.two ul{margin:8px 0 0;padding-left:18px}
+.rule{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.cmp table{min-width:600px}
+.cmp.wide table{min-width:820px}
+.cmp.wide td{vertical-align:top}
+.cmp td:first-child{font-weight:600;white-space:nowrap}
+.foot{margin-top:48px;padding-top:16px;border-top:1px solid var(--border);font-size:13px;color:var(--ink2)}
+
+@media (prefers-reduced-motion:no-preference){
+  .app,.card,.panel{animation:rise .24s ease-out both}
+  .card:nth-of-type(2){animation-delay:.06s}.card:nth-of-type(3){animation-delay:.12s}
+}
+@keyframes rise{from{opacity:.9;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><b>Tunyl</b><span>Back office</span></div>
+    <div class="topright">
+      <span class="badge">Prototype for feedback, example data</span>
+      <button class="btn secondary sm" id="notes" aria-pressed="false">Show presenter notes</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>The site sends the paper. The office gets the numbers.</h1>
+    <p>A back-office prototype for a civil subcontractor. Dockets, supplier invoices and site instructions arrive as photos and email. They leave as a checked quantities ledger, a progress claim in the builder's format, and one view the directors can read without asking anyone.</p>
+  </section>
+
+  <section class="app" aria-label="Prototype">
+    <nav class="nav" role="tablist" aria-label="Screens">
+      <div class="who">Subcontractor's head office</div>
+      <button role="tab" id="tab-overview" aria-controls="overview" aria-selected="true" data-tab="overview">Overview</button>
+      <button role="tab" id="tab-queue" aria-controls="queue" aria-selected="false" data-tab="queue">Review queue <span class="n" id="qcount">7</span></button>
+      <button role="tab" id="tab-ledger" aria-controls="ledger" aria-selected="false" data-tab="ledger">Quantities and claims</button>
+      <button role="tab" id="tab-formats" aria-controls="formats" aria-selected="false" data-tab="formats">Builder formats</button>
+      <div class="who">Builder's ops team</div>
+      <button role="tab" id="tab-waits" aria-controls="waits" aria-selected="false" data-tab="waits">Waiting on</button>
+    </nav>
+
+    <div class="main">
+
+      <section class="screen" id="overview" role="tabpanel" aria-labelledby="tab-overview" data-on>
+        <div class="screen-head">
+          <div><h2>All projects</h2><p>Every figure is a sum of records that passed the review queue. Nothing on this screen is typed in.</p></div>
+          <span class="said">Rob, 10:18</span>
+        </div>
+        <div class="tiles">
+          <div class="tile"><div class="name">Dockets in this week</div><div class="num">212</div><div class="sub">205 matched by rule, 7 for a person</div></div>
+          <div class="tile"><div class="name">Waiting on a person</div><div class="num" id="t-queue">7</div><div class="sub">in the review queue</div></div>
+          <div class="tile"><div class="name">Ready to claim</div><div class="num" id="t-claim">$418,300</div><div class="sub">3 projects, verified quantities only</div></div>
+          <div class="tile hold"><div class="name">Held from ApprovalMax</div><div class="num">2 loads</div><div class="sub">billed with no docket on file, $1,429, held before it became a dispute</div></div>
+        </div>
+        <div class="tbl"><table id="ov"><thead><tr><th>Project</th><th>Client and their platform</th><th>Headline material, delivered against ordered</th><th class="num">Needs a person</th><th>Claim</th></tr></thead><tbody></tbody></table></div>
+        <p class="swipe">Swipe the table sideways.</p>
+        <div class="note"><p class="lbl">Presenter note</p><p>Rob, 10:18: <q>that information has to get back to head office and be analysed… bring that information to one central heart, so the board of directors can sit around that and make business decisions.</q></p><p>This is that screen. Show it last, not first. If someone asks where a number comes from, click into the review queue and show the docket behind it. That is the whole pitch: a board view that is only ever built from paper a person has ticked.</p></div>
+      </section>
+
+      <section class="screen" id="queue" role="tabpanel" aria-labelledby="tab-queue">
+        <div class="screen-head">
+          <div><h2>Review queue</h2><p>212 dockets came in this week. 205 matched the purchase order on every field and passed under a rule the office wrote. These are the exceptions, and a person ticks each one.</p></div>
+          <span class="said">Rob, 05:06</span>
+        </div>
+        <div class="split">
+          <div class="qlist" id="qlist"></div>
+          <div id="qdetail"></div>
+        </div>
+        <div class="note"><p class="lbl">Presenter note</p><p>This is the whole idea in one screen. Rob, 05:06: <q>There's a few things that are still pretty data-entry driven, which obviously we're looking at AI to resolve.</q> The data entry does not disappear, it turns into checking, and most of the checking is a rule: 212 dockets came in this week, 205 matched the purchase order and passed, 7 are here. The site photographs the docket, the office ticks the exceptions, nobody types anything.</p><p>Framework, the Toronto product, has the same pattern for AI-found contacts (a pending review queue) and dropped its fully automatic email agents in 2025 because they were wrong too often. That history is the answer to "what if the AI gets it wrong": it gets checked. If a haulier already runs Kynection, its dockets land here as data, like the fifth item. We read paper because the quarry and the concrete plant are not going to install anything for a subcontractor. Ask the room: who would be doing the ticking?</p></div>
+      </section>
+
+      <section class="screen" id="ledger" role="tabpanel" aria-labelledby="tab-ledger">
+        <div class="screen-head">
+          <div><h2>Quantities and claims</h2><p>Ordered from the purchase order. Delivered from ticked dockets. Invoiced from matched supplier invoices. Claimed from lodged claims. The gap column is the money.</p></div>
+          <span class="said">Rob, 05:06</span>
+        </div>
+        <div class="selrow"><label for="proj">Project</label><select id="proj" class="sel"><option value="kellyville">Kellyville Ridge bulk earthworks</option><option value="boxhill">Box Hill detention basin</option></select><span class="small muted" id="proj-meta"></span></div>
+        <div class="tbl"><table id="lg"><thead><tr><th>Material</th><th>Unit</th><th class="num">Ordered</th><th class="num">Delivered</th><th class="num">Invoiced</th><th class="num">Claimed</th><th>Gap</th></tr></thead><tbody></tbody></table></div>
+        <p class="swipe">Swipe the table sideways.</p>
+        <p class="small muted">Trucks deliver tonnes. Contracts measure cubic metres. The conversion factor is set once per material on the purchase order and shown on every docket, never hidden.</p>
+        <div class="actions">
+          <button class="btn" id="draft">Draft progress claim</button>
+          <button class="btn secondary" data-toast="In the real prototype this creates the sales invoice in Xero, with the docket list attached.">Send to Xero as a sales invoice</button>
+          <button class="btn secondary" data-toast="In the real prototype this fills the builder's own claim spreadsheet, column for column.">Builder's claim template (xlsx)</button>
+          <button class="btn secondary" data-toast="CSV export works on day one. It is the fallback for every other tool.">CSV</button>
+        </div>
+        <div class="out" id="claim"></div>
+        <div class="note"><p class="lbl">Presenter note</p><p>Rob, 05:06: <q>We track materials on site, and you might be doing hundreds of thousands of cubic metres. So that's obviously a long process.</q></p><p>Ask what their quantities spreadsheet looks like today, who fills it, and from what. Ask whether they claim in tonnes or cubic metres, because that conversion is where the arguments with suppliers and builders live. Then click Draft progress claim and say: this claim only contains dockets a person has ticked.</p></div>
+      </section>
+
+      <section class="screen" id="formats" role="tabpanel" aria-labelledby="tab-formats">
+        <div class="screen-head">
+          <div><h2>Builder formats</h2><p>One master document from your BMS. Mapped once per builder platform. Regenerated for every job after that.</p></div>
+          <span class="said">Rob, 04:05</span>
+        </div>
+        <div class="selrow"><label>Document</label><span class="small"><b>SWMS-014 Bulk excavation</b>, from the BMS, revision 7</span></div>
+        <div class="selrow"><label for="bld">Builder</label><select id="bld" class="sel"><option value="a">Harrowgate Constructions</option><option value="b">Meridian Build Group</option><option value="c">Stoneleigh Developments</option></select><span class="small muted" id="bld-meta"></span></div>
+        <div class="tbl"><table id="map"><thead><tr><th>Our field</th><th>Their field</th><th>Status</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+        <p class="swipe">Swipe the table sideways.</p>
+        <div class="actions"><button class="btn" id="gen">Generate the pack</button><button class="btn secondary" data-toast="In the real prototype this opens the generated pack for a read-through before it goes anywhere.">Preview</button></div>
+        <div class="out" id="pack"></div>
+        <div class="note"><p class="lbl">Presenter note</p><p>Rob, 04:05: <q>every client basically uses a different one… each job you've got to tailor it to whatever they're using, which is a bit annoying… A lot of these companies are so big that they just build their own.</q></p><p>The builders will never standardise, so the subcontractor needs the adapter. Ask which platforms they had to feed this year and how long the re-tailoring takes per job. Switch builders in the dropdown while they watch.</p></div>
+      </section>
+
+      <section class="screen" id="waits" role="tabpanel" aria-labelledby="tab-waits">
+        <div class="screen-head">
+          <div><h2>Waiting on</h2><p>Every external approval with its KPI clock running. The chaser is written before anyone needs it.</p></div>
+          <span class="said">Joanne, 07:06</span>
+        </div>
+        <div class="tbl"><table id="wt"><thead><tr><th>Waiting for</th><th>From</th><th>Job</th><th class="num">KPI</th><th class="num">Day</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+        <p class="swipe">Swipe the table sideways.</p>
+        <div class="out mail" id="mail"></div>
+        <p class="small muted">Builder-side module. For a subcontractor the same register holds what the builder owes you: variation approvals, claim certification, answers to requests for information.</p>
+        <div class="note"><p class="lbl">Presenter note</p><p>Joanne, 07:06: <q>BASIX can take up to seven days, engineering can take up to seven days, surveys and soils can take two weeks… they've all got different KPIs.</q> She said nothing was left to automate. This was the one thing she conceded, and it lives in the gap Onsite Companion leaves: it tracks the task, not the outside party the task is waiting on.</p><p>Show this only to a builder's ops team. For Rob's committee it is a "we could also", not the lead.</p></div>
+      </section>
+
+    </div>
+  </section>
+
+  <div class="read">
+
+    <section class="section">
+      <h2>What every screen answers</h2>
+      <p>Each screen above traces to a sentence from the two meetings on 7 September 2026. The table is the map. The quotes are the evidence.</p>
+      <div class="tbl cmp"><table><thead><tr><th>Screen</th><th>Who, when</th><th>Their words</th><th>What the screen does with it</th></tr></thead><tbody>
+        <tr><td>Overview</td><td>Rob, 10:18</td><td>"bring that information to one central heart, so the board of directors can sit around that"</td><td>Sums ticked records across every project. No typing, no re-keying from site.</td></tr>
+        <tr><td>Review queue</td><td>Rob, 05:06</td><td>"still pretty data-entry driven, which obviously we're looking at AI to resolve"</td><td>Turns typing into checking. The model reads, a person ticks.</td></tr>
+        <tr><td>Quantities and claims</td><td>Rob, 05:06</td><td>"hundreds of thousands of cubic metres… a long process"</td><td>One ledger per project: ordered, delivered, invoiced, claimed. Claims drafted from it.</td></tr>
+        <tr><td>Builder formats</td><td>Rob, 04:05</td><td>"each job you've got to tailor it to whatever they're using, which is a bit annoying"</td><td>One master document, mapped once per builder platform, regenerated per job.</td></tr>
+        <tr><td>Waiting on</td><td>Joanne, 07:06</td><td>"BASIX can take up to seven days… surveys and soils can take two weeks… they've all got different KPIs"</td><td>A register of outside parties with the KPI clock running and the chaser pre-written.</td></tr>
+        <tr><td>All of it</td><td>Rob, 10:59</td><td>"everyone talks about apps and stuff, but I think AI is just going to bring all of them together"</td><td>Reads from and writes to Xero, ApprovalMax, SharePoint and email. No new app for the site.</td></tr>
+      </tbody></table></div>
+      <p class="swipe">Swipe the table sideways.</p>
+      <div class="panel"><p class="lbl">Rob, construction manager, 10:18</p><blockquote>Our projects run like little businesses, if you like. But then that information has to get back to head office and be analysed. We report on jobs, and we do all sorts of things. And that's what we're trying to work out at the moment: what's the best way to correlate. The site stuff is the here and now. But there's also that back element that's needed to bring that information to one central heart, so the board of directors can sit around that and make business decisions from there.</blockquote><cite>Lexington Drive, 7 September 2026. He named the office side himself, unprompted.</cite></div>
+      <div class="panel"><p class="lbl">Joanne, operations manager, 04:58 and 07:06</p><blockquote>There is, but we're governed by councils, private certifiers. Within an approval, it's broken down into several other different approvals that we work with external parties for… BASIX can take up to seven days, engineering can take up to seven days, surveys and soils can take two weeks. It really depends. They're all different tasks, and they've all got different KPIs.</blockquote><cite>Bella Vista, 7 September 2026. Her only concession after saying there was nothing left to automate.</cite></div>
+    </section>
+
+    <section class="section">
+      <h2>How it works under the hood</h2>
+      <p>Framework, the Toronto product you tore down this morning, is a document workspace. Upload a PDF, the model reads it, you ask questions and get answers with page citations, and the answers land in registers you can share without a login. This prototype borrows that shape and points it at the paper a subcontractor actually produces.</p>
+      <div class="pipe">
+        <div><div class="step">Step 1</div><div class="val">Intake</div><p>A photo from the site app. A project inbox address that suppliers and builders email. A data feed from any haulier or supplier that already runs a docket app such as Kynection or Docketbook. Later, a watched SharePoint folder and the purchase orders already in Xero.</p></div>
+        <div><div class="step">Step 2</div><div class="val">Reader</div><p>One vision-model call per document, into a fixed schema: nine fields for a weighbridge docket, twelve for an invoice. Every field comes back clear, check or unreadable. It never invents a number.</p></div>
+        <div><div class="step">Step 3</div><div class="val">Review queue</div><p>Records that match the purchase order on every field pass under a rule the office wrote. Everything else waits here, paper and fields side by side, until a person ticks "checked against the paper".</p></div>
+        <div><div class="step">Step 4</div><div class="val">Registers</div><p>Plain tables. A quantities ledger per project, a waiting-on register, a format map per builder. Ordered, delivered, invoiced, claimed, in the contract's units.</p></div>
+        <div><div class="step">Step 5</div><div class="val">Outputs</div><p>A Xero sales invoice. The builder's claim spreadsheet. A chaser email. The board view. Nobody outside the office needs a login to receive any of it.</p></div>
+      </div>
+      <div class="card">
+        <h3>Three products, three kinds of paper</h3>
+        <p>Framework reads the builder's documents. Kynection makes your own crew's dockets digital at the source. This prototype reads the paper that arrives from people you do not control.</p>
+        <div class="tbl cmp wide"><table><thead><tr><th></th><th>Framework</th><th>Kynection</th><th>This prototype</th></tr></thead><tbody>
+          <tr><td>Input</td><td>PDF upload: drawings, specs, submittals</td><td>A docket your own driver or crew creates in their app, offline, GPS-stamped, with weighbridge weights and proof-of-delivery photos</td><td>Docket photo, supplier invoice, site instruction email, plus a data feed from any docket app</td></tr>
+          <tr><td>Reader</td><td>Vision over drawings, chunked search, answers with citations</td><td>None needed, the docket is born digital</td><td>Fixed-schema extraction with a confidence per field, for paper from anyone</td></tr>
+          <tr><td>Human check</td><td>Pending review for AI-found contacts; review mode for agent plans</td><td>Automatic reconciliation of dockets to jobs and invoices, mismatches flagged</td><td>Rule match for clean records, a person for every exception</td></tr>
+          <tr><td>Records</td><td>RFI and submittal registries, estimates, CSI MasterFormat codes</td><td>Dockets, jobs, timesheets, plant, weighbridge weights</td><td>Quantities ledger, waits register, builder format maps, Australian units and rates</td></tr>
+          <tr><td>Outputs</td><td>Public share pages, no-login review forms, Excel, MCP</td><td>Two-way Xero sync (confirmed in the Xero app store), MYOB, Oracle and others</td><td>Xero, ApprovalMax, the builder's template, chaser emails, CSV</td></tr>
+          <tr><td>Customer</td><td>The builder receiving subcontractor paperwork</td><td>A contractor or haulier that controls its own trucks and crews</td><td>The subcontractor receiving paper from suppliers and hauliers it does not control</td></tr>
+        </tbody></table></div>
+        <p class="swipe">Swipe the table sideways.</p>
+      </div>
+      <div class="card">
+        <h3>Where Kynection stops, and why that is the gap</h3>
+        <p>Kynection is Autolync Pty Ltd of Seaford, Victoria, trading since 2006, built on the Upvise platform. Its docket is digital from the moment your own driver taps it in: load cycles, weighbridge gross and tare, GPS stamps, a proof-of-delivery photo, then reconciliation against the job and a two-way Xero sync. It is the right answer when you control the truck.</p>
+        <p>Rob does not control the quarry's weighbridge or the concrete plant's docket book. Nothing on Kynection's site reads a paper or PDF docket from someone else's system, and every flow they describe starts inside their own app. So the two fit together: if a haulier already runs Kynection or Docketbook, take the feed (the fifth item in the review queue). Everything else still arrives on paper and needs the reader.</p>
+        <p>Their numbers, to borrow with care: paper takes three to five days to process and digital brings ten to fifteen days of cash forward each month. That copy is reused word for word across their blog posts and has no method behind it. The one docket-specific case study is a carpentry contractor whose disputes fell from 15 to 20 percent to under 5. Pricing is not published; a third-party listing quotes about $60 per user per month. The pattern to copy is the pitch, not the numbers: the docket that goes straight from site to claim, and the dispute that never starts because the paper was matched the day it arrived.</p>
+        <p class="small muted">Sources: kynection.com.au product pages and case studies, the Xero app store listing, Capterra. Full brief with links in docs/research/kynection-digital-dockets.md.</p>
+      </div>
+      <div class="card">
+        <h3>Three rules the demo is built on</h3>
+        <ol>
+          <li><b>The model never invents a number.</b> A field it cannot read is marked unreadable and left blank. A blank costs ten seconds. A wrong number costs a dispute.</li>
+          <li><b>Nothing enters the ledger silently.</b> A record gets in one of two ways: it matches a rule the office wrote (right supplier, product, rate and site, every field read ok), or a person ticks it. The queue holds only the exceptions. That is the answer to "what if the AI gets it wrong", and it is the lesson from Framework's abandoned 2025 email agents.</li>
+          <li><b>Nobody outside the office needs a login.</b> The site sends a photo. Suppliers send email. Builders get their own format back. That is Framework's no-login share page, pointed the other way.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What goes into building it</h2>
+      <p>Most of the parts already exist in the hazard engine. The photo-in, structured-record-out shape is the same. What changes is the schema and who ticks the result.</p>
+      <div class="two">
+        <div><h3>The reader</h3><p>One prompt per document type, each with three worked examples embedded, the way Kai described in August. Output is JSON against a fixed schema with a state per field. Cents per document at current vision pricing, not dollars.</p></div>
+        <div><h3>Intake</h3><p>The site app from the docket ledger demo. A project email address for supplier invoices and site instructions, which is what Framework's first version did. A watched SharePoint folder later, through Microsoft Graph.</p></div>
+        <div><h3>Storage and app</h3><p>Postgres with four tables: documents, records, ledger lines, waits. Next.js on Vercel, the same setup as the hazard app, so the deploy path is known.</p></div>
+        <div><h3>Outputs</h3><p>CSV first, because it works on day one with every tool they have. Then the Xero API: a sales invoice for claims, bills for matched supplier invoices. Then the builder templates as spreadsheets.</p></div>
+      </div>
+      <div class="card">
+        <h3>What is real on this page and what is not</h3>
+        <div class="tbl cmp"><table><thead><tr><th>Part</th><th>In this demo</th><th>In the working prototype</th></tr></thead><tbody>
+          <tr><td>Documents</td><td>Drawn on the page; invented supplier, docket numbers and figures</td><td>Real photos and PDFs, stored with the record</td></tr>
+          <tr><td>Reading</td><td>Fields are pre-filled</td><td>Vision model fills them, with a state per field</td></tr>
+          <tr><td>Ticking and rules</td><td>Approving works and moves the ledger and overview. The 205 rule-matched dockets are a stated figure.</td><td>Same, saved with who ticked and when. Rules written per supplier and purchase order, visible in the app.</td></tr>
+          <tr><td>Claim draft</td><td>Works, from the demo ledger and invented contract rates</td><td>Rates loaded once from the contract schedule</td></tr>
+          <tr><td>Xero, ApprovalMax, templates</td><td>Buttons that explain what they would do</td><td>Built in that order: CSV, Xero, ApprovalMax, templates</td></tr>
+          <tr><td>Builder formats</td><td>Three invented builders and platforms, mapping table is illustrative</td><td>Built only after they name the platforms they actually feed</td></tr>
+          <tr><td>Waiting on</td><td>Works, invented jobs and parties, chaser drafted in the page</td><td>Built only if a builder's ops team asks for it</td></tr>
+        </tbody></table></div>
+        <p class="swipe">Swipe the table sideways.</p>
+      </div>
+      <div class="card">
+        <h3>Order of work</h3>
+        <ol>
+          <li><b>Ask Rob's team for twenty real dockets and one supplier invoice.</b> Nothing else matters until this arrives. It also tells you whether they track in tonnes or cubic metres, and which hauliers already run a docket app. Any that run Kynection or Docketbook get a feed, not a camera.</li>
+          <li><b>Reader and review queue on those twenty.</b> Count fields right per docket. A clean docket should come back with eight of nine fields clear.</li>
+          <li><b>Ledger and a claim export</b> in whatever format their claims already use. Do not design a claim format.</li>
+          <li><b>Xero.</b> Sales invoice out, matched bills in.</li>
+          <li><b>Builder formats</b>, once they name the platforms.</li>
+          <li><b>Waiting on</b>, only if a builder's ops team asks.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>How to show it</h2>
+      <p>Rob's committee wants a need, not a tool. Lead with their paper, not with the software.</p>
+      <div class="card">
+        <h3>The walk-through, six moves</h3>
+        <ol>
+          <li>Do not open with the screen. Ask who tracks materials today and what they type it into.</li>
+          <li>Open the review queue on the weighbridge docket. Say: the site photographs it, the office ticks it, nobody types it.</li>
+          <li>Tick it and approve it. Go to Quantities and claims and show the number land.</li>
+          <li>Draft the claim. Say: this claim only contains dockets a person has ticked, in your units.</li>
+          <li>Only then show the overview. That is the "central heart" Rob described, built from the same records.</li>
+          <li>Builder formats and Waiting on are "we could also" screens. Show them if there is time, or if they raise the pain themselves.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>Questions to ask, in their words</h3>
+        <ul>
+          <li>Who fills the quantities spreadsheet today, and from what piece of paper?</li>
+          <li>Do your dockets come in tonnes or cubic metres, and who does the conversion?</li>
+          <li>Where does the number go next: a claim, Xero, a report to the directors?</li>
+          <li>How many dockets on a busy day, across all the sites? How many of those come from a haulier's app already, and how many on paper?</li>
+          <li>Which builder platforms did you have to feed documents into this year?</li>
+          <li>If the office could tick a docket in ten seconds instead of typing it, who would be doing the ticking?</li>
+          <li>What would make the committee say no?</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="foot">Example data. Every project, company, docket, person and figure on this page is invented for the demo. Built for feedback, not for sale. Tunyl, September 2026.</p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+  var num=function(n,d){return Number(n).toLocaleString('en-AU',{maximumFractionDigits:d==null?0:d})};
+  var money=function(n){return '$'+num(n)};
+  var toastT;
+  function toast(msg){var t=$('#toast');t.textContent=msg;t.setAttribute('data-on','');clearTimeout(toastT);toastT=setTimeout(function(){t.removeAttribute('data-on')},2800)}
+
+  /* ---------- data (all invented) ---------- */
+  var L={
+    kellyville:{name:'Kellyville Ridge bulk earthworks',client:'Harrowgate Constructions',platform:'their own portal',claim:6,head:0,
+      rows:[
+        {m:'Select fill, supply and place',u:'m³',ord:12000,del:8640,inv:8200,cl:4740,rate:42},
+        {m:'DGB20 road base',u:'t',ord:2400,del:1116,inv:1116,cl:476,rate:46.5},
+        {m:'GP sand',u:'t',ord:1200,del:480,inv:480,cl:100,rate:29},
+        {m:'Topsoil',u:'m³',ord:900,del:0,inv:0,cl:0,rate:35}
+      ],
+      extra:[{m:'Dewatering, day rate',qty:4,u:'days',rate:1955}]},
+    boxhill:{name:'Box Hill detention basin',client:'Stoneleigh Developments',platform:'HammerTech',claim:9,head:0,
+      rows:[
+        {m:'N20 concrete, 20 mm',u:'m³',ord:640,del:610,inv:630,cl:400,rate:285},
+        {m:'N32 concrete, kerb',u:'m³',ord:160,del:120,inv:120,cl:60,rate:310},
+        {m:'Select fill, supply and place',u:'m³',ord:2100,del:2100,inv:2100,cl:1700,rate:42},
+        {m:'Geofabric',u:'m²',ord:4000,del:3400,inv:3400,cl:2200,rate:6.5}
+      ],
+      extra:[{m:'20 t excavator, hours',qty:100,u:'h',rate:398.5}]}
+  };
+  var statics={
+    marsden:{name:'Marsden Park roads, stage 3',client:'Meridian Build Group',platform:'Procore',mat:'DGB20 road base',u:'t',del:3120,ord:4500,claim:'Claim 4 lodged 2 Sep',val:0},
+    schofields:{name:'Schofields drainage package',client:'Harrowgate Constructions',platform:'their own portal',mat:'GP sand',u:'t',del:480,ord:1200,claim:'Claim 2 draft',val:63000}
+  };
+  var hidden={kellyville:0,marsden:0,boxhill:2,schofields:0};
+
+  var Q=[
+    {id:1,type:'Weighbridge docket',from:'Kellyville Quarries',ref:'Docket 88213',proj:'kellyville',projName:'Kellyville Ridge',state:'check',stateText:'Check one field',
+      doc:{title:'Kellyville Quarries',sub:'Weighbridge docket 88213',lines:[['Date','08/09/2026 11:42'],['Rego','XR 44 PQ'],['Product','Select fill'],['Gross','52.14 t'],['Tare','20.52 t'],['Net','31.26 t   31.62'],['Deliver to','Kellyville Ridge, gate 2'],['Driver','signed']],cap:'Photo from the site app, 8 Sep 11:47'},
+      fields:[['Supplier','Kellyville Quarries','clear'],['Docket number','88213','clear'],['Date','8 Sep 2026, 11:42','clear'],['Truck rego','XR 44 PQ','clear'],['Product','Select fill','clear'],['Gross','52.14 t','clear'],['Tare','20.52 t','clear'],['Net','31.62 t','check'],['Project','Kellyville Ridge, matched on the delivery address','clear'],['In contract units','17.57 m³ at 1.8 t/m³, factor from the purchase order','neutral']],
+      flags:[['check','Net weight is overwritten by hand: printed 31.26, handwritten 31.62. Gross minus tare gives 31.62, so the handwritten figure is the supported one.']],
+      qty:{field:7,factor:1.8,derived:9,fallback:31.62},
+      approve:function(v){return 'Add '+num(v,2)+' m³ to the ledger'},done:function(v){return 'Docket 88213 added. Select fill on Kellyville Ridge is up '+num(v,2)+' m³.'},
+      apply:function(v){L.kellyville.rows[0].del+=v}},
+    {id:2,type:'Supplier invoice',from:'Kellyville Quarries',ref:'INV-4471',proj:'kellyville',projName:'Kellyville Ridge',state:'hold',stateText:'2 loads have no docket',
+      doc:{title:'Kellyville Quarries',sub:'Tax invoice INV-4471',lines:[['Period','1 to 7 Sep 2026'],['Site','Kellyville Ridge'],['Loads','26'],['Net tonnes','812.4 t'],['Rate','$22.50 per t'],['Subtotal','$18,279.00'],['GST','$1,827.90'],['Total','$20,106.90']],cap:'Emailed to the project inbox, 8 Sep 16:02'},
+      fields:[['Supplier','Kellyville Quarries','clear'],['Invoice number','INV-4471','clear'],['Period','1 to 7 Sep 2026','clear'],['Loads billed','26','clear'],['Dockets on file','24','check'],['Tonnes billed','812.4 t','clear'],['Tonnes on dockets','748.9 t','check'],['Rate','$22.50 per tonne, matches the purchase order','clear'],['Total ex GST','$18,279.00','clear']],
+      flags:[['crit','Two loads on the invoice, dockets 88190 and 88191, have no docket on file. That is 63.5 t, or $1,428.75, billed without paper.'],['check','The 24 matched loads can go to ApprovalMax now with their dockets attached. The two unmatched loads stay held until the site finds the paper.']],
+      approve:function(){return 'Approve 24 matched loads, hold 2'},done:function(){return '24 loads sent to ApprovalMax with dockets attached. Two loads held, site asked for the paper.'},
+      apply:function(){}},
+    {id:3,type:'Delivery docket',from:'Westgate Concrete',ref:'Docket C-20991',proj:'boxhill',projName:'Box Hill basin',state:'unreadable',stateText:'2 fields unreadable',
+      doc:{title:'Westgate Concrete',sub:'Delivery docket C-20991',lines:[['Date','09/09/2026'],['Mix','N20, 20 mm, slump 100'],['Quantity','6.0 m³'],['Batched','06:42'],['On site','(smudged)'],['Received by','(signature)'],['Site','Box Hill detention basin']],cap:'Photo from the site app, 9 Sep 07:15, low light'},
+      fields:[['Supplier','Westgate Concrete','clear'],['Docket number','C-20991','clear'],['Date','9 Sep 2026','clear'],['Product','N20 concrete, 20 mm, slump 100','clear'],['Quantity','6.0 m³','clear'],['Time batched','06:42','clear'],['Time on site','','unreadable'],['Received by','','unreadable'],['Project','Box Hill detention basin','clear']],
+      flags:[['crit','Time on site and the signature cannot be read from this photo. The quantity is clear, so the 6.0 m³ can be added now and the signature chased, or the docket sent back for a better photo.']],
+      qty:{field:4,factor:1,fallback:6},
+      approve:function(v){return 'Add '+num(v,1)+' m³, chase the signature'},done:function(v){return 'Docket C-20991 added, '+num(v,1)+' m³. Site asked to photograph the signature block again.'},
+      apply:function(v){L.boxhill.rows[0].del+=v}},
+    {id:4,type:'Site instruction',from:'Meridian Build Group',ref:'SI-31, by email',proj:'marsden',projName:'Marsden Park roads',state:'check',stateText:'Quantity is approximate',
+      doc:{title:'Email',sub:'From: site engineer, Meridian Build Group',lines:[['Received','09/09/2026 07:12'],['Subject','SI-31 extra road base'],['','Ch 1200 to 1350'],['Body','Please supply and place'],['','approx 400 t DGB20 between'],['','Ch 1200 and 1350, to be'],['','measured on completion.'],['Attached','SI-31.pdf']],cap:'Forwarded to the project inbox by the foreman'},
+      fields:[['From','Site engineer, Meridian Build Group','clear'],['Received','9 Sep 2026, 07:12','clear'],['Instruction number','SI-31','clear'],['Material','DGB20 road base','clear'],['Quantity','400 t, stated as approximate','check'],['Location','Chainage 1200 to 1350','clear'],['Suggested action','Raise variation V-08 against the instruction','neutral']],
+      flags:[['check','The email says "approx 400 t". Log the instruction now, raise V-08, and let the dockets set the final tonnage. The variation is claimable only against measured quantities.']],
+      approve:function(){return 'Log SI-31 and raise V-08'},done:function(){return 'SI-31 logged against Marsden Park. Variation V-08 opened, quantity to be set by dockets.'},
+      apply:function(){}},
+    {id:5,type:'Digital docket',from:'Hume Haulage',ref:'HH-30977, from their app',proj:'kellyville',projName:'Kellyville Ridge',state:'check',stateText:'Loads against tonnes',
+      doc:{title:'Hume Haulage',sub:'Digital docket HH-30977',lines:[['Date','08/09/2026'],['Truck','XR 44 PQ, truck and dog'],['From','Kellyville Quarries pit'],['To','Kellyville Ridge, gate 2'],['Material','Select fill'],['Loads','12'],['Hours','9.5'],['Signed','driver, in app, 16:10']],cap:'Arrived as data from the haulier\u2019s Kynection app. Nothing to read.'},
+      fields:[['Source','Hume Haulage, Kynection docket feed, received as data','neutral'],['Docket number','HH-30977','clear'],['Date','8 Sep 2026','clear'],['Truck','XR 44 PQ, truck and dog','clear'],['Cartage','Kellyville Quarries pit to Kellyville Ridge','clear'],['Loads','12','clear'],['Hours','9.5','clear'],['Rate','$148 per hour cartage, matches the purchase order','clear'],['Weighbridge dockets','12 of 12 found, 88202 to 88213, by rego and time','check']],
+      flags:[['check','Cartage is billed by the hour, material by the tonne. The rule cannot pair loads with tonnes on its own, so a person confirms once that these 12 loads are weighbridge dockets 88202 to 88213. After that the pairing runs by itself for this haulier.']],
+      approve:function(){return 'Match 12 loads to 12 dockets'},done:function(){return 'HH-30977 matched to dockets 88202 to 88213. 9.5 cartage hours ready for ApprovalMax.'},
+      apply:function(){}}
+  ];
+
+  var B={
+    a:{name:'Harrowgate Constructions',platform:'their own portal, CSV upload',rows:[
+      ['Document title','doc_title','auto',''],
+      ['High risk construction work','hrcw_code','check','Their codes are numbered 1 to 18. Ours are named. Map once, remembered after that.'],
+      ['PCBU and ABN','abn','auto',''],
+      ['Site supervisor','supervisor_name','auto',''],
+      ['Plant and equipment','plant_items, one per line','auto',''],
+      ['Hazards and controls','controls, plus hierarchy_level','check','They want the control hierarchy (eliminate, substitute, isolate, engineer, admin, PPE) as its own column. Ours is inside the text.'],
+      ['Sign-on register','separate PDF upload','missing','Their portal takes the sign-on sheet as a second file.'],
+      ['Review date','review_date, dd/mm/yyyy','auto',''],
+      ['Emergency contacts','not accepted','missing','Not a field in their portal. Stays in our copy.']]},
+    b:{name:'Meridian Build Group',platform:'Procore',rows:[
+      ['Document title','Title','auto',''],
+      ['High risk construction work','Trade, from their picklist','check','Their picklist is by trade, not by risk category. Pick once.'],
+      ['PCBU and ABN','Company','auto','Pulled from their vendor record.'],
+      ['Site supervisor','Responsible person','auto',''],
+      ['Plant and equipment','Equipment','auto',''],
+      ['Hazards and controls','Hazard analysis table','auto','Same columns as ours.'],
+      ['Sign-on register','Attachment','auto','Uploaded alongside as a PDF.'],
+      ['Review date','Expiry','auto',''],
+      ['Emergency contacts','Attachment','auto','']]},
+    c:{name:'Stoneleigh Developments',platform:'HammerTech',rows:[
+      ['Document title','Activity','auto',''],
+      ['High risk construction work','HRCW','auto','Same list as the WHS Regulation.'],
+      ['PCBU and ABN','Subcontractor','auto',''],
+      ['Site supervisor','Supervisor','auto',''],
+      ['Plant and equipment','Plant','auto',''],
+      ['Hazards and controls','Hazard, risk, control, residual risk','check','Their residual risk is a 1 to 25 score. Ours is low, medium, high. Pick the conversion once.'],
+      ['Sign-on register','not needed','auto','Workers sign the SWMS in their app.'],
+      ['Review date','Expiry','auto',''],
+      ['Emergency contacts','Site emergency plan','missing','Held at their site level, not per SWMS.']]}
+  };
+
+  var W=[
+    {what:'BASIX certificate',from:'BASIX consultant',who:'Priya',job:'Lot 214 The Gables',jobno:'26-0412',kpi:7,day:9,asked:'1 September'},
+    {what:'Structural engineering',from:'Engineer',who:'Sam',job:'Lot 214 The Gables',jobno:'26-0412',kpi:7,day:4,asked:'6 September'},
+    {what:'Survey and soils',from:'Surveyor',who:'Dean',job:'Lot 88 Box Hill',jobno:'26-0388',kpi:14,day:15,asked:'26 August'},
+    {what:'Sydney Water approval',from:'Sydney Water',who:'the case officer',job:'Lot 214 The Gables',jobno:'26-0412',kpi:10,day:10,asked:'31 August'},
+    {what:'Construction certificate',from:'Private certifier',who:'Mel',job:'Lot 31 Thornton',jobno:'26-0431',kpi:5,day:2,asked:'8 September'},
+    {what:'Colour selections',from:'Client',who:'the client',job:'Lot 88 Box Hill',jobno:'26-0388',kpi:14,day:21,asked:'20 August'}
+  ];
+
+  /* ---------- helpers ---------- */
+  function claimLines(key){
+    var p=L[key],lines=[];
+    p.rows.forEach(function(r){var q=r.del-r.cl;if(q>0)lines.push({m:r.m,q:q,u:r.u,rate:r.rate,amt:q*r.rate})});
+    p.extra.forEach(function(e){lines.push({m:e.m,q:e.qty,u:e.u,rate:e.rate,amt:e.qty*e.rate})});
+    return lines;
+  }
+  function claimTotal(key){return claimLines(key).reduce(function(s,l){return s+l.amt},0)}
+  function needs(key){return Q.filter(function(i){return i.proj===key}).length+(hidden[key]||0)}
+  function pct(a,b){return Math.max(0,Math.min(100,Math.round(a/b*100)))}
+  function chipClass(s){return s==='clear'?'clear':s==='check'?'check':s==='unreadable'||s==='hold'?s:'neutral'}
+  function chipText(s){return s==='clear'?'Read ok':s==='check'?'Check':s==='unreadable'?'Unreadable':s==='hold'?'Hold':'Derived'}
+
+  /* ---------- overview ---------- */
+  function renderOverview(){
+    var k=L.kellyville,b=L.boxhill;
+    var rows=[
+      {name:k.name,client:k.client+', '+k.platform,mat:k.rows[0].m,u:k.rows[0].u,del:k.rows[0].del,ord:k.rows[0].ord,need:needs('kellyville'),claim:'Claim '+k.claim+' draft, '+money(claimTotal('kellyville'))},
+      {name:statics.marsden.name,client:statics.marsden.client+', '+statics.marsden.platform,mat:statics.marsden.mat,u:statics.marsden.u,del:statics.marsden.del,ord:statics.marsden.ord,need:needs('marsden'),claim:statics.marsden.claim},
+      {name:b.name,client:b.client+', '+b.platform,mat:b.rows[0].m,u:b.rows[0].u,del:b.rows[0].del,ord:b.rows[0].ord,need:needs('boxhill'),claim:'Claim '+b.claim+' draft, '+money(claimTotal('boxhill'))},
+      {name:statics.schofields.name,client:statics.schofields.client+', '+statics.schofields.platform,mat:statics.schofields.mat,u:statics.schofields.u,del:statics.schofields.del,ord:statics.schofields.ord,need:needs('schofields'),claim:statics.schofields.claim+', '+money(statics.schofields.val)}
+    ];
+    $('#ov tbody').innerHTML=rows.map(function(r){
+      return '<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.client)+'</td><td>'+esc(r.mat)+'<span class="sub">'+num(r.del)+' of '+num(r.ord)+' '+esc(r.u)+', '+pct(r.del,r.ord)+'%</span><div class="bar" aria-hidden="true"><i style="width:'+pct(r.del,r.ord)+'%"></i></div></td><td class="num">'+(r.need?'<span class="chip check">'+r.need+'</span>':'<span class="chip clear">0</span>')+'</td><td>'+esc(r.claim)+'</td></tr>';
+    }).join('');
+    var total=claimTotal('kellyville')+claimTotal('boxhill')+statics.schofields.val;
+    $('#t-claim').textContent=money(total);
+    var qn=Q.length+2;
+    $('#t-queue').textContent=qn;
+    $('#qcount').textContent=qn;
+  }
+
+  /* ---------- review queue ---------- */
+  var sel=Q.length?Q[0].id:null;
+  function docSvg(it){
+    var lines=it.doc.lines,h=64+lines.length*22+18,y=84;
+    var rows=lines.map(function(l){var s='<text x="16" y="'+y+'" font-size="10.5" fill="#5A5F66">'+esc(l[0])+'</text><text x="'+(l[0]?'92':'92')+'" y="'+y+'" font-size="11.5" font-weight="600" fill="#1A1C20">'+esc(l[1])+'</text>';y+=22;return s}).join('');
+    return '<svg viewBox="0 0 232 '+h+'" role="img" aria-label="'+esc(it.doc.title+', '+it.doc.sub)+'" font-family="Archivo, Arial, sans-serif"><rect x="0" y="0" width="232" height="'+h+'" fill="#FFFFFF"/><rect x="0" y="0" width="232" height="44" fill="#F4F2EE"/><text x="16" y="20" font-size="12" font-weight="700" fill="#1A1C20">'+esc(it.doc.title)+'</text><text x="16" y="35" font-size="10" fill="#5A5F66">'+esc(it.doc.sub)+'</text><line x1="0" y1="60" x2="232" y2="60" stroke="#E7E4DF"/>'+rows+'</svg>';
+  }
+  function renderQueue(){
+    var list=$('#qlist');
+    if(!Q.length){
+      list.innerHTML='';
+      $('#qdetail').innerHTML='<div class="empty">Nothing left to check here. Two more items from a site not in this demo are still waiting.</div>';
+      return;
+    }
+    if(!Q.some(function(i){return i.id===sel}))sel=Q[0].id;
+    list.innerHTML=Q.map(function(i){
+      return '<button class="qitem" aria-pressed="'+(i.id===sel)+'" data-id="'+i.id+'"><b>'+esc(i.type)+'</b><span>'+esc(i.from)+', '+esc(i.ref)+'</span><span>'+esc(i.projName)+'</span><span class="chip '+chipClass(i.state)+'">'+esc(i.stateText)+'</span></button>';
+    }).join('')+'<div class="qmore">Showing '+Q.length+' of '+(Q.length+2)+'. Two more are from a site not in this demo.</div>';
+    var it=Q.filter(function(i){return i.id===sel})[0];
+    var fields=it.fields.map(function(f,ix){
+      var id='f'+it.id+'-'+ix;
+      return '<div class="field"><label for="'+id+'">'+esc(f[0])+'</label><input id="'+id+'" value="'+esc(f[1])+'" '+(f[1]===''?'placeholder="left blank on purpose"':'')+'><span class="chip '+chipClass(f[2])+'">'+chipText(f[2])+'</span></div>';
+    }).join('');
+    var flags=it.flags.map(function(f){return '<li class="'+(f[0]==='crit'?'crit':'')+'">'+esc(f[1])+'</li>'}).join('');
+    function qtyNow(){
+      if(!it.qty)return 0;
+      var raw=parseFloat(String($('#f'+it.id+'-'+it.qty.field).value).replace(/[^0-9.]/g,''));
+      if(!(raw>0))raw=it.qty.fallback;
+      return raw/it.qty.factor;
+    }
+    $('#qdetail').innerHTML='<div class="detail"><div class="doc">'+docSvg(it)+'<div class="cap">'+esc(it.doc.cap)+'</div></div><div><div class="fields">'+fields+'</div><ul class="flags">'+flags+'</ul></div></div>'+
+      '<div class="actions"><label class="tick"><input type="checkbox" id="tick"> Checked against the paper</label><button class="btn" id="approve" disabled></button><button class="btn secondary" id="back">Send back to site</button></div>';
+    $('#approve').textContent=it.approve(qtyNow());
+    if(it.qty){
+      $('#f'+it.id+'-'+it.qty.field).addEventListener('input',function(){
+        var v=qtyNow();
+        $('#approve').textContent=it.approve(v);
+        if(it.qty.derived!=null)$('#f'+it.id+'-'+it.qty.derived).value=num(v,2)+' m³ at '+it.qty.factor+' t/m³, factor from the purchase order';
+      });
+    }
+    $('#tick').addEventListener('change',function(e){$('#approve').disabled=!e.target.checked});
+    $('#approve').addEventListener('click',function(){var v=qtyNow();it.apply(v);Q=Q.filter(function(i){return i.id!==it.id});toast(it.done(v));renderQueue();renderOverview();renderLedger();$('#claim').removeAttribute('data-on')});
+    $('#back').addEventListener('click',function(){Q=Q.filter(function(i){return i.id!==it.id});toast(it.ref+' sent back to site with a note asking for a clearer photo.');renderQueue();renderOverview()});
+    $$('.qitem',list).forEach(function(b){b.addEventListener('click',function(){sel=+b.getAttribute('data-id');renderQueue()})});
+  }
+
+  /* ---------- ledger ---------- */
+  function gapChip(r){
+    if(r.inv>r.del)return '<span class="chip hold wrap">Invoiced '+num(r.inv-r.del)+' '+esc(r.u)+' more than delivered. Hold the invoice.</span>';
+    if(r.del===0)return '<span class="chip neutral">Not started</span>';
+    var q=r.del-r.cl;
+    if(q>0)return '<span class="chip clear wrap">'+num(q)+' '+esc(r.u)+' ticked, not yet claimed</span>';
+    return '<span class="chip neutral">Fully claimed</span>';
+  }
+  function renderLedger(){
+    var key=$('#proj').value,p=L[key];
+    $('#proj-meta').textContent=p.client+', '+p.platform+'. Purchase order rates loaded once.';
+    $('#lg tbody').innerHTML=p.rows.map(function(r){
+      return '<tr><td>'+esc(r.m)+'</td><td>'+esc(r.u)+'</td><td class="num">'+num(r.ord)+'</td><td class="num">'+num(r.del)+'</td><td class="num">'+num(r.inv)+'</td><td class="num">'+num(r.cl)+'</td><td>'+gapChip(r)+'</td></tr>';
+    }).join('');
+    if($('#claim').hasAttribute('data-on'))renderClaim();
+  }
+  function renderClaim(){
+    var key=$('#proj').value,p=L[key],lines=claimLines(key),tot=claimTotal(key);
+    $('#claim').innerHTML='<h3>Progress claim '+p.claim+', '+esc(p.name)+'</h3><p class="small muted">To '+esc(p.client)+'. Period to 9 September 2026. Quantities are matched and ticked dockets less what has already been claimed. Rates from the contract schedule. Drafted the day the period closed; on paper the office typed every docket first.</p>'+
+      '<div class="lines"><table><thead><tr><th>Item</th><th class="num">Qty</th><th>Unit</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead><tbody>'+
+      lines.map(function(l){return '<tr><td>'+esc(l.m)+'</td><td class="num">'+num(l.q,2)+'</td><td>'+esc(l.u)+'</td><td class="num">'+money(l.rate)+'</td><td class="num">'+money(l.amt)+'</td></tr>'}).join('')+
+      '</tbody><tfoot><tr><td colspan="4">Total ex GST</td><td class="num">'+money(tot)+'</td></tr></tfoot></table></div>';
+    $('#claim').setAttribute('data-on','');
+  }
+
+  /* ---------- builder formats ---------- */
+  function renderMap(){
+    var key=$('#bld').value,b=B[key];
+    $('#bld-meta').textContent=b.platform;
+    $('#map tbody').innerHTML=b.rows.map(function(r){
+      var c=r[2]==='auto'?'<span class="chip clear">Auto</span>':r[2]==='check'?'<span class="chip check">Check once</span>':'<span class="chip unreadable">No home</span>';
+      return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+c+'</td><td class="small muted">'+esc(r[3])+'</td></tr>';
+    }).join('');
+    $('#pack').removeAttribute('data-on');
+  }
+  function renderPack(){
+    var key=$('#bld').value,b=B[key];
+    var a=b.rows.filter(function(r){return r[2]==='auto'}).length,c=b.rows.filter(function(r){return r[2]==='check'}).length,m=b.rows.filter(function(r){return r[2]==='missing'}).length;
+    $('#pack').innerHTML='<h3>SWMS-014 revision 7, formatted for '+esc(b.name)+'</h3><p>Mapped into '+esc(b.platform)+'. '+a+' fields filled automatically. '+(c?c+(c===1?' needs':' need')+' a person the first time, then the choice is remembered. ':'')+(m?m+(m===1?' has':' have')+' nowhere to go in their system and stay in our copy. ':'')+'Next job for '+esc(b.name)+': nothing to map.</p>';
+    $('#pack').setAttribute('data-on','');
+  }
+
+  /* ---------- waiting on ---------- */
+  function status(w){
+    if(w.day>w.kpi){var d=w.day-w.kpi;return '<span class="chip unreadable">Overdue '+d+' day'+(d===1?'':'s')+'</span>'}
+    if(w.day===w.kpi)return '<span class="chip check">Due today</span>';
+    return '<span class="chip clear">On track</span>';
+  }
+  function renderWaits(){
+    $('#wt tbody').innerHTML=W.map(function(w,ix){
+      return '<tr><td><b>'+esc(w.what)+'</b></td><td>'+esc(w.from)+'</td><td>'+esc(w.job)+'<span class="sub">'+esc(w.jobno)+', asked '+esc(w.asked)+'</span></td><td class="num">'+w.kpi+' days</td><td class="num">'+w.day+'</td><td>'+status(w)+'</td><td><button class="btn quiet sm" data-w="'+ix+'">Draft chaser</button></td></tr>';
+    }).join('');
+    $$('#wt [data-w]').forEach(function(b){b.addEventListener('click',function(){renderMail(W[+b.getAttribute('data-w')])})});
+  }
+  function renderMail(w){
+    var body;
+    if(w.from==='Client'){
+      body='Hi,\n\nA reminder that your colour selections for '+w.job+' (job '+w.jobno+') are still outstanding. We asked on '+w.asked+' and we cannot release the job to construction until they are in.\n\nThe colour consultant can meet you this week. Reply with a day that suits and we will book it.\n\nThanks,\n[your name], client project coordinator';
+    }else{
+      var late=w.day>w.kpi?', so it is now holding the job':'';
+      body='Hi '+w.who+',\n\nFollowing up on the '+w.what.toLowerCase()+' for '+w.job+' (job '+w.jobno+'), requested on '+w.asked+'. Our programme allows '+w.kpi+' days for this and we are at day '+w.day+late+'. Could you let me know where it is up to and when we can expect it?\n\nThe current plans and the original request are attached again for reference.\n\nThanks,\n[your name], client project coordinator';
+    }
+    $('#mail').innerHTML='<h3>Chaser, ready to send</h3><p class="hdr">To: '+esc(w.who)+', '+esc(w.from)+'<br>Subject: '+esc(w.what)+', '+esc(w.job)+', requested '+esc(w.asked)+'</p><pre>'+esc(body)+'</pre><div class="actions"><button class="btn" data-toast="In the real prototype this opens the draft in Outlook from the shared mailbox.">Open in Outlook</button><button class="btn secondary" id="copy">Copy text</button></div>';
+    $('#mail').setAttribute('data-on','');
+    $('#copy').addEventListener('click',function(){try{navigator.clipboard.writeText(body).then(function(){toast('Copied.')},function(){toast('Select the text and copy it.')})}catch(e){toast('Select the text and copy it.')}});
+    $('#mail').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+
+  /* ---------- tabs, notes, generic buttons ---------- */
+  var tabs=$$('.nav [role=tab]');
+  function showTab(t,focus){
+    tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);x.setAttribute('tabindex',on?'0':'-1')});
+    $$('.screen').forEach(function(s){if(s.id===t.getAttribute('data-tab'))s.setAttribute('data-on','');else s.removeAttribute('data-on')});
+    if(focus)t.focus();
+  }
+  tabs.forEach(function(t,ix){
+    t.setAttribute('tabindex',t.getAttribute('aria-selected')==='true'?'0':'-1');
+    t.addEventListener('click',function(){showTab(t,false)});
+    t.addEventListener('keydown',function(e){
+      var k=e.key,j=null;
+      if(k==='ArrowRight'||k==='ArrowDown')j=(ix+1)%tabs.length;
+      else if(k==='ArrowLeft'||k==='ArrowUp')j=(ix-1+tabs.length)%tabs.length;
+      else if(k==='Home')j=0;else if(k==='End')j=tabs.length-1;
+      if(j!==null){e.preventDefault();showTab(tabs[j],true)}
+    });
+  });
+  $('#notes').addEventListener('click',function(){
+    var on=document.body.hasAttribute('data-notes');
+    if(on){document.body.removeAttribute('data-notes');this.setAttribute('aria-pressed','false');this.textContent='Show presenter notes'}
+    else{document.body.setAttribute('data-notes','');this.setAttribute('aria-pressed','true');this.textContent='Hide presenter notes'}
+  });
+  document.addEventListener('click',function(e){var b=e.target.closest('[data-toast]');if(b)toast(b.getAttribute('data-toast'))});
+  $('#proj').addEventListener('change',function(){$('#claim').removeAttribute('data-on');renderLedger()});
+  $('#draft').addEventListener('click',renderClaim);
+  $('#bld').addEventListener('change',renderMap);
+  $('#gen').addEventListener('click',renderPack);
+
+  renderOverview();renderQueue();renderLedger();renderMap();renderWaits();
+})();
+</script>

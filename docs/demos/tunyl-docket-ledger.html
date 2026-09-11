@@ -1,0 +1,558 @@
+<title>Tunyl Docket Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Caveat:wght@500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --canvas:#FAF9F7; --surface:#FFFFFF; --border:#E7E4DF; --ink:#1A1C20; --ink2:#5A5F66;
+  --panel:#16181D; --panel-ink:#F2F1EE; --panel-ink2:#9BA0A8; --panel-rule:#2A2D34;
+  --accent:#E8590C; --btn:#C94A08; --btn-hover:#A83D06; --tint:#FDEEE3; --tint-ink:#A83D06;
+  --crit-ink:#C92A2A; --crit-bg:#FBEAEA; --high-ink:#B03D06; --high-bg:#FDEEE3;
+  --med-ink:#8A5C00; --med-bg:#FBF3E0; --ok-ink:#2B7A3D; --ok-bg:#E9F4EC;
+  --row-alt:#F4F2EE; --shadow:0 1px 2px rgb(0 0 0 / .04);
+}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:Archivo,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:24px 20px 80px}
+h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:36px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:18px;font-weight:600}
+p{margin:10px 0;max-width:66ch}
+.muted{color:var(--ink2)}
+.small{font-size:13px}
+a{color:var(--tint-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0 28px}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand b{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand span{color:var(--ink2);font-size:15px}
+.badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;background:var(--tint);color:var(--tint-ink);white-space:nowrap}
+
+.hero{padding:8px 0 24px}
+.hero p{font-size:18px;color:var(--ink2);margin-top:12px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow);margin-top:24px}
+.card.capture{border-radius:20px}
+.card > h2 + p{margin-top:6px}
+.section-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+
+.examples{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+@media (max-width:600px){.examples{grid-template-columns:1fr}}
+.thumb{display:block;width:100%;padding:0;border:1px solid var(--border);border-radius:12px;background:#EFEDE8;overflow:hidden;cursor:pointer;text-align:left;transition:border-color .15s}
+.thumb:hover,.thumb[aria-pressed="true"]{border-color:var(--accent)}
+.thumb svg{display:block;width:100%;height:auto}
+.thumb .cap{display:block;padding:10px 12px;background:var(--surface);border-top:1px solid var(--border);font-size:13px;font-weight:500}
+.thumb .cap small{display:block;color:var(--ink2);font-weight:400}
+
+.upload{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.upload p{margin:0;flex:1 1 320px}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+label.btn:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;border:1px solid transparent;font-weight:600;font-size:15px;cursor:pointer;background:var(--btn);color:#fff;transition:background .15s}
+.btn:hover{background:var(--btn-hover)}
+.btn.secondary{background:var(--surface);color:var(--ink);border-color:var(--border)}
+.btn.secondary:hover{background:var(--row-alt)}
+.btn.quiet{background:transparent;color:var(--tint-ink);padding:6px 8px;border:0}
+.btn.quiet:hover{background:var(--tint)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{font-size:13px;padding:6px 10px;border-radius:12px}
+
+.status{display:none;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--row-alt);font-size:14px}
+.status[data-on]{display:flex}
+.status .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:none}
+.status[data-busy] .dot{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+.status.err{background:var(--crit-bg);color:var(--crit-ink)}
+.status.warn{background:var(--med-bg);color:var(--med-ink)}
+
+.reader{display:none}
+.reader[data-on]{display:block}
+.reader-grid{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px}
+@media (max-width:640px){.reader-grid{grid-template-columns:1fr}}
+.docket-view{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#EFEDE8;align-self:start}
+.docket-view svg{display:block;width:100%;height:auto}
+.docket-view img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
+.fields{display:grid;gap:12px}
+.field{display:grid;grid-template-columns:132px 1fr auto;gap:6px 12px;align-items:center}
+@media (max-width:640px){.field{grid-template-columns:1fr auto}.field label{grid-column:1 / -1}}
+.field label{font-size:13px;color:var(--ink2);font-weight:500}
+.field input,.field select,select.job{width:100%;font:inherit;font-size:15px;padding:8px 10px;border:1px solid #C9C4BC;border-radius:12px;background:var(--row-alt);color:var(--ink)}
+.field input:focus,.field select:focus,select.job:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--tint)}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:12px;white-space:nowrap;line-height:1.3}
+.chip.clear{color:var(--ok-ink);background:var(--ok-bg)}
+.chip.check{color:var(--med-ink);background:var(--med-bg)}
+.chip.unreadable{color:var(--crit-ink);background:var(--crit-bg)}
+.chip.neutral{color:var(--ink2);background:var(--row-alt)}
+.flags{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.flags li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--med-bg);color:var(--med-ink);font-size:14px}
+.flags li.crit{background:var(--crit-bg);color:var(--crit-ink)}
+.flags li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:currentColor;margin-top:7px}
+.confirm{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.confirm label.tick{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;flex:1 1 280px}
+.confirm input[type=checkbox]{width:20px;height:20px;accent-color:var(--btn);margin:0}
+.jobrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:16px}
+.jobrow label{font-size:13px;color:var(--ink2);font-weight:500}
+select.job{width:auto;min-width:220px}
+.posture{margin-top:14px;font-size:13px;color:var(--ink2)}
+
+.totals{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
+@media (max-width:560px){.totals{grid-template-columns:1fr}}
+.total{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.total .name{font-size:13px;color:var(--ink2);font-weight:500}
+.total .num{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2}
+.total .num small{font-size:13px;font-weight:500;color:var(--ink2);margin-left:4px}
+.bar{position:relative;height:8px;border-radius:12px;background:var(--row-alt);margin-top:10px;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:12px}
+.bar i.pend{background:var(--accent);opacity:.35;min-width:6px;border-radius:0 12px 12px 0}
+.total .sub{font-size:12px;color:var(--ink2);margin-top:6px;font-variant-numeric:tabular-nums}
+
+.tbl{overflow-x:auto;margin-top:18px;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums;min-width:640px}
+th,td{text-align:left;vertical-align:middle;padding:10px 12px;border-bottom:1px solid var(--border)}
+th{font-weight:600;background:var(--row-alt);white-space:nowrap;font-size:13px}
+tbody tr:last-child td{border-bottom:0}
+td.num{text-align:right;white-space:nowrap}
+th.stick,td.stick{position:sticky;right:0;background:var(--surface);box-shadow:-1px 0 0 var(--border);white-space:nowrap;min-width:120px}
+th.stick{background:var(--row-alt)}
+tr.new td.stick{background:var(--tint)}
+td.stick .btn{display:block;margin-top:4px;padding-left:0}
+.swipe{display:none;font-size:13px;color:var(--ink2);margin:8px 0 0}
+@media (max-width:640px){.swipe{display:block}}
+tr.bf td{color:var(--ink2)}
+tr.new td{background:var(--tint)}
+.exports{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:18px}
+.exports .spacer{flex:1}
+
+.fit{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:18px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+@media (max-width:600px){.fit{grid-template-columns:1fr}}
+.fit div{padding:16px 18px;border-right:1px solid var(--border)}
+.fit div:last-child{border-right:0}
+@media (max-width:600px){.fit div{border-right:0;border-bottom:1px solid var(--border)}.fit div:last-child{border-bottom:0}}
+.fit .lbl{font-size:13px;color:var(--ink2);font-weight:500}
+.fit .val{font-size:15px;font-weight:600;margin-top:4px}
+.fit p{font-size:13px;color:var(--ink2);margin:6px 0 0}
+
+.panel{background:var(--panel);color:var(--panel-ink);border-radius:16px;padding:24px 28px;margin-top:24px}
+.panel .lbl{color:var(--panel-ink2);font-size:13px;margin:0 0 10px}
+.panel blockquote{margin:0;font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:18px;line-height:1.5;max-width:60ch}
+.panel cite{display:block;font-style:normal;font-size:13px;color:var(--panel-ink2);margin-top:10px}
+.panel ul{margin:14px 0 0;padding-left:20px;color:var(--panel-ink);font-size:14px}
+.panel li{margin:4px 0}
+.panel li::marker{color:var(--accent)}
+
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);font-size:13px;color:var(--ink2)}
+
+@media (prefers-reduced-motion:no-preference){
+  .card,.panel{animation:rise .24s ease-out both}
+  .card:nth-of-type(2){animation-delay:.06s}.card:nth-of-type(3){animation-delay:.12s}.card:nth-of-type(4){animation-delay:.18s}
+}
+@keyframes rise{from{opacity:.9;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><b>Tunyl</b><span>Docket ledger</span></div>
+    <span class="badge">Demo for feedback</span>
+  </div>
+
+  <div class="hero">
+    <h1>Photograph the docket. The quantities land in the ledger.</h1>
+    <p>For subcontractors tracking bulk materials across many sites. The AI reads the docket and flags what to check. Nothing for the supplier or the builder to sign up to.</p>
+  </div>
+
+  <section class="card capture" aria-labelledby="cap-h">
+    <h2 id="cap-h">Read a docket</h2>
+    <p class="muted">Pick an example to see how a reading works, or take a photo of a real docket.</p>
+    <div class="examples" id="examples"></div>
+    <div class="upload">
+      <p class="muted small" id="upload-note">Read your own: a photo of a concrete, weighbridge or tipping docket.</p>
+      <label class="btn secondary" for="photo">Take or choose a photo<input type="file" id="photo" accept="image/*" capture="environment"></label>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="status-text"></span><button class="btn quiet sm" id="stop" hidden>Stop</button></div>
+  </section>
+
+  <section class="card reader" id="reader" aria-labelledby="read-h">
+    <div class="section-head">
+      <h2 id="read-h">What was read</h2>
+      <span class="chip neutral" id="read-source">Example reading</span>
+    </div>
+    <div class="reader-grid">
+      <div class="docket-view" id="docket-view"></div>
+      <div>
+        <div class="fields" id="fields"></div>
+        <ul class="flags" id="flags"></ul>
+        <div class="jobrow"><label for="job">Job</label><select class="job" id="job"></select></div>
+        <div class="confirm">
+          <label class="tick"><input type="checkbox" id="verified"><span id="verified-label">Checked against the paper</span></label>
+          <button class="btn quiet" id="discard">Discard</button>
+          <button class="btn" id="add">Add to ledger</button>
+        </div>
+        <p class="posture">Read by AI, checked by you. A row counts as verified only when someone ticks it. Flagged fields stay open until then.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="led-h">
+    <div class="section-head">
+      <h2 id="led-h">Site ledger</h2>
+      <select class="job" id="ledger-job" aria-label="Ledger job"></select>
+    </div>
+    <div class="totals" id="totals"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Date</th><th>Docket</th><th>Material</th><th class="num">Qty</th><th>Supplier</th><th class="stick">Status</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="swipe">Swipe the table sideways for quantity and supplier. Status stays in view.</p>
+    <div class="exports">
+      <button class="btn secondary" id="csv">Download ledger CSV</button>
+      <button class="btn secondary" id="xero">Download Xero bill lines</button>
+      <span class="spacer"></span>
+      <button class="btn quiet sm" id="reset">Reset demo</button>
+    </div>
+    <p class="small muted" id="export-note">Xero lines include verified rows only. Add your rates and account codes before importing.</p>
+  </section>
+
+  <section class="card" aria-labelledby="fit-h">
+    <h2 id="fit-h">How it fits the tools you already run</h2>
+    <div class="fit">
+      <div><div class="lbl">In</div><div class="val">WhatsApp, email or this page</div><p>The person on site sends the photo the way they already send photos. No app to install.</p></div>
+      <div><div class="lbl">Tunyl</div><div class="val">Reads, flags, keeps the ledger</div><p>Every docket becomes a row with the fields to check marked. Running totals per material per job.</p></div>
+      <div><div class="lbl">Out</div><div class="val">Your spreadsheet, Xero, ApprovalMax</div><p>The ledger leaves as CSV or bill lines in the shape your accounts team already imports.</p></div>
+    </div>
+    <p class="small muted">The paper docket stays the record. The ledger is the working copy that used to be typed in by hand.</p>
+  </section>
+
+  <div class="panel">
+    <p class="lbl">Why this exists</p>
+    <blockquote>We track materials on site, and you might be doing hundreds of thousands of cubic metres. So that's obviously a long process. There's a few things that are still pretty data-entry driven, which obviously we're looking at AI to resolve.<cite>Construction manager, civil subcontractor, Norwest, 7 September 2026</cite></blockquote>
+    <ul>
+      <li>Who keys the dockets in today, and how many a day?</li>
+      <li>What does the ledger feed: progress claims, cost reports, the board pack?</li>
+      <li>Which fields get argued about with the supplier or the builder?</li>
+    </ul>
+  </div>
+
+  <p class="foot">Demo built for feedback. The three example dockets are invented and carry no real supplier, job or price data. Readings are indicators to check against the paper docket, not a record on their own. Live reading of your own photo runs inside claude.ai and uses the viewer's Claude usage.</p>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// ---------- example dockets (invented) ----------
+const paper = (inner, rot) => `<svg viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg" font-family="Archivo, Arial, Helvetica, sans-serif" role="img" aria-label="Example docket">
+<rect width="360" height="470" fill="#E6E3DD"/>
+<g transform="${rot ? 'rotate(-2 180 235)' : ''}">
+<rect x="18" y="16" width="324" height="438" fill="#000" opacity=".08" transform="translate(4 5)"/>
+<rect x="18" y="16" width="324" height="438" fill="#fff"/>
+${inner}
+</g></svg>`;
+
+const scribble = (x,y) => `<path d="M${x} ${y} c6 -14 10 -6 14 -2 s8 -12 14 -4 10 4 18 -6 8 -10 14 -2 12 -6 18 2" fill="none" stroke="#2b3a7a" stroke-width="1.6" stroke-linecap="round"/>`;
+
+const DOCKET_1 = paper(`
+<rect x="18" y="16" width="324" height="52" fill="#1F3A5F"/>
+<text x="34" y="40" fill="#fff" font-size="14" font-weight="700">WESTLINE CONCRETE PTY LTD</text>
+<text x="34" y="57" fill="#C9D4E2" font-size="8.5">ABN 00 000 000 000 · Plant: Eastern Creek · 1300 000 000</text>
+<text x="34" y="92" font-size="11" font-weight="700" fill="#1A1C20">DELIVERY DOCKET</text>
+<text x="326" y="92" font-size="13" font-weight="700" text-anchor="end" fill="#1A1C20">No. 48213</text>
+<line x1="34" y1="100" x2="326" y2="100" stroke="#1A1C20" stroke-width=".8"/>
+<text x="34" y="122" font-size="9" fill="#5A5F66">DATE</text><text x="34" y="136" font-size="11" fill="#1A1C20">09/09/2026</text>
+<text x="130" y="122" font-size="9" fill="#5A5F66">LOADED</text><text x="130" y="136" font-size="11" fill="#1A1C20">06:42</text>
+<text x="200" y="122" font-size="9" fill="#5A5F66">TRUCK</text><text x="200" y="136" font-size="11" fill="#1A1C20">WC-14</text>
+<text x="262" y="122" font-size="9" fill="#5A5F66">DRIVER</text><text x="262" y="136" font-size="11" fill="#1A1C20">M. Osei</text>
+<text x="34" y="160" font-size="9" fill="#5A5F66">CUSTOMER</text><text x="34" y="174" font-size="11" fill="#1A1C20">Your company (demo)</text>
+<text x="34" y="196" font-size="9" fill="#5A5F66">SITE / POUR</text><text x="34" y="210" font-size="11" fill="#1A1C20">Bella Vista Stage 2, basement slab, pour 3</text>
+<rect x="34" y="228" width="292" height="20" fill="#EEF1F5"/>
+<text x="40" y="242" font-size="9" font-weight="600" fill="#1A1C20">CODE</text>
+<text x="110" y="242" font-size="9" font-weight="600" fill="#1A1C20">DESCRIPTION</text>
+<text x="320" y="242" font-size="9" font-weight="600" fill="#1A1C20" text-anchor="end">QTY</text>
+<text x="40" y="264" font-size="10.5" fill="#1A1C20">N32-20-100</text>
+<text x="110" y="264" font-size="10.5" fill="#1A1C20">N32 20mm agg, 100 slump</text>
+<text x="320" y="264" font-size="12" font-weight="700" fill="#1A1C20" text-anchor="end">7.0 m³</text>
+<line x1="34" y1="274" x2="326" y2="274" stroke="#E7E4DF"/>
+<text x="34" y="296" font-size="9" fill="#5A5F66">ADDITIVES</text><text x="34" y="310" font-size="10.5" fill="#1A1C20">None</text>
+<text x="200" y="296" font-size="9" fill="#5A5F66">WATER ADDED ON SITE</text><text x="200" y="310" font-size="10.5" fill="#1A1C20">____ L</text>
+<text x="34" y="352" font-size="9" fill="#5A5F66">RECEIVED BY (SIGN)</text>
+${scribble(38,382)}
+<line x1="34" y1="388" x2="180" y2="388" stroke="#1A1C20" stroke-width=".6"/>
+<text x="200" y="352" font-size="9" fill="#5A5F66">PRINT NAME</text>
+<text x="200" y="382" font-size="10.5" fill="#8A8F96">J. Ma</text><text x="222" y="382" font-size="10.5" fill="#C5C8CC">____</text>
+<line x1="200" y1="388" x2="326" y2="388" stroke="#1A1C20" stroke-width=".6"/>
+<text x="34" y="420" font-size="7" fill="#8A8F96">Goods remain the property of the supplier until paid in full. Slump tested at plant. Time on site limited to 30 minutes.</text>
+<text x="34" y="432" font-size="7" fill="#8A8F96">Water added on site at customer's risk and voids strength warranty.</text>
+`, false);
+
+const DOCKET_2 = paper(`
+<rect x="18" y="16" width="324" height="52" fill="#2F5D3A"/>
+<text x="34" y="40" fill="#fff" font-size="14" font-weight="700">KURRAJONG QUARRIES</text>
+<text x="34" y="57" fill="#CFE0D3" font-size="8.5">Weighbridge · Pit 2 · Certified scale, verified 03/2026</text>
+<text x="34" y="92" font-size="11" font-weight="700" fill="#1A1C20">WEIGHBRIDGE DOCKET</text>
+<text x="326" y="92" font-size="13" font-weight="700" text-anchor="end" fill="#1A1C20">2026-091553</text>
+<line x1="34" y1="100" x2="326" y2="100" stroke="#1A1C20" stroke-width=".8"/>
+<text x="34" y="122" font-size="9" fill="#5A5F66">DATE</text><text x="34" y="136" font-size="11" fill="#1A1C20">09/09/2026</text>
+<text x="130" y="122" font-size="9" fill="#5A5F66">OUT</text><text x="130" y="136" font-size="11" fill="#1A1C20">10:15</text>
+<text x="200" y="122" font-size="9" fill="#5A5F66">VEHICLE</text><text x="200" y="136" font-size="11" fill="#1A1C20">XQ 07 RT</text>
+<text x="34" y="160" font-size="9" fill="#5A5F66">PRODUCT</text><text x="34" y="174" font-size="11" fill="#1A1C20">DGB20 road base (AS 2758.1)</text>
+<text x="34" y="196" font-size="9" fill="#5A5F66">DELIVER TO</text><text x="34" y="210" font-size="11" fill="#1A1C20">Bella Vista Stage 2, haul road</text>
+<text x="230" y="196" font-size="9" fill="#5A5F66">ORDER</text><text x="230" y="210" font-size="11" fill="#1A1C20">PO-4471</text>
+<rect x="34" y="232" width="292" height="92" fill="#F1F5F1"/>
+<text x="46" y="254" font-size="9" fill="#5A5F66">GROSS</text><text x="150" y="254" font-size="11" fill="#1A1C20" text-anchor="end">38.42 t</text>
+<text x="46" y="276" font-size="9" fill="#5A5F66">TARE</text><text x="150" y="276" font-size="11" fill="#1A1C20" text-anchor="end">13.56 t</text>
+<line x1="46" y1="286" x2="150" y2="286" stroke="#1A1C20" stroke-width=".6"/>
+<text x="46" y="308" font-size="10" font-weight="700" fill="#1A1C20">NET</text><text x="150" y="310" font-size="16" font-weight="700" fill="#1A1C20" text-anchor="end">24.86 t</text>
+<text x="190" y="254" font-size="9" fill="#5A5F66">MOISTURE</text><text x="190" y="268" font-size="10.5" fill="#1A1C20">4.1 %</text>
+<text x="190" y="292" font-size="9" fill="#5A5F66">OPERATOR</text><text x="190" y="306" font-size="10.5" fill="#1A1C20">DK</text>
+<text x="34" y="352" font-size="9" fill="#5A5F66">DRIVER SIGNATURE</text>
+${scribble(38,382)}
+<line x1="34" y1="388" x2="180" y2="388" stroke="#1A1C20" stroke-width=".6"/>
+<text x="200" y="352" font-size="9" fill="#5A5F66">RECEIVED ON SITE</text>
+<text x="200" y="382" font-size="10.5" fill="#1A1C20">R. Tan</text>
+<line x1="200" y1="388" x2="326" y2="388" stroke="#1A1C20" stroke-width=".6"/>
+<text x="34" y="420" font-size="7" fill="#8A8F96">Net weight is the quantity supplied. Tare from last calibrated weigh of this vehicle. Claims within 24 hours.</text>
+`, false);
+
+const hand = (x,y,t,size) => `<text x="${x}" y="${y}" font-family="Caveat, 'Segoe Script', 'Bradley Hand', cursive" font-size="${size||17}" font-weight="600" fill="#1E2A78">${t}</text>`;
+const DOCKET_3 = paper(`
+<text x="34" y="46" font-size="15" font-weight="700" fill="#1A1C20">MULLINS HAULAGE</text>
+<text x="34" y="62" font-size="8.5" fill="#5A5F66">Tipper &amp; dog · 0400 000 000 · Riverstone</text>
+<text x="34" y="92" font-size="11" font-weight="700" fill="#1A1C20">TIPPING / CARTAGE DOCKET</text>
+<text x="326" y="92" font-size="12" font-weight="700" text-anchor="end" fill="#1A1C20">No. 0917</text>
+<line x1="34" y1="100" x2="326" y2="100" stroke="#1A1C20" stroke-width=".8"/>
+<text x="34" y="128" font-size="9" fill="#5A5F66">DATE</text><line x1="70" y1="132" x2="180" y2="132" stroke="#B9BDC3" stroke-width=".6"/>${hand(78,129,"8/9/26")}
+<text x="200" y="128" font-size="9" fill="#5A5F66">TRUCK</text><line x1="240" y1="132" x2="326" y2="132" stroke="#B9BDC3" stroke-width=".6"/>${hand(246,129,"MH 22")}
+<text x="34" y="164" font-size="9" fill="#5A5F66">FROM</text><line x1="70" y1="168" x2="326" y2="168" stroke="#B9BDC3" stroke-width=".6"/>${hand(78,165,"Bella Vista St 2  bulk exc")}
+<text x="34" y="200" font-size="9" fill="#5A5F66">TO</text><line x1="70" y1="204" x2="326" y2="204" stroke="#B9BDC3" stroke-width=".6"/>${hand(78,201,"Riverstone tip")}
+<text x="34" y="236" font-size="9" fill="#5A5F66">MATERIAL</text><line x1="90" y1="240" x2="326" y2="240" stroke="#B9BDC3" stroke-width=".6"/>${hand(98,237,"ENM spoil")}
+<text x="34" y="272" font-size="9" fill="#5A5F66">LOADS</text><line x1="70" y1="276" x2="120" y2="276" stroke="#B9BDC3" stroke-width=".6"/>${hand(84,273,"1")}
+<text x="150" y="272" font-size="9" fill="#5A5F66">QTY</text><line x1="176" y1="276" x2="260" y2="276" stroke="#B9BDC3" stroke-width=".6"/>${hand(184,274,"12 m³",19)}
+<text x="270" y="272" font-size="9" fill="#5A5F66">LOOSE</text><rect x="304" y="262" width="12" height="12" fill="none" stroke="#5A5F66" stroke-width=".8"/>${hand(305,273,"✓",13)}
+<text x="34" y="320" font-size="9" fill="#5A5F66">DRIVER</text>
+<path d="M40 348 c8 -18 12 -4 18 -6 s10 -14 16 -4 8 8 16 -4 6 -12 14 -4 10 2 14 -2 14 -10 22 -2" fill="none" stroke="#1E2A78" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="34" y1="354" x2="180" y2="354" stroke="#1A1C20" stroke-width=".6"/>
+<text x="200" y="320" font-size="9" fill="#5A5F66">SITE SUPERVISOR</text>
+<line x1="200" y1="354" x2="326" y2="354" stroke="#1A1C20" stroke-width=".6"/>
+<text x="34" y="392" font-size="7" fill="#8A8F96">Classification per EPA waste classification guidelines. Loose volume unless stated. Tip fees on account.</text>
+<rect x="20" y="380" width="120" height="70" fill="#000" opacity=".05"/>
+`, true);
+
+const EXAMPLES = [
+  { id:'ex1', title:'Concrete delivery', sub:'Printed, all fields clear', svg:DOCKET_1, job:'bv2',
+    fields:{ supplier:['Westline Concrete Pty Ltd','clear'], docket:['48213','clear'], date:['2026-09-09','clear'], material:['N32 concrete','clear'], quantity:['7.0','clear'], unit:['m³','clear'], truck:['WC-14','clear'], deliveredTo:['Bella Vista Stage 2, basement slab, pour 3','clear'], signedBy:['J. Ma…','check'] },
+    flags:[ ['check','Printed name is faded after "J. Ma". Confirm who received the load.'], ['check','Water added on site is blank. If any was added, note it before the pour record is closed.'] ] },
+  { id:'ex2', title:'Quarry weighbridge', sub:'Net weight, in tonnes', svg:DOCKET_2, job:'bv2',
+    fields:{ supplier:['Kurrajong Quarries','clear'], docket:['2026-091553','clear'], date:['2026-09-09','clear'], material:['DGB20 road base','clear'], quantity:['24.86','clear'], unit:['t','clear'], truck:['XQ 07 RT','clear'], deliveredTo:['Bella Vista Stage 2, haul road','clear'], signedBy:['R. Tan','clear'] },
+    flags:[ ['check','Net weight used, not gross. Order PO-4471 is on the docket; match it to the purchase order before the claim.'] ] },
+  { id:'ex3', title:'Spoil out, tipping', sub:'Handwritten, quantity needs a look', svg:DOCKET_3, job:'bv2',
+    fields:{ supplier:['Mullins Haulage','clear'], docket:['0917','clear'], date:['2026-09-08','check'], material:['Spoil out (ENM)','clear'], quantity:['12','check'], unit:['m³','check'], truck:['MH 22','clear'], deliveredTo:['Riverstone tip, from Bella Vista Stage 2 bulk excavation','clear'], signedBy:['','unreadable'] },
+    flags:[ ['crit','Quantity is handwritten. Read as 12, could be 17. Check the paper before this row counts.'], ['check','Loose box is ticked. 12 m³ loose is not 12 m³ in the ground; apply your bulking factor if the ledger tracks bank volume.'], ['check','Date is handwritten as 8/9/26. Read as 8 September 2026.'], ['crit','Site supervisor signature is blank. Nobody on your side has signed for this load.'] ] },
+];
+
+const JOBS = [ {id:'bv2', name:'Bella Vista Stage 2'}, {id:'kr', name:'Kellyville Rd upgrade'}, {id:'mp', name:'Marsden Park basement'} ];
+const MATERIALS = { 'Select fill':{unit:'m³',ordered:2000}, 'DGB20 road base':{unit:'t',ordered:400}, 'N32 concrete':{unit:'m³',ordered:120}, 'Spoil out (ENM)':{unit:'m³',ordered:null} };
+const FIELDS = [ ['supplier','Supplier'], ['docket','Docket number'], ['date','Date'], ['material','Material'], ['quantity','Quantity'], ['unit','Unit'], ['truck','Truck or rego'], ['deliveredTo','Delivered to'], ['signedBy','Received by'] ];
+
+const SEED = [
+  {id:'s1', date:'2026-09-08', docket:'0912', supplier:'Mullins Haulage', material:'Spoil out (ENM)', qty:12, unit:'m³', job:'bv2', truck:'MH 22', deliveredTo:'Riverstone tip', signedBy:'R. Tan', status:'verified', source:'ledger'},
+  {id:'s2', date:'2026-09-05', docket:'11590', supplier:'Hawkesbury Sand & Soil', material:'Select fill', qty:18, unit:'m³', job:'bv2', truck:'HS 41', deliveredTo:'Bella Vista Stage 2, north pad', signedBy:'R. Tan', status:'verified', source:'ledger'},
+  {id:'s3', date:'2026-09-05', docket:'11588', supplier:'Hawkesbury Sand & Soil', material:'Select fill', qty:18, unit:'m³', job:'bv2', truck:'HS 39', deliveredTo:'Bella Vista Stage 2, north pad', signedBy:'R. Tan', status:'verified', source:'ledger'},
+  {id:'s4', date:'2026-09-04', docket:'11582', supplier:'Hawkesbury Sand & Soil', material:'Select fill', qty:18, unit:'m³', job:'bv2', truck:'HS 41', deliveredTo:'Bella Vista Stage 2, north pad', signedBy:'R. Tan', status:'verified', source:'ledger'},
+  {id:'s5', date:'2026-09-04', docket:'11579', supplier:'Hawkesbury Sand & Soil', material:'Select fill', qty:18, unit:'m³', job:'bv2', truck:'HS 39', deliveredTo:'Bella Vista Stage 2, north pad', signedBy:'', status:'check', source:'ledger'},
+  {id:'s6', date:'2026-09-03', docket:'2026-090880', supplier:'Kurrajong Quarries', material:'DGB20 road base', qty:25.10, unit:'t', job:'bv2', truck:'XQ 07 RT', deliveredTo:'Bella Vista Stage 2, haul road', signedBy:'R. Tan', status:'verified', source:'ledger'},
+  {id:'s7', date:'2026-09-03', docket:'2026-090871', supplier:'Kurrajong Quarries', material:'DGB20 road base', qty:24.62, unit:'t', job:'bv2', truck:'XQ 12 RT', deliveredTo:'Bella Vista Stage 2, haul road', signedBy:'R. Tan', status:'verified', source:'ledger'},
+  {id:'s8', date:'2026-09-02', docket:'48107', supplier:'Westline Concrete Pty Ltd', material:'N32 concrete', qty:7, unit:'m³', job:'bv2', truck:'WC-09', deliveredTo:'Bella Vista Stage 2, basement slab, pour 2', signedBy:'J. Mason', status:'verified', source:'ledger'},
+  {id:'s9', date:'2026-09-02', docket:'48102', supplier:'Westline Concrete Pty Ltd', material:'N32 concrete', qty:7, unit:'m³', job:'bv2', truck:'WC-14', deliveredTo:'Bella Vista Stage 2, basement slab, pour 2', signedBy:'J. Mason', status:'verified', source:'ledger'},
+  {id:'b1', date:'2026-09-01', docket:'Brought forward, 64 dockets', supplier:'Hawkesbury Sand & Soil', material:'Select fill', qty:1152, unit:'m³', job:'bv2', status:'verified', source:'bf'},
+  {id:'b2', date:'2026-09-01', docket:'Brought forward, 6 dockets', supplier:'Kurrajong Quarries', material:'DGB20 road base', qty:136.5, unit:'t', job:'bv2', status:'verified', source:'bf'},
+  {id:'b3', date:'2026-09-01', docket:'Brought forward, 10 dockets', supplier:'Westline Concrete Pty Ltd', material:'N32 concrete', qty:70, unit:'m³', job:'bv2', status:'verified', source:'bf'},
+  {id:'b4', date:'2026-09-01', docket:'Brought forward, 25 loads', supplier:'Mullins Haulage', material:'Spoil out (ENM)', qty:300, unit:'m³', job:'bv2', status:'verified', source:'bf'},
+  {id:'b5', date:'2026-09-01', docket:'Brought forward, 23 dockets', supplier:'Hawkesbury Sand & Soil', material:'Select fill', qty:410, unit:'m³', job:'kr', status:'verified', source:'bf'},
+  {id:'b6', date:'2026-09-01', docket:'Brought forward, 8 loads', supplier:'Mullins Haulage', material:'Spoil out (ENM)', qty:88, unit:'m³', job:'mp', status:'verified', source:'bf'},
+];
+
+// ---------- state ----------
+const KEY='tunyl-docket-demo-v1';
+let rows = load();
+let reading = null;          // current reading in the reader
+let lastAdded = null;
+let sampleFn = null, samplePhotos = false, downloadsFn = null;
+let abort = null;
+
+function load(){ try{ const s=localStorage.getItem(KEY); if(s){ const p=JSON.parse(s); if(Array.isArray(p)&&p.length) return p; } }catch(e){} return SEED.map(r=>({...r})); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(rows)); }catch(e){} }
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = (n, unit) => Number(n).toLocaleString('en-AU',{minimumFractionDigits:0, maximumFractionDigits: unit==='t' ? 2 : 1});
+const fmtDate = iso => { const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); if(!m) return iso||''; return `${m[3]}/${m[2]}/${m[1].slice(2)}`; };
+
+// ---------- capture ----------
+function renderExamples(){
+  $('examples').innerHTML = EXAMPLES.map(e=>`<button class="thumb" data-ex="${e.id}" aria-pressed="false">${e.svg}<span class="cap">${esc(e.title)}<small>${esc(e.sub)}</small></span></button>`).join('');
+  $('examples').querySelectorAll('.thumb').forEach(b=>b.addEventListener('click',()=>openExample(b.dataset.ex)));
+}
+function setPressed(id){ $('examples').querySelectorAll('.thumb').forEach(b=>b.setAttribute('aria-pressed', b.dataset.ex===id?'true':'false')); }
+
+function status(text, opts={}){
+  const el=$('status'); el.className='status'+(opts.kind?' '+opts.kind:'');
+  if(!text){ el.removeAttribute('data-on'); el.removeAttribute('data-busy'); $('stop').hidden=true; return; }
+  el.setAttribute('data-on',''); if(opts.busy) el.setAttribute('data-busy',''); else el.removeAttribute('data-busy');
+  $('status-text').textContent=text; $('stop').hidden=!opts.stoppable;
+}
+
+function openExample(id){
+  const e = EXAMPLES.find(x=>x.id===id); if(!e) return;
+  setPressed(id);
+  status('Reading docket…',{busy:true});
+  setTimeout(()=>{
+    status('');
+    const fields={}; for(const k in e.fields){ fields[k]={value:e.fields[k][0], confidence:e.fields[k][1]}; }
+    showReading({ source:'example', label:'Example reading', image:e.svg, fields, flags:e.flags.map(f=>({level:f[0],text:f[1]})), job:e.job, exampleId:id });
+  }, 500);
+}
+
+// ---------- reader ----------
+function showReading(r){
+  reading=r;
+  $('read-source').textContent=r.label;
+  $('docket-view').innerHTML = r.image.startsWith('data:') ? `<img src="${r.image}" alt="Your docket photo">` : r.image;
+  $('fields').innerHTML = FIELDS.map(([k,label])=>{
+    const f=r.fields[k]||{value:'',confidence:'unreadable'};
+    const conf=['clear','check','unreadable'].includes(f.confidence)?f.confidence:'check';
+    const word={clear:'Clear',check:'Check',unreadable:'Unreadable'}[conf];
+    let input;
+    if(k==='unit') input=`<select data-k="unit">${['m³','t','loads','L','each',''].map(u=>`<option value="${u}" ${u===(f.value||'')?'selected':''}>${u||'(none)'}</option>`).join('')}</select>`;
+    else if(k==='material') input=`<input data-k="material" list="mats" value="${esc(f.value)}"><datalist id="mats">${Object.keys(MATERIALS).map(m=>`<option value="${esc(m)}">`).join('')}</datalist>`;
+    else if(k==='date') input=`<input data-k="date" type="date" value="${esc(f.value)}">`;
+    else if(k==='quantity') input=`<input data-k="quantity" type="number" step="0.01" inputmode="decimal" value="${esc(f.value)}">`;
+    else input=`<input data-k="${k}" value="${esc(f.value)}">`;
+    return `<div class="field"><label>${label}</label>${input}<span class="chip ${conf}">${word}</span></div>`;
+  }).join('');
+  $('flags').innerHTML = (r.flags||[]).map(f=>`<li class="${f.level==='crit'?'crit':''}">${esc(f.text)}</li>`).join('');
+  $('job').innerHTML = JOBS.map(j=>`<option value="${j.id}" ${j.id===r.job?'selected':''}>${esc(j.name)}</option>`).join('');
+  const allClear = FIELDS.every(([k])=> (r.fields[k]||{}).confidence==='clear');
+  $('verified').checked = allClear;
+  $('verified-label').textContent = allClear ? 'Checked against the paper. All fields read clearly.' : 'Checked against the paper (look at the flagged fields first)';
+  $('reader').setAttribute('data-on','');
+  $('reader').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'});
+}
+
+function readerValues(){
+  const v={}; $('fields').querySelectorAll('[data-k]').forEach(el=>{ v[el.dataset.k]=el.value.trim(); }); return v;
+}
+
+$('add').addEventListener('click',()=>{
+  if(!reading) return;
+  const v=readerValues();
+  const qty=parseFloat(v.quantity);
+  if(!v.material||!isFinite(qty)){ status('A material and a quantity are needed before the row can go in the ledger.',{kind:'warn'}); setTimeout(()=>status(''),3500); return; }
+  const row={ id:'r'+Date.now(), date:v.date||'', docket:v.docket||'', supplier:v.supplier||'', material:v.material, qty:qty, unit:v.unit||'', job:$('job').value, truck:v.truck||'', deliveredTo:v.deliveredTo||'', signedBy:v.signedBy||'', status:$('verified').checked?'verified':'check', source:reading.source };
+  rows.unshift(row); lastAdded=row.id; save();
+  $('ledger-job').value=row.job;
+  $('reader').removeAttribute('data-on'); reading=null; setPressed(null);
+  renderLedger();
+  document.querySelector('[aria-labelledby="led-h"]').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'});
+});
+$('discard').addEventListener('click',()=>{ $('reader').removeAttribute('data-on'); reading=null; setPressed(null); });
+
+// ---------- ledger ----------
+function renderJobs(){ $('ledger-job').innerHTML = JOBS.map(j=>`<option value="${j.id}">${esc(j.name)}</option>`).join(''); }
+function renderLedger(){
+  const job=$('ledger-job').value;
+  const jr=rows.filter(r=>r.job===job);
+  const mats={};
+  for(const name of Object.keys(MATERIALS)) mats[name]={ver:0,pend:0,unit:MATERIALS[name].unit,ordered:MATERIALS[name].ordered};
+  for(const r of jr){ if(!mats[r.material]) mats[r.material]={ver:0,pend:0,unit:r.unit,ordered:null}; if(r.status==='verified') mats[r.material].ver+=Number(r.qty)||0; else mats[r.material].pend+=Number(r.qty)||0; }
+  $('totals').innerHTML = Object.entries(mats).filter(([,m])=>m.ver||m.pend||m.ordered).map(([name,m])=>{
+    const ord=m.ordered; const pv=ord?Math.min(100,m.ver/ord*100):0; const pp=ord?Math.min(100-pv,m.pend/ord*100):0;
+    const bar = ord ? `<div class="bar" aria-hidden="true"><i style="width:${pv}%"></i>${pp?`<i class="pend" style="left:${pv}%;width:${pp}%"></i>`:''}</div>` : '';
+    const pendChip = m.pend ? ` <span class="chip check">${fmt(m.pend,m.unit)} ${m.unit} awaiting check</span>` : '';
+    const sub = ord ? `${fmt(m.ver,m.unit)} of ${fmt(ord,m.unit)} ${m.unit} ordered${pendChip}` : `no target set${pendChip}`;
+    return `<div class="total"><div class="name">${esc(name)}</div><div class="num">${fmt(m.ver,m.unit)}<small>${m.unit} verified</small></div>${bar}<div class="sub">${sub}</div></div>`;
+  }).join('') || '<p class="muted">No dockets on this job yet.</p>';
+  const sorted=[...jr].sort((a,b)=> (a.source==='bf')-(b.source==='bf') || (b.date||'').localeCompare(a.date||''));
+  $('rows').innerHTML = sorted.map(r=>`<tr class="${r.source==='bf'?'bf':''} ${r.id===lastAdded?'new':''}">
+    <td>${esc(fmtDate(r.date))}</td><td>${esc(r.docket)}</td><td>${esc(r.material)}</td>
+    <td class="num">${fmt(r.qty,r.unit)} ${esc(r.unit)}</td><td>${esc(r.supplier)}</td>
+    <td class="stick"><span class="chip ${r.status==='verified'?'clear':'check'}">${r.status==='verified'?'Verified':'Needs check'}</span>${r.status!=='verified'?`<button class="btn quiet sm" data-verify="${r.id}">Mark checked</button>`:''}</td></tr>`).join('');
+  $('rows').querySelectorAll('[data-verify]').forEach(b=>b.addEventListener('click',()=>{ const r=rows.find(x=>x.id===b.dataset.verify); if(r){ r.status='verified'; save(); renderLedger(); } }));
+}
+$('ledger-job').addEventListener('change',renderLedger);
+$('reset').addEventListener('click',()=>{ rows=SEED.map(r=>({...r})); lastAdded=null; try{localStorage.removeItem(KEY);}catch(e){} renderLedger(); });
+
+// ---------- export ----------
+const csvCell = v => { const s=String(v==null?'':v); return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s; };
+function ledgerCsv(){
+  const job=$('ledger-job').value; const jn=JOBS.find(j=>j.id===job).name;
+  const head=['Date','Docket','Supplier','Material','Quantity','Unit','Job','Truck','Delivered to','Received by','Status','Source'];
+  const lines=rows.filter(r=>r.job===job).map(r=>[r.date,r.docket,r.supplier,r.material,r.qty,r.unit,jn,r.truck||'',r.deliveredTo||'',r.signedBy||'',r.status==='verified'?'Verified':'Needs check',r.source==='bf'?'Brought forward':r.source==='ledger'?'Ledger':r.source==='photo'?'Photo read by AI':'Example']);
+  return [head,...lines].map(l=>l.map(csvCell).join(',')).join('\r\n');
+}
+function xeroCsv(){
+  const job=$('ledger-job').value; const jn=JOBS.find(j=>j.id===job).name;
+  const head=['*ContactName','*InvoiceNumber','*InvoiceDate','*DueDate','Description','*Quantity','*UnitAmount','*AccountCode','TaxType','TrackingName1','TrackingOption1'];
+  const lines=rows.filter(r=>r.job===job && r.status==='verified' && r.source!=='bf').map(r=>[r.supplier, 'DKT-'+r.docket, r.date, r.date, `${r.material} ${fmt(r.qty,r.unit)} ${r.unit}, docket ${r.docket}${r.truck?', truck '+r.truck:''}`, r.qty, '0.00', '300', 'GST on Expenses', 'Job', jn]);
+  return [head,...lines].map(l=>l.map(csvCell).join(',')).join('\r\n');
+}
+async function offer(filename, data){
+  if(downloadsFn){ try{ await downloadsFn.save({filename, data}); }catch(e){ if(e&&e.code!=='declined'){ status('The download could not be offered here. Open the page in claude.ai or a browser to save files.',{kind:'warn'}); setTimeout(()=>status(''),4000);} } return; }
+  try{ const blob=new Blob([data],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }catch(e){}
+}
+$('csv').addEventListener('click',()=>offer(`tunyl-ledger-${$('ledger-job').value}.csv`, ledgerCsv()));
+$('xero').addEventListener('click',()=>offer(`tunyl-xero-bills-${$('ledger-job').value}.csv`, xeroCsv()));
+
+// ---------- live reading (inside claude.ai) ----------
+const PROMPT = `You are reading a photo of a construction delivery docket from an Australian site: a concrete delivery docket, a quarry weighbridge docket, or a tipping/cartage docket for spoil. Extract the fields and answer with JSON only, exactly this shape:
+{"isDocket": true, "supplier": {"value": "", "confidence": "clear"}, "docket": {"value": "", "confidence": "clear"}, "date": {"value": "YYYY-MM-DD", "confidence": "clear"}, "material": {"value": "", "confidence": "clear"}, "quantity": {"value": 0, "confidence": "clear"}, "unit": {"value": "m³", "confidence": "clear"}, "truck": {"value": "", "confidence": "clear"}, "deliveredTo": {"value": "", "confidence": "clear"}, "signedBy": {"value": "", "confidence": "clear"}, "flags": [{"level": "check", "text": ""}]}
+Rules. confidence is one of "clear" (printed and unambiguous), "check" (handwritten, partly obscured, or could be read two ways), "unreadable" (cannot be read; leave value empty or null). unit is one of m³, t, loads, L, each, or empty. On a weighbridge docket the quantity is the NET weight, never gross. Never invent a value: if it is not on the docket, leave it empty and mark unreadable. flags are short notes, one per thing a person should check against the paper, with level "check" or "crit" (crit for a missing signature, an ambiguous quantity, or a quantity and unit that do not match the material). If the photo is not a docket at all, set isDocket to false and put one flag explaining what the photo shows.`;
+
+$('photo').addEventListener('change', async ev=>{
+  const file=ev.target.files&&ev.target.files[0]; if(!file) return;
+  ev.target.value='';
+  const dataUrl = await new Promise(res=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(file); });
+  if(!sampleFn || !samplePhotos){
+    showReading({ source:'photo', label:'Photo only', image:dataUrl, fields:{}, flags:[{level:'check', text:'Live reading runs inside claude.ai. Open this page there to have the docket read. You can type the fields in by hand here.'}], job:$('ledger-job').value });
+    return;
+  }
+  abort = new AbortController();
+  status('Reading docket… this can take up to a minute.',{busy:true, stoppable:true});
+  setPressed(null);
+  try{
+    const data = await sampleFn.json(PROMPT, {images:file, modelTier:'default', signal:abort.signal});
+    status('');
+    if(!data || data.isDocket===false){
+      showReading({ source:'photo', label:'Read by AI', image:dataUrl, fields:{}, flags:[{level:'crit', text:(data&&data.flags&&data.flags[0]&&data.flags[0].text)||'This does not look like a delivery docket.'}], job:$('ledger-job').value });
+      return;
+    }
+    const fields={}; for(const [k] of FIELDS){ const f=data[k]||{}; fields[k]={ value: f.value==null?'':String(f.value), confidence: f.confidence||'check' }; }
+    if(fields.material.value && !MATERIALS[fields.material.value]){ const m=Object.keys(MATERIALS).find(n=>n.toLowerCase().split(' ')[0]===fields.material.value.toLowerCase().split(' ')[0]); if(m) fields.material.value=m; }
+    const flags=(Array.isArray(data.flags)?data.flags:[]).filter(f=>f&&f.text).map(f=>({level:f.level==='crit'?'crit':'check', text:String(f.text)}));
+    showReading({ source:'photo', label:'Read by AI', image:dataUrl, fields, flags, job:$('ledger-job').value });
+  }catch(e){
+    const code=e&&e.code;
+    if(code==='cancelled'){ status(''); return; }
+    if(code==='not_granted'){ status('Reading was not allowed on this page, so the photo is shown without a reading.',{kind:'warn'}); }
+    else if(code==='rate_limited'){ status('Too many readings in a row. Wait a minute and try again.',{kind:'warn'}); }
+    else if(code==='image_rejected'){ status('That image could not be used. Try a JPEG or PNG under 20 MB.',{kind:'err'}); }
+    else { status('The reading did not finish. Try again, or type the fields in by hand.',{kind:'err'}); }
+    showReading({ source:'photo', label:'Photo only', image:dataUrl, fields:{}, flags:[], job:$('ledger-job').value });
+  }finally{ abort=null; }
+});
+$('stop').addEventListener('click',()=>{ if(abort) abort.abort(); });
+
+async function lightUp(){
+  if(!(window.claude && typeof window.claude.use==='function')) return;
+  const [s,d] = await Promise.all([ claude.use('sample').catch(()=>null), claude.use('downloads').catch(()=>null) ]);
+  downloadsFn = d||null;
+  if(s){ sampleFn=s; const caps=await s.limits().catch(()=>null); samplePhotos=!!(caps&&caps.images); if(samplePhotos && caps.images.mediaTypes){ $('photo').accept=caps.images.mediaTypes.join(','); } }
+  $('upload-note').textContent = (sampleFn&&samplePhotos) ? 'Read your own: a photo of a concrete, weighbridge or tipping docket. The AI reads it here.' : 'Read your own: a photo of a concrete, weighbridge or tipping docket. Live reading works inside claude.ai; elsewhere the photo is shown and the fields are typed in.';
+}
+
+// ---------- boot ----------
+renderExamples(); renderJobs(); renderLedger(); lightUp();
+})();
+</script>
