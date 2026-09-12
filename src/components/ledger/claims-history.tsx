@@ -1,51 +1,34 @@
 import Link from "next/link";
-import type { Claim, ClaimStatus } from "@/db/schema";
+import type { Claim } from "@/db/schema";
+import { StatusChip, claimChip } from "@/components/app/status-chip";
 import { money, fmtDate } from "@/lib/units";
 
-const STATUS: Record<ClaimStatus, { cls: string; text: string }> = {
-  draft: { cls: "neutral", text: "Draft" },
-  lodged: { cls: "check", text: "Lodged" },
-  certified: { cls: "clear", text: "Certified" },
-  paid: { cls: "clear", text: "Paid" },
-};
-
+/** A hairline list of past claims, newest first, each opening the office claim page. */
 export function ClaimsHistory({ claims }: { claims: Claim[] }) {
   if (claims.length === 0) {
-    return <p className="text-[14px] text-[color:var(--ink2)]">No claims lodged yet.</p>;
+    return (
+      <div className="rounded-lg border border-[color:var(--border)] bg-white px-4 py-6 text-[13px] text-[color:var(--ink-3)]">
+        No claims lodged yet.
+      </div>
+    );
   }
   return (
-    <div className="tbl">
-      <table>
-        <thead>
-          <tr>
-            <th>Claim</th>
-            <th>Period to</th>
-            <th className="num">Total</th>
-            <th>Status</th>
-            <th>Lodged</th>
-            <th>Builder&#39;s link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {claims.map((c) => {
-            const status = STATUS[c.status];
-            return (
-              <tr key={c.id}>
-                <td><b>Claim {c.number}</b></td>
-                <td>{fmtDate(c.periodEnd)}</td>
-                <td className="num">{money(c.total)}</td>
-                <td><span className={`chip ${status.cls}`}>{status.text}</span></td>
-                <td>{c.lodgedAt ? fmtDate(c.lodgedAt) : "-"}</td>
-                <td>
-                  <Link href={`/c/${c.token}`} className="text-[13px] font-medium text-[color:var(--tint-ink)] underline-offset-2 hover:underline focus-visible:underline">
-                    /c/{c.token}
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="hairline overflow-hidden rounded-lg border border-[color:var(--border)] bg-white">
+      {claims.map((c) => {
+        const chip = claimChip(c.status);
+        return (
+          <Link
+            key={c.id}
+            href={`/claims/${c.id}`}
+            className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-[13px] transition-colors hover:bg-[color:var(--surface-2)] focus-visible:bg-[color:var(--surface-2)] focus-visible:outline-none"
+          >
+            <span className="font-medium text-[color:var(--ink)]">Claim {c.number}</span>
+            <span className="text-[color:var(--ink-3)]">Period to {fmtDate(c.periodEnd)}</span>
+            <span className="ml-auto font-medium tabular-nums">{money(c.total)}</span>
+            <StatusChip tone={chip.tone}>{chip.label}</StatusChip>
+          </Link>
+        );
+      })}
     </div>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 import { CheckCircle2, Clock3, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Stepper, type Step } from "@/components/app/stepper";
+import { StatusChip } from "@/components/app/status-chip";
 import { FieldEditor, blankFields } from "./field-editor";
 import { resizeImageToJpeg } from "./resize-image";
 import { evaluate, sendDocket } from "@/app/(public)/site/[token]/actions";
@@ -41,6 +43,39 @@ type ReadResponse = {
 
 function fieldValue(fields: ReadField[], label: string): string {
   return fields.find((f) => f.label === label)?.value.trim() ?? "";
+}
+
+/** The three-step progress at the top of the reader: photographed, read, then
+ * matched by rule or waiting on a person. Hidden before a photo exists and on
+ * the final result screen, which has its own resolution UI. */
+function readerSteps(stage: Stage): Step[] {
+  const photographed: Step = { label: "Photographed", state: "done" };
+  switch (stage.name) {
+    case "idle":
+      return [];
+    case "reading":
+      return [photographed, { label: "Read", state: "current" }, { label: "Waiting for the office", state: "todo" }];
+    case "stopped":
+      return [photographed, { label: "Read", state: "blocked", hint: "Stopped before it finished" }, { label: "Waiting for the office", state: "todo" }];
+    case "read-error":
+      return [photographed, { label: "Read", state: "blocked", hint: stage.message }, { label: "Waiting for the office", state: "todo" }];
+    case "not-docket":
+      return [photographed, { label: "Read", state: "blocked", hint: "Did not look like a docket" }, { label: "Waiting for the office", state: "todo" }];
+    case "review":
+      return [photographed, { label: "Read", state: "done" }, { label: "Waiting for the office", state: "todo" }];
+    case "sending":
+      return [photographed, { label: "Read", state: "done" }, { label: "Waiting for the office", state: "current" }];
+    case "send-error":
+      return [photographed, { label: "Read", state: "done" }, { label: "Waiting for the office", state: "blocked", hint: stage.message }];
+    case "sent":
+      return [
+        photographed,
+        { label: "Read", state: "done" },
+        stage.status === "rule"
+          ? { label: "Matched by rule", state: "done" }
+          : { label: "Waiting for the office", state: "current" },
+      ];
+  }
 }
 
 export function SiteFlow({ token, materialNames }: { token: string; materialNames: string[] }) {
@@ -235,6 +270,7 @@ export function SiteFlow({ token, materialNames }: { token: string; materialName
                   : null;
 
   const busyPicking = stage.name === "reading" || stage.name === "sending";
+  const steps = readerSteps(stage);
 
   return (
     <div>
@@ -242,8 +278,8 @@ export function SiteFlow({ token, materialNames }: { token: string; materialName
         <label
           htmlFor="docket-photo"
           className={cn(
-            "flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[color:var(--btn)] px-5 text-center text-[16px] font-semibold text-white transition-colors",
-            "hover:bg-[color:var(--btn-hover)] focus-within:ring-[3px] focus-within:ring-[color:var(--tint)] focus-within:ring-offset-2",
+            "flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[color:var(--primary)] px-5 text-center text-[16px] font-semibold text-white transition-colors",
+            "hover:bg-[color:var(--primary-hover)] focus-within:ring-[3px] focus-within:ring-[color:var(--primary-soft)] focus-within:ring-offset-2",
             busyPicking && "pointer-events-none opacity-50",
           )}
         >
@@ -259,6 +295,8 @@ export function SiteFlow({ token, materialNames }: { token: string; materialName
           />
         </label>
       )}
+
+      {steps.length > 0 && stage.name !== "sent" && <Stepper steps={steps} className="mt-5" />}
 
       {status && (
         <div className={cn("status", status.kind)} role="status" aria-live="polite" {...(status.busy ? { "data-busy": "" } : {})}>
@@ -295,7 +333,7 @@ export function SiteFlow({ token, materialNames }: { token: string; materialName
         <section className="mt-5">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-[18px] font-semibold">What was read</h2>
-            <span className="chip neutral">{review.manual ? "Typed by hand" : "Read by AI"}</span>
+            <StatusChip tone="neutral">{review.manual ? "Typed by hand" : "Read by AI"}</StatusChip>
           </div>
           <div className="grid gap-4 sm:grid-cols-[240px_1fr] sm:items-start">
             <div className="doc">
@@ -311,9 +349,9 @@ export function SiteFlow({ token, materialNames }: { token: string; materialName
                 disabled={stage.name === "sending"}
                 onChange={updateField}
               />
-              {review && ruleHint && <p className="mt-3 text-[14px] text-[color:var(--ink2)]">{ruleHint}</p>}
-              <div className="mt-4">
-                <Button className="h-11 w-full px-5 text-[15px]" disabled={stage.name === "sending"} onClick={send}>
+              {review && ruleHint && <p className="mt-3 text-[14px] text-[color:var(--ink-2)]">{ruleHint}</p>}
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <Button className="h-11 flex-1 px-5 text-[15px]" disabled={stage.name === "sending"} onClick={send}>
                   {stage.name === "sending" ? (
                     <>
                       <Loader2 className="size-4 animate-spin" /> Sending
@@ -322,8 +360,17 @@ export function SiteFlow({ token, materialNames }: { token: string; materialName
                     "Send to the office"
                   )}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 px-5 text-[15px]"
+                  disabled={stage.name === "sending"}
+                  onClick={reset}
+                >
+                  Discard
+                </Button>
               </div>
-              <p className="mt-3 text-[13px] leading-relaxed text-[color:var(--ink2)]">
+              <p className="mt-3 text-[13px] leading-relaxed text-[color:var(--ink-3)]">
                 The site does not tick anything. If every field reads ok and the docket matches the purchase order, it goes straight to the
                 ledger. Otherwise it waits for the office.
               </p>
@@ -333,18 +380,26 @@ export function SiteFlow({ token, materialNames }: { token: string; materialName
       )}
 
       {stage.name === "sent" && (
-        <div className="card mt-6 flex flex-col items-center gap-4 py-10 text-center">
+        <div className="mt-6 flex flex-col items-center gap-4 rounded-xl border border-[color:var(--border)] bg-white p-8 py-10 text-center shadow-[var(--shadow)]">
           {stage.status === "rule" ? (
             <>
-              <CheckCircle2 className="size-14 text-[color:var(--ok-ink)]" />
-              <p className="text-[18px] font-semibold leading-snug">
-                Matched the purchase order. {stage.fed || "It"} is in the ledger. Nobody typed it.
-              </p>
+              <div className="flex size-16 items-center justify-center rounded-full bg-[color:var(--success-soft)]">
+                <CheckCircle2 className="size-9 text-[color:var(--success-ink)]" aria-hidden />
+              </div>
+              <div>
+                <p className="text-[18px] font-semibold leading-snug">In the ledger</p>
+                <p className="mt-1 text-[14px] text-[color:var(--ink-2)]">{stage.fed || "Matched the purchase order. Nobody typed it."}</p>
+              </div>
             </>
           ) : (
             <>
-              <Clock3 className="size-14 text-[color:var(--ink2)]" />
-              <p className="text-[18px] font-semibold leading-snug">Sent to the office. {stage.why}</p>
+              <div className="flex size-16 items-center justify-center rounded-full bg-[color:var(--warn-soft)]">
+                <Clock3 className="size-9 text-[color:var(--warn-ink)]" aria-hidden />
+              </div>
+              <div>
+                <p className="text-[18px] font-semibold leading-snug">Waiting for the office</p>
+                <p className="mt-1 text-[14px] text-[color:var(--ink-2)]">{stage.why}</p>
+              </div>
             </>
           )}
           <Button className="h-11 px-6 text-[15px]" onClick={reset}>

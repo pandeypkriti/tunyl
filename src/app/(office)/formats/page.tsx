@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PageHeader, Section } from "@/components/app/page-header";
+import { KpiCard } from "@/components/app/kpi-card";
+import { fmt } from "@/lib/units";
+import { cn } from "@/lib/utils";
+import { FormatTable, type MapRow, type MapStatus } from "./format-table";
 
 export const metadata = { title: "Builder formats" };
-
-type MapStatus = "auto" | "check" | "missing";
-type MapRow = [ourField: string, theirField: string, status: MapStatus, note: string];
 
 type Builder = { id: string; name: string; platform: string; rows: MapRow[] };
 
@@ -16,15 +18,15 @@ const BUILDERS: Builder[] = [
     name: "Harrowgate Constructions",
     platform: "their own portal, CSV upload",
     rows: [
-      ["Document title", "doc_title", "auto", ""],
-      ["High risk construction work", "hrcw_code", "check", "Their codes are numbered 1 to 18. Ours are named. Map once, remembered after that."],
-      ["PCBU and ABN", "abn", "auto", ""],
-      ["Site supervisor", "supervisor_name", "auto", ""],
-      ["Plant and equipment", "plant_items, one per line", "auto", ""],
-      ["Hazards and controls", "controls, plus hierarchy_level", "check", "They want the control hierarchy (eliminate, substitute, isolate, engineer, admin, PPE) as its own column. Ours is inside the text."],
-      ["Sign-on register", "separate PDF upload", "missing", "Their portal takes the sign-on sheet as a second file."],
-      ["Review date", "review_date, dd/mm/yyyy", "auto", ""],
-      ["Emergency contacts", "not accepted", "missing", "Not a field in their portal. Stays in our copy."],
+      { ourField: "Document title", theirField: "doc_title", status: "auto", note: "" },
+      { ourField: "High risk construction work", theirField: "hrcw_code", status: "check", note: "Their codes are numbered 1 to 18. Ours are named. Map once, remembered after that." },
+      { ourField: "PCBU and ABN", theirField: "abn", status: "auto", note: "" },
+      { ourField: "Site supervisor", theirField: "supervisor_name", status: "auto", note: "" },
+      { ourField: "Plant and equipment", theirField: "plant_items, one per line", status: "auto", note: "" },
+      { ourField: "Hazards and controls", theirField: "controls, plus hierarchy_level", status: "check", note: "They want the control hierarchy (eliminate, substitute, isolate, engineer, admin, PPE) as its own column. Ours is inside the text." },
+      { ourField: "Sign-on register", theirField: "separate PDF upload", status: "missing", note: "Their portal takes the sign-on sheet as a second file." },
+      { ourField: "Review date", theirField: "review_date, dd/mm/yyyy", status: "auto", note: "" },
+      { ourField: "Emergency contacts", theirField: "not accepted", status: "missing", note: "Not a field in their portal. Stays in our copy." },
     ],
   },
   {
@@ -32,15 +34,15 @@ const BUILDERS: Builder[] = [
     name: "Meridian Build Group",
     platform: "Procore",
     rows: [
-      ["Document title", "Title", "auto", ""],
-      ["High risk construction work", "Trade, from their picklist", "check", "Their picklist is by trade, not by risk category. Pick once."],
-      ["PCBU and ABN", "Company", "auto", "Pulled from their vendor record."],
-      ["Site supervisor", "Responsible person", "auto", ""],
-      ["Plant and equipment", "Equipment", "auto", ""],
-      ["Hazards and controls", "Hazard analysis table", "auto", "Same columns as ours."],
-      ["Sign-on register", "Attachment", "auto", "Uploaded alongside as a PDF."],
-      ["Review date", "Expiry", "auto", ""],
-      ["Emergency contacts", "Attachment", "auto", ""],
+      { ourField: "Document title", theirField: "Title", status: "auto", note: "" },
+      { ourField: "High risk construction work", theirField: "Trade, from their picklist", status: "check", note: "Their picklist is by trade, not by risk category. Pick once." },
+      { ourField: "PCBU and ABN", theirField: "Company", status: "auto", note: "Pulled from their vendor record." },
+      { ourField: "Site supervisor", theirField: "Responsible person", status: "auto", note: "" },
+      { ourField: "Plant and equipment", theirField: "Equipment", status: "auto", note: "" },
+      { ourField: "Hazards and controls", theirField: "Hazard analysis table", status: "auto", note: "Same columns as ours." },
+      { ourField: "Sign-on register", theirField: "Attachment", status: "auto", note: "Uploaded alongside as a PDF." },
+      { ourField: "Review date", theirField: "Expiry", status: "auto", note: "" },
+      { ourField: "Emergency contacts", theirField: "Attachment", status: "auto", note: "" },
     ],
   },
   {
@@ -48,29 +50,27 @@ const BUILDERS: Builder[] = [
     name: "Stoneleigh Developments",
     platform: "HammerTech",
     rows: [
-      ["Document title", "Activity", "auto", ""],
-      ["High risk construction work", "HRCW", "auto", "Same list as the WHS Regulation."],
-      ["PCBU and ABN", "Subcontractor", "auto", ""],
-      ["Site supervisor", "Supervisor", "auto", ""],
-      ["Plant and equipment", "Plant", "auto", ""],
-      ["Hazards and controls", "Hazard, risk, control, residual risk", "check", "Their residual risk is a 1 to 25 score. Ours is low, medium, high. Pick the conversion once."],
-      ["Sign-on register", "not needed", "auto", "Workers sign the SWMS in their app."],
-      ["Review date", "Expiry", "auto", ""],
-      ["Emergency contacts", "Site emergency plan", "missing", "Held at their site level, not per SWMS."],
+      { ourField: "Document title", theirField: "Activity", status: "auto", note: "" },
+      { ourField: "High risk construction work", theirField: "HRCW", status: "auto", note: "Same list as the WHS Regulation." },
+      { ourField: "PCBU and ABN", theirField: "Subcontractor", status: "auto", note: "" },
+      { ourField: "Site supervisor", theirField: "Supervisor", status: "auto", note: "" },
+      { ourField: "Plant and equipment", theirField: "Plant", status: "auto", note: "" },
+      { ourField: "Hazards and controls", theirField: "Hazard, risk, control, residual risk", status: "check", note: "Their residual risk is a 1 to 25 score. Ours is low, medium, high. Pick the conversion once." },
+      { ourField: "Sign-on register", theirField: "not needed", status: "auto", note: "Workers sign the SWMS in their app." },
+      { ourField: "Review date", theirField: "Expiry", status: "auto", note: "" },
+      { ourField: "Emergency contacts", theirField: "Site emergency plan", status: "missing", note: "Held at their site level, not per SWMS." },
     ],
   },
 ];
 
-function statusChip(s: MapStatus) {
-  if (s === "auto") return { cls: "clear", text: "Auto" };
-  if (s === "check") return { cls: "check", text: "Check once" };
-  return { cls: "unreadable", text: "No home" };
+function countBy(rows: MapRow[], status: MapStatus) {
+  return rows.filter((r) => r.status === status).length;
 }
 
 function packSummary(b: Builder): string {
-  const auto = b.rows.filter((r) => r[2] === "auto").length;
-  const check = b.rows.filter((r) => r[2] === "check").length;
-  const missing = b.rows.filter((r) => r[2] === "missing").length;
+  const auto = countBy(b.rows, "auto");
+  const check = countBy(b.rows, "check");
+  const missing = countBy(b.rows, "missing");
   let text = `SWMS-014 revision 7, formatted for ${b.name}. Mapped into ${b.platform}. ${auto} fields filled automatically.`;
   if (check) text += ` ${check} ${check === 1 ? "needs" : "need"} a person the first time, then the choice is remembered.`;
   if (missing) text += ` ${missing} ${missing === 1 ? "has" : "have"} nowhere to go in their system and stay in our copy.`;
@@ -82,73 +82,79 @@ export default async function FormatsPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const builder = BUILDERS.find((b) => b.id === sp.builder) ?? BUILDERS[0];
   const generated = sp.generated === "1";
+  const auto = countBy(builder.rows, "auto");
+  const check = countBy(builder.rows, "check");
+  const missing = countBy(builder.rows, "missing");
 
   return (
     <div>
-      <h1 className="text-[22px]">Builder formats</h1>
-      <p className="mt-1.5 text-[color:var(--ink2)]">One master document from your BMS. Mapped once per builder platform. Regenerated for every job after that.</p>
-      <p className="mt-1.5 text-[13px] text-[color:var(--ink2)]">Builder-side module: built only when a customer asks for it.</p>
+      <PageHeader
+        title="Builder formats"
+        description={
+          <>
+            One master document from your BMS. Mapped once per builder platform. Regenerated for every job after that.
+            <span className="mt-1 block text-[12px] text-[color:var(--ink-3)]">Builder-side module: built only when a customer asks for it.</span>
+          </>
+        }
+      />
 
-      <p className="mt-5 text-[13px] font-medium text-[color:var(--ink2)]">
-        Document: <span className="font-semibold text-[color:var(--ink)]">SWMS-014 Bulk excavation</span>, from the BMS, revision 7
-      </p>
-
-      <form action="/formats" className="mt-3 flex flex-wrap items-end gap-2.5">
-        <label className="grid gap-1 text-[13px] font-medium text-[color:var(--ink2)]">
-          Builder
-          <select
-            name="builder"
-            defaultValue={builder.id}
-            className="h-9 w-full min-w-[240px] rounded-xl border border-[color:var(--input)] bg-[color:var(--row-alt)] px-3 text-[14px] text-[color:var(--ink)] transition-colors outline-none hover:border-[color:var(--ink2)] focus-visible:border-[color:var(--ring)]"
-          >
-            {BUILDERS.map((b) => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
-        </label>
-        <Button type="submit" variant="secondary" size="sm">Go</Button>
-      </form>
-      <p className="mt-1 text-[13px] text-[color:var(--ink2)]">{builder.platform}</p>
-
-      <div className="tbl">
-        <table>
-          <thead>
-            <tr><th>Our field</th><th>Their field</th><th>Status</th><th>Note</th></tr>
-          </thead>
-          <tbody>
-            {builder.rows.map((r) => {
-              const chip = statusChip(r[2]);
-              return (
-                <tr key={r[0]}>
-                  <td>{r[0]}</td>
-                  <td>{r[1]}</td>
-                  <td><span className={`chip ${chip.cls}`}>{chip.text}</span></td>
-                  <td className="text-[13px] text-[color:var(--ink2)]">{r[3]}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <KpiCard label="Automatic" value={fmt(auto)} tone="ok" sub="Filled with no one touching them" />
+        <KpiCard label="Needs a check" value={fmt(check)} tone="warn" sub="Once per builder, then remembered" />
+        <KpiCard label="No home" value={fmt(missing)} tone={missing > 0 ? "hold" : "muted"} sub="Stay in our copy" />
       </div>
-      <p className="swipe">Swipe the table sideways.</p>
 
-      <form action="/formats" className="mt-4 flex flex-wrap items-center gap-2.5">
-        <input type="hidden" name="builder" value={builder.id} />
-        <input type="hidden" name="generated" value="1" />
-        <Button type="submit">Generate the pack</Button>
-        {generated && (
-          <Link href={`/formats?builder=${builder.id}`} className="text-[13px] font-medium text-[color:var(--ink2)] underline-offset-2 hover:underline focus-visible:underline">
-            Clear
-          </Link>
-        )}
-      </form>
-
-      {generated && (
-        <div className="mt-3 rounded-xl border border-[color:var(--border)] bg-[color:var(--row-alt)] p-4">
-          <h3 className="text-[16px]">Pack ready</h3>
-          <p className="mt-1.5 text-[14px] text-[color:var(--ink2)]">{packSummary(builder)}</p>
+      <Section
+        title={<>Document: <span className="font-semibold">SWMS-014 Bulk excavation</span></>}
+        aside="From the BMS, revision 7"
+      >
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Builder">
+          {BUILDERS.map((b) => {
+            const on = b.id === builder.id;
+            return (
+              <Link
+                key={b.id}
+                href={`/formats?builder=${b.id}`}
+                aria-current={on ? "page" : undefined}
+                className={cn(
+                  "inline-flex h-8 items-center rounded-full border px-3.5 text-[13px] font-medium transition-colors focus-visible:outline-2",
+                  on
+                    ? "border-[color:var(--primary)] bg-[color:var(--primary-soft)] text-[color:var(--primary-ink)]"
+                    : "border-[color:var(--border-strong)] bg-white text-[color:var(--ink-2)] hover:bg-[color:var(--surface-2)]",
+                )}
+              >
+                {b.name}
+              </Link>
+            );
+          })}
         </div>
-      )}
+        <p className="mt-2 text-[13px] text-[color:var(--ink-3)]">{builder.platform}</p>
+
+        <div className="mt-4">
+          <FormatTable rows={builder.rows} />
+        </div>
+
+        <form action="/formats" className="mt-5 flex flex-wrap items-center gap-3">
+          <input type="hidden" name="builder" value={builder.id} />
+          <input type="hidden" name="generated" value="1" />
+          <Button type="submit">Generate the pack</Button>
+          {generated && (
+            <Link
+              href={`/formats?builder=${builder.id}`}
+              className="text-[13px] font-medium text-[color:var(--ink-2)] underline-offset-2 hover:underline focus-visible:underline"
+            >
+              Clear
+            </Link>
+          )}
+        </form>
+
+        {generated && (
+          <div className="card mt-4">
+            <h3 className="text-[16px] font-semibold">Pack ready</h3>
+            <p className="mt-1.5 text-[14px] text-[color:var(--ink-2)]">{packSummary(builder)}</p>
+          </div>
+        )}
+      </Section>
     </div>
   );
 }

@@ -1,14 +1,45 @@
-import Link from "next/link";
-import { allProjects } from "@/lib/ledger";
+import { PageHeader } from "@/components/app/page-header";
+import { allProjects, ledgerFor } from "@/lib/ledger";
+import { reviewQueue } from "@/lib/records";
+import { claimsFor } from "@/lib/claims";
+import { ProjectsTable, type ProjectRow } from "@/components/projects/projects-table";
+
 export const metadata = { title: "Projects" };
+
 export default async function ProjectsPage() {
-  const ps = await allProjects();
+  const [projects, queue] = await Promise.all([allProjects(), reviewQueue()]);
+
+  const rows: ProjectRow[] = await Promise.all(
+    projects.map(async (p) => {
+      const [ledger, claims] = await Promise.all([ledgerFor(p.id), claimsFor(p.id)]);
+      const m = ledger.materials[0] ?? null;
+      const readyToClaim = ledger.materials.reduce((s, mm) => s + mm.toClaim * mm.rate, 0);
+      const latest = claims[0] ?? null;
+      return {
+        slug: p.slug,
+        name: p.name,
+        client: p.client,
+        clientPlatform: p.clientPlatform,
+        material: m
+          ? {
+              name: m.name,
+              unit: m.unit,
+              delivered: m.delivered,
+              ordered: m.ordered,
+              pct: m.ordered > 0 ? Math.max(0, Math.min(100, Math.round((m.delivered / m.ordered) * 100))) : 0,
+            }
+          : null,
+        needsPerson: queue.filter((r) => r.projectId === p.id).length,
+        readyToClaim,
+        latestClaim: latest ? { number: latest.number, status: latest.status } : null,
+      };
+    })
+  );
+
   return (
     <div>
-      <h1 className="text-[22px]">Projects</h1>
-      <ul className="mt-4 grid gap-2">
-        {ps.map((p) => <li key={p.id}><Link className="text-[color:var(--tint-ink)] underline" href={`/projects/${p.slug}`}>{p.name}</Link> <span className="text-[color:var(--ink2)]">{p.client}</span></li>)}
-      </ul>
+      <PageHeader title="Projects" />
+      <ProjectsTable rows={rows} />
     </div>
   );
 }

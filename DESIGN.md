@@ -1,85 +1,73 @@
 # DESIGN.md — Tunyl (docket to claim)
 
-Direction locked 2026-08-03 from Refero research. References: Fingerprint (fingerprint.com —
-warm off-white canvas, charcoal type, single vivid orange accent, dark terminal-like result
-panels, technical-but-friendly) and Orderful (white/gray section discipline, one orange-red
-accent used decisively). Rationale: field tool used on phones in sunlight → light canvas,
-high contrast, one hi-vis-adjacent accent; quoted legislation must look like law, not chat.
+Direction v2, locked 2026-09-12 from six references Kriti supplied: Archdesk's estimating
+sheet, dashboard and daily site report (approval stepper, KPI cards with a coloured underline,
+dense sortable tables, money coloured by meaning, a rail of sections), Airtable's data view with
+its AI panel (status chips, filter/sort toolbar, "what do you want to know" + suggested
+questions), and Sahova's home and activity feed (a greeting, one big ask input, hairline lists,
+icon-tile feed rows with monospace project tags). Refero styles consulted: Attio, Cal.com,
+Perplexity, shadcn (monochrome, hairline, type-led operations tools).
+
+Thesis: a clean operations console. Cool greys on white, indigo as the one working colour,
+green / amber / red carry state and money, and every docket and claim shows where it sits in
+its lifecycle as a stepper. Calm on the home page, dense where the numbers live.
 
 ## Constraint block (binding)
 
 **Color**
-- Canvas: `#FAF9F7` · Card surface: `#FFFFFF` · Border: `#E7E4DF`
-- Ink: `#1A1C20` · Secondary ink: `#5A5F66`
-- Dark panel (quoted law, hero chip): `#16181D`, ink on dark `#F2F1EE`, secondary `#9BA0A8`
-- Accent (the ONLY accent): safety orange family. Brand/highlight `#E8590C`; button resting
-  fill `#C94A08` (white text passes WCAG AA), button hover `#A83D06`; tint bg `#FDEEE3`;
-  small text on tint uses `#A83D06`
-- Severity (functional only, never decorative): critical `#C92A2A` on `#FBEAEA`,
-  high `#B03D06` on `#FDEEE3`, medium `#8A5C00` on `#FBF3E0` (all AA at badge size)
-- Success/confidence: `#2B7A3D` on `#E9F4EC`
-- NOT doing: purple anything, gradients, more than one accent hue, dark mode (v1).
+- Canvas `#F6F7F9` · Surface `#FFFFFF` · Surface 2 (hover, alt rows) `#F1F3F6`
+- Border `#E4E7EC` · Border strong (inputs) `#D0D5DD`
+- Ink `#101828` · Ink 2 `#475467` · Ink 3 (muted, meta) `#667085`
+- Primary (the ONLY working colour: buttons, active nav, links, focus): indigo `#4F46E5`,
+  hover `#4338CA`, soft `#EEF2FF`, ink-on-soft `#3730A3`
+- State, functional only, never decorative:
+  success `#15803D` on `#DCFCE7` (ink `#166534`) · warning `#B45309` on `#FEF3C7` (ink `#92400E`)
+  · danger `#B91C1C` on `#FEE2E2` (ink `#991B1B`) · info `#1D4ED8` on `#DBEAFE` (ink `#1E40AF`)
+- Money: amounts owed to us / verified / positive in success ink; costs, held, overdue in danger ink;
+  plain figures in ink. Never colour a number that carries no meaning.
+- NOT doing: orange, warm cream, gradients, dark mode (v1), more than one working colour.
 
 **Type**
-- Display + UI: Archivo (variable, Google). Weights 500/600/700. Chosen for its industrial
-  grotesque confidence; NOT Inter-by-default.
-- Quoted legislation ONLY: Source Serif 4, italic off. Law is set in serif on the dark panel.
-- Scale (px): 15 base / 18 / 22 / 28 / 36 / 44. Line-height 1.55 body, 1.15 display.
-- NOT doing: mono display type, letterspaced uppercase labels, third typeface, `//` or `[01]`
-  chrome, em dashes in copy.
+- UI and display: Geist (Google), weights 400/500/600. Tabular figures everywhere numbers stack
+  (`font-variant-numeric: tabular-nums`).
+- Mono: Geist Mono for docket numbers, times, project tags, keyboard hints. Small caps tags are
+  Geist Mono 11px uppercase with 0.06em tracking; this is the one permitted uppercase treatment.
+- Scale (px): 12 meta · 13 table · 14 body · 16 emphasis · 20 section · 24 page title ·
+  30 KPI figure · 32 home greeting. Line-height 1.5 body, 1.2 headings, 1.1 figures.
+- NOT doing: serif anywhere, bold (700) display, letterspaced uppercase outside mono tags.
 
-**Space & shape**
-- Spacing unit 8px. Section padding: 64px mobile / 96px desktop. Card padding 24px.
-- Max content width: 760px (single-column flow; this is a tool, not a brochure).
-- Radius, committed: 16px cards, 12px buttons/inputs/badges, 20px hero upload panel.
-- Elevation: 1px border + `0 1px 2px rgb(0 0 0 / 0.04)`. No decorative shadows.
-
-**Motion (one signature)**
-- Arrival: 240ms ease-out fade + 6px rise, staggered 60ms on finding cards.
-- Analysis progress: soft pulse on the status line. Transform/opacity only. Nothing else.
+**Space and shape**
+- Unit 4px. Page padding 24px (16px under 640px). Section gap 24px. Card padding 20px.
+- Radius: 6px inputs and buttons, 8px table frames and menus, 12px cards, 999px chips and stepper pills.
+- Elevation: 1px border, shadow `0 1px 2px rgb(16 24 40 / .06)` on cards; panels and menus
+  `0 8px 24px rgb(16 24 40 / .12)`.
+- Hairline lists (1px `#E4E7EC` between rows) are the default for short lists; cards only for KPIs,
+  records and documents.
 
 **Layout archetype**
-- Landing = the tool: hero headline, then the upload card front and centre (photo + state
-  select + analyze). Three-step "how it works" row. Footer carries the disclaimer.
-- Verdict = report: scene summary card → severity-sorted finding cards (evidence → narrative
-  → quoted clause on dark serif panel → controls → verify-on-site checklist) → draft
-  register entry → disclaimer. Register page = saved verdicts list (localStorage v1).
-
-**Copy rules**
-- Sentence case everywhere. Plain, confident, site-supervisor language; no AI-speak, no
-  hype adjectives, no em dashes. Legal posture: "indicator, verify on site", never "breach".
-- Humanizer gate: skill unavailable in this environment; copy hand-audited against rules.
+- Office shell: left sidebar 240px (white, border-right) with grouped nav and 16px icons, queue
+  count as a pill; top bar 56px with the workspace name, Ask Tunyl (⌘K) and the signed-in name.
+  Content is full width up to 1280px with 24px gutters. Under 900px the sidebar becomes a
+  horizontal scroll row under the top bar.
+- Home: greeting ("Good morning, Mel"), the ask input as the hero, then KPI row, then two columns:
+  what needs a person (hairline list) and today's activity feed; then claims waiting on money.
+- Record (a docket, invoice or instruction): page title, "Sent by · on", project link, the
+  lifecycle stepper, then sections with boxed values, the photo, flags, and one green Approve
+  split-button with Send back in the menu. Same skeleton for a claim.
+- Tables: sticky header, sortable columns, a toolbar with search and status filters, right-aligned
+  numbers, a status chip column, row click opens the record.
+- Public pages (site, builder): single column 760px, no sidebar, same tokens.
 
 **Components**
-- shadcn/ui primitives (button, select, card) restyled to tokens above; verdict rendering
-  is bespoke. States (hover/focus/disabled/loading) required on every interactive element.
+- shadcn/ui primitives restyled through CSS variables (button, input, select, checkbox, table,
+  tabs, sheet, dropdown-menu, dialog, tooltip, separator, command). Data tables on TanStack Table.
+- Shared bespoke: AppShell, Sidebar, Topbar, AskPanel, Stepper, KpiCard, StatusChip, DataTable,
+  ActivityFeed, PageHeader, FieldGroup, Money.
+- Every interactive element: hover, focus-visible (2px primary ring), disabled, pending.
 
-**Model defaults (webapp)**
-- Provider auto-detected from the configured key: OpenAI default `gpt-5.6-terra`
-  (verified 2026-08-04; Luna deferred pending eval), Anthropic default `claude-sonnet-5`.
-  `HAZARD_PROVIDER`/`HAZARD_MODEL` override. Engine CLI keeps `claude-opus-5`.
+**Motion (one signature)**
+- Panels slide 200ms ease-out; list rows fade-rise 160ms on arrival; nothing else moves.
 
-## Back-office console variant (demos, added 2026-09-10)
-
-Applies to `docs/demos/tunyl-back-office.html` and any future head-office or admin demo. Same
-tokens, type and accent as above. Deliberate differences, recorded so they are not drift:
-
-- **Width:** app shell up to 1120px with a 212px left tab rail (Refero product patterns: Zapier
-  tables, Aboard HR, Programa). Explanatory sections below the shell return to the 760px column.
-- **Tab rail collapses** to a horizontal scrolling row under 760px.
-- **Dark panel role extended:** the dark serif panel carries verbatim interview quotes (evidence),
-  not only quoted legislation. Presenter notes use the same dark panel at 14px.
-- **Status chips** reuse the severity palette functionally: clear = success, check = medium,
-  unreadable / hold = critical, derived = neutral. Never decorative.
-- **Bars** are single accent on a neutral track with the figure written beside them; no legend.
-- **Still not doing:** dark mode, gradients, a second accent, letterspaced uppercase labels.
-
-## Tunyl app (added 2026-09-11)
-
-The app is the demo made real. Same tokens. The office shell is the 1120px console with a
-212px rail (see the variant above). Public pages (`/site/[token]` for the supervisor's phone,
-`/c/[token]` for the builder's claim page) are the 760px single column. shadcn/ui primitives
-carry the tokens through CSS variables in `globals.css`; the bespoke pieces (chips, tiles,
-docket viewer, review queue, ledger tables) use the global classes ported from the demo.
-Copy rules as above: sentence case, no em dashes, "read ok / check / unreadable", "nothing
-enters silently".
+**Copy rules (unchanged product rules)**
+- Sentence case. Plain language. "read ok / check / unreadable". "matched by rule" / "ticked by".
+  "Nothing enters silently." Money actions are drafts until confirmed. No em dashes, no hype.
