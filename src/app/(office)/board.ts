@@ -139,10 +139,10 @@ function describeSchedule(c: Claim, today: string): string {
   return `Due ${fmtDate(c.scheduleDue)}, day ${day} of 10`;
 }
 
-function chaserMailto(c: Claim & { projectName: string; client: string }): string {
+function chaserMailto(c: Claim & { projectName: string; client: string; clientEmail?: string }): string {
   const subject = `Payment schedule overdue, claim ${c.number}`;
   const body = `Hi,\n\nClaim ${c.number} for ${c.projectName} was lodged on ${fmtDate(c.lodgedAt)}. Under the Security of Payment Act you have 10 business days from the date a claim is lodged to serve a payment schedule, and that period has now passed without one.\n\nCould you send the payment schedule as soon as possible?\n\nThanks`;
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  return `mailto:${encodeURIComponent(c.clientEmail || "")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 /** Claims lodged or certified, still waiting on the builder's money. */

@@ -240,7 +240,7 @@ export function RecordView({ record, project, materials }: { record: RecordRow; 
           {record.fields.length === 0 && <p className="text-[13px] text-[color:var(--ink-3)]">No fields were read for this record.</p>}
 
           {record.fields.map((f, i) => {
-            const chip = FIELD_CHIP[f.state];
+            const chip = f.state === "unreadable" && (fieldValues[i] || "").trim() ? { tone: "neutral" as const, label: "Typed by hand" } : FIELD_CHIP[f.state];
 
             if (!isEditable) {
               return (

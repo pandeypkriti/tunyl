@@ -20,10 +20,10 @@ async function main() {
   await db.delete(s.materials); await db.delete(s.projects); await db.delete(s.waits);
 
   const [kv, bh, mp, sc] = await db.insert(s.projects).values([
-    { slug: "kellyville-ridge", name: "Kellyville Ridge bulk earthworks", client: "Harrowgate Constructions", clientPlatform: "their own portal", clientSlug: "harrowgate", nextClaimNo: 6, siteToken: "kr-gate2-7f3a" },
-    { slug: "box-hill-basin", name: "Box Hill detention basin", client: "Stoneleigh Developments", clientPlatform: "HammerTech", clientSlug: "stoneleigh", nextClaimNo: 9, siteToken: "bh-basin-2c9e" },
-    { slug: "marsden-park-roads", name: "Marsden Park roads, stage 3", client: "Meridian Build Group", clientPlatform: "Procore", clientSlug: "meridian", nextClaimNo: 5, siteToken: "mp-roads-91ab" },
-    { slug: "schofields-drainage", name: "Schofields drainage package", client: "Harrowgate Constructions", clientPlatform: "their own portal", clientSlug: "harrowgate", nextClaimNo: 3, siteToken: "sc-drain-44d0" },
+    { slug: "kellyville-ridge", name: "Kellyville Ridge bulk earthworks", client: "Harrowgate Constructions", clientPlatform: "their own portal", clientSlug: "harrowgate", clientEmail: "accounts@harrowgate.example.com", nextClaimNo: 6, siteToken: "kr-gate2-7f3a" },
+    { slug: "box-hill-basin", name: "Box Hill detention basin", client: "Stoneleigh Developments", clientPlatform: "HammerTech", clientSlug: "stoneleigh", clientEmail: "contracts@stoneleigh.example.com", nextClaimNo: 9, siteToken: "bh-basin-2c9e" },
+    { slug: "marsden-park-roads", name: "Marsden Park roads, stage 3", client: "Meridian Build Group", clientPlatform: "Procore", clientSlug: "meridian", clientEmail: "claims@meridian.example.com", nextClaimNo: 5, siteToken: "mp-roads-91ab" },
+    { slug: "schofields-drainage", name: "Schofields drainage package", client: "Harrowgate Constructions", clientPlatform: "their own portal", clientSlug: "harrowgate", clientEmail: "accounts@harrowgate.example.com", nextClaimNo: 3, siteToken: "sc-drain-44d0" },
   ]).returning();
 
   const mats = await db.insert(s.materials).values([
@@ -94,10 +94,10 @@ async function main() {
   ]);
 
   await db.insert(s.claims).values([
-    { projectId: kv.id, number: 5, periodEnd: "2026-08-31", lines: [{ material: "Select fill, supply and place", qty: 3900, unit: "m³", rate: 42, amount: 163800 }, { material: "DGB20 road base", qty: 400, unit: "t", rate: 46.5, amount: 18600 }, { material: "Dewatering, day rate", qty: 3, unit: "days", rate: 1955, amount: 5865 }], total: 188265, status: "certified", token: "kr-claim5-a1b2c3", lodgedAt: "2026-09-01", scheduleDue: "2026-09-15", scheduleReceived: "2026-09-09", paymentDue: "2026-09-29", stored: "Builder template and PDF" },
-    { projectId: mp.id, number: 4, periodEnd: "2026-08-31", lines: [{ material: "DGB20 road base", qty: 2073, unit: "t", rate: 46.5, amount: 96394.5 }], total: 96394.5, status: "lodged", token: "mp-claim4-d4e5f6", lodgedAt: "2026-09-02", scheduleDue: "2026-09-16", stored: "Procore upload and PDF" },
-    { projectId: bh.id, number: 8, periodEnd: "2026-08-24", lines: [{ material: "N20 concrete, 20 mm", qty: 400, unit: "m³", rate: 285, amount: 114000 }, { material: "Geofabric", qty: 1192, unit: "m²", rate: 6.5, amount: 7748 }], total: 121748, status: "lodged", token: "bh-claim8-g7h8i9", lodgedAt: "2026-08-25", scheduleDue: "2026-09-08", stored: "HammerTech upload and PDF" },
-    { projectId: sc.id, number: 2, periodEnd: "2026-08-02", lines: [{ material: "GP sand", qty: 480, unit: "t", rate: 29, amount: 13920 }, { material: "Drainage pipe, 375 RCP", qty: 640, unit: "m", rate: 48, amount: 30720 }, { material: "Excavation to trench, day rate", qty: 7, unit: "days", rate: 1955, amount: 13685 }], total: 58325, status: "certified", token: "sc-claim2-j1k2l3", lodgedAt: "2026-08-04", scheduleDue: "2026-08-18", scheduleReceived: "2026-08-12", paymentDue: "2026-09-01", stored: "Builder template and PDF" },
+    { projectId: kv.id, number: 5, periodEnd: "2026-08-31", lines: [{ material: "Select fill, supply and place", qty: 3900, unit: "m³", rate: 42, amount: 163800 }, { material: "DGB20 road base", qty: 400, unit: "t", rate: 46.5, amount: 18600 }, { material: "Dewatering, day rate", qty: 3, unit: "days", rate: 1955, amount: 5865 }], total: 188265, status: "certified", token: "kr-claim5-a1b2c3", createdAt: new Date("2026-08-31T09:00:00Z"), lodgedAt: "2026-09-01", scheduleDue: "2026-09-15", scheduleReceived: "2026-09-09", paymentDue: "2026-09-29", stored: "Builder template and PDF" },
+    { projectId: mp.id, number: 4, periodEnd: "2026-08-31", lines: [{ material: "DGB20 road base", qty: 2073, unit: "t", rate: 46.5, amount: 96394.5 }], total: 96394.5, status: "lodged", token: "mp-claim4-d4e5f6", createdAt: new Date("2026-09-01T09:00:00Z"), lodgedAt: "2026-09-02", scheduleDue: "2026-09-16", stored: "Procore upload and PDF" },
+    { projectId: bh.id, number: 8, periodEnd: "2026-08-24", lines: [{ material: "N20 concrete, 20 mm", qty: 400, unit: "m³", rate: 285, amount: 114000 }, { material: "Geofabric", qty: 1192, unit: "m²", rate: 6.5, amount: 7748 }], total: 121748, status: "lodged", token: "bh-claim8-g7h8i9", createdAt: new Date("2026-08-24T09:00:00Z"), lodgedAt: "2026-08-25", scheduleDue: "2026-09-08", stored: "HammerTech upload and PDF" },
+    { projectId: sc.id, number: 2, periodEnd: "2026-08-02", lines: [{ material: "GP sand", qty: 480, unit: "t", rate: 29, amount: 13920 }, { material: "Drainage pipe, 375 RCP", qty: 640, unit: "m", rate: 48, amount: 30720 }, { material: "Excavation to trench, day rate", qty: 7, unit: "days", rate: 1955, amount: 13685 }], total: 58325, status: "certified", token: "sc-claim2-j1k2l3", createdAt: new Date("2026-08-03T09:00:00Z"), lodgedAt: "2026-08-04", scheduleDue: "2026-08-18", scheduleReceived: "2026-08-12", paymentDue: "2026-09-01", stored: "Builder template and PDF" },
   ]);
 
   await db.insert(s.waits).values([

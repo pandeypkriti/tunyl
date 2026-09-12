@@ -21,6 +21,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
         <header className="mb-6">
           <p className="mono text-[13px] font-medium text-[color:var(--primary)]">Tunyl &middot; {project.name}</p>
           <h1 className="mt-1.5 text-[24px] font-semibold tracking-[-0.01em]">Photograph the docket</h1>
+          <p className="mt-1.5 text-[14px] text-[color:var(--ink-2)]">The paper the driver handed you at the gate. Tunyl reads it and the office does the rest. Nothing to type.</p>
         </header>
         <SiteFlow token={token} materialNames={materials.map((m) => m.name)} />
       </div>

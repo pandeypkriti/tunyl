@@ -14,7 +14,8 @@ const STEP_LABEL: Record<ClaimStatus, string> = { draft: "Draft", lodged: "Lodge
 
 function claimSteps(status: ClaimStatus): Step[] {
   const idx = STEP_ORDER.indexOf(status);
-  return STEP_ORDER.map((s, i) => ({ label: STEP_LABEL[s], state: i < idx ? "done" : i === idx ? "current" : "todo" }));
+  if (status === "draft") return STEP_ORDER.map((s, i) => ({ label: STEP_LABEL[s], state: i === 0 ? "current" : "todo" }));
+  return STEP_ORDER.map((s, i) => ({ label: STEP_LABEL[s], state: i <= idx ? "done" : i === idx + 1 ? "current" : "todo" }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {

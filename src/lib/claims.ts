@@ -56,9 +56,9 @@ export async function claimByToken(token: string) {
 export async function claimsFor(projectId: string): Promise<Claim[]> {
   return db.select().from(claims).where(eq(claims.projectId, projectId)).orderBy(desc(claims.number));
 }
-export async function lodgedClaims(): Promise<Array<Claim & { projectName: string; client: string }>> {
+export async function lodgedClaims(): Promise<Array<Claim & { projectName: string; client: string; clientEmail: string }>> {
   const rows = await db.select().from(claims).where(and(eq(claims.status, "lodged"))).orderBy(desc(claims.lodgedAt));
   const cert = await db.select().from(claims).where(eq(claims.status, "certified"));
   const ps = await db.select().from(projects);
-  return [...rows, ...cert].map((c) => { const p = ps.find((x) => x.id === c.projectId); return { ...c, projectName: p?.name ?? "", client: p?.client ?? "" }; });
+  return [...rows, ...cert].map((c) => { const p = ps.find((x) => x.id === c.projectId); return { ...c, projectName: p?.name ?? "", client: p?.client ?? "", clientEmail: p?.clientEmail ?? "" }; });
 }

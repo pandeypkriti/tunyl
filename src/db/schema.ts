@@ -21,6 +21,7 @@ export const projects = pgTable("projects", {
   client: text("client").notNull(),
   clientPlatform: text("client_platform").notNull().default(""),
   clientSlug: text("client_slug").notNull().default(""),
+  clientEmail: text("client_email").notNull().default(""),
   nextClaimNo: integer("next_claim_no").notNull().default(1),
   siteToken: text("site_token").notNull().unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

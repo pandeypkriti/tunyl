@@ -135,11 +135,11 @@ async function waitingIntent(q: string): Promise<AskResult | null> {
 async function owedIntent(q: string): Promise<AskResult | null> {
   if (!/what are we owed|overdue|owed on claims|outstanding claims|payment schedule/i.test(q)) return null;
   const claims = await lodgedClaims();
-  if (!claims.length) return { answer: "No claims are lodged and waiting on money right now.", href: "/" };
+  if (!claims.length) return { answer: "No claims are outstanding right now.", href: "/" };
   const today = todayIso();
   const total = claims.reduce((s, c) => s + c.total, 0);
   const overdue = claims.filter((c) => (!c.scheduleReceived && today > c.scheduleDue) || (!!c.paymentDue && today > c.paymentDue && c.status !== "paid"));
-  let answer = `${claims.length} ${claims.length === 1 ? "claim is" : "claims are"} lodged and waiting on money, totalling ${money(total)}.`;
+  let answer = `${claims.length} ${claims.length === 1 ? "claim is" : "claims are"} outstanding (lodged or certified, not yet paid), totalling ${money(total)}.`;
   if (overdue.length) answer += ` ${overdue.length} ${overdue.length === 1 ? "is" : "are"} overdue: ${overdue.map((c) => `claim ${c.number} on ${c.projectName}`).join(", ")}.`;
   return { answer, href: "/" };
 }

@@ -1,4 +1,5 @@
 "use client";
+"use no memo";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { ColumnDef, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
@@ -20,9 +21,11 @@ export function DataTable<T>({ columns, data, searchPlaceholder = "Search", filt
   const [sorting, setSorting] = React.useState<SortingState>(initialSort ?? []);
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterValue, setFilterValue] = React.useState("");
+  const columnFilters = React.useMemo(() => (filter && filterValue ? [{ id: filter.column, value: filterValue }] : []), [filter, filterValue]);
+  const cols = React.useMemo(() => columns.map((c) => ((c.meta as { align?: string } | undefined)?.align === "right" && !c.sortingFn ? { ...c, sortingFn: "basic" as const } : c)), [columns]);
   const table = useReactTable({
-    data, columns, state: { sorting, globalFilter, columnFilters: filter && filterValue ? [{ id: filter.column, value: filterValue }] : [] },
-    onSortingChange: setSorting, onGlobalFilterChange: setGlobalFilter,
+    data, columns: cols, state: { sorting, globalFilter, columnFilters },
+    onSortingChange: setSorting, onGlobalFilterChange: setGlobalFilter, autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(), getFilteredRowModel: getFilteredRowModel(),
   });
   const rows = table.getRowModel().rows;
