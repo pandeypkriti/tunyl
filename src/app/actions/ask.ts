@@ -5,7 +5,7 @@
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
-import { records, purchaseOrders, materials, type Project, type RecordRow } from "@/db/schema";
+import { records, purchaseOrders, materials, claims, projects as projectsTable, type Project, type RecordRow } from "@/db/schema";
 import { allProjects, ledgerFor } from "@/lib/ledger";
 import { reviewQueue } from "@/lib/records";
 import { lodgedClaims } from "@/lib/claims";
@@ -153,7 +153,19 @@ async function retentionIntent(q: string): Promise<AskResult | null> {
 }
 
 async function moneyActionIntent(q: string): Promise<AskResult | null> {
-  if (!/\bsend\b|\blodge\b|\bapprove\b|\bxero\b/i.test(q)) return null;
+  if (!/\bsend\b|\blodge\b|\bapprove\b|\bxero\b|\bpay\b/i.test(q)) return null;
+  const m = /claim\s*(\d+)/i.exec(q);
+  if (m) {
+    const n = Number(m[1]);
+    const rows = await db.select({ c: claims, p: projectsTable }).from(claims).innerJoin(projectsTable, eq(claims.projectId, projectsTable.id)).where(eq(claims.number, n));
+    if (!rows.length) {
+      const all = await db.select({ number: claims.number, project: projectsTable.name }).from(claims).innerJoin(projectsTable, eq(claims.projectId, projectsTable.id));
+      const list = all.map((x) => `claim ${x.number} (${x.project})`).join(", ");
+      return { answer: `There is no claim ${n} on any project. On file: ${list || "none"}.`, href: "/claims" };
+    }
+    const { c, p } = rows[0];
+    return { answer: `Claim ${n} on ${p.name} is ${money(c.total)} and is ${c.status}. Nothing is sent from here: lodging, approving and Xero are drafts until a person confirms them on the project page.`, href: c.status === "draft" ? `/projects/${p.slug}` : `/claims/${c.id}` };
+  }
   return { answer: "Not done, drafted. Anything that moves money comes back as a draft for a person to confirm." };
 }
 

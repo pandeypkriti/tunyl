@@ -164,6 +164,8 @@
   --row-alt:var(--surface-2);
 }
 html { color-scheme: light; background: var(--bg); }
+html, body { overflow-x: hidden; }
+.grid > * { min-width: 0; }
 body { background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
 h1, h2, h3 { line-height: 1.2; text-wrap: balance; font-weight: 600; letter-spacing: -0.01em; }
 .mono { font-family: var(--font-mono); }

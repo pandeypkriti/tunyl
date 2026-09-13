@@ -80,7 +80,7 @@ export default async function HomePage() {
         />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 min-[900px]:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-6 min-[900px]:grid-cols-2 [&>*]:min-w-0">
         <Section
           title="Needs a person"
           aside={
