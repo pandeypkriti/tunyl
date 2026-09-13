@@ -35,7 +35,7 @@ export function DataTable<T>({ columns, data, searchPlaceholder = "Search", filt
         <label className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[color:var(--ink-3)]" aria-hidden />
           <input value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder={searchPlaceholder} aria-label={searchPlaceholder}
-            className="h-9 w-[240px] max-w-full rounded-md border border-[color:var(--border-strong)] bg-white pl-8 pr-3 text-[13px] outline-none placeholder:text-[#98A2B3] focus:border-[color:var(--primary)] focus:ring-2 focus:ring-[color:var(--primary-soft)]" />
+            className="h-9 w-[240px] max-w-full rounded-md border border-[color:var(--border-strong)] bg-white pl-8 pr-3 text-[13px] outline-none focus-visible:outline-none placeholder:text-[#98A2B3] focus:border-[color:var(--primary)] focus:ring-2 focus:ring-[color:var(--primary-soft)]" />
         </label>
         {filter && (
           <select value={filterValue} onChange={(e) => setFilterValue(e.target.value)} aria-label={filter.label}

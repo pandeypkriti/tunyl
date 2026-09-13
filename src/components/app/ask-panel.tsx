@@ -49,7 +49,7 @@ export function AskProvider({ name, brief = [], next = [], recent = [], children
   const inputBar = (
     <form onSubmit={(e) => { e.preventDefault(); run(q); }} className="flex items-center gap-3 rounded-2xl border border-[color:var(--border-strong)] bg-white px-4 shadow-[var(--shadow-lg)] focus-within:border-[color:var(--primary)] focus-within:ring-4 focus-within:ring-[color:var(--primary-soft)]">
       <Sparkles className="size-5 flex-none text-[color:var(--primary)]" aria-hidden />
-      <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={inThread ? "Ask a follow-up" : "Ask about quantities, invoices, dockets or claims"} aria-label="Ask Tunyl" className="h-16 w-full bg-transparent text-[18px] outline-none placeholder:text-[#98A2B3]" />
+      <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={inThread ? "Ask a follow-up" : "Ask about quantities, invoices, dockets or claims"} aria-label="Ask Tunyl" className="h-16 w-full bg-transparent text-[18px] outline-none focus-visible:outline-none placeholder:text-[#98A2B3]" />
       <button type="submit" disabled={pending || !q.trim()} aria-label="Ask" className="flex size-10 flex-none items-center justify-center rounded-xl bg-[color:var(--primary)] text-white transition-colors hover:bg-[color:var(--primary-hover)] disabled:opacity-40"><ArrowUp className="size-5" /></button>
     </form>
   );
@@ -150,7 +150,7 @@ export function AskHero({ name }: { name: string }) {
   return (
     <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) { ask(q); setQ(""); } else open(); }} className="flex items-center gap-3 rounded-2xl border border-[color:var(--border-strong)] bg-white px-4 shadow-[var(--shadow)] focus-within:border-[color:var(--primary)] focus-within:ring-4 focus-within:ring-[color:var(--primary-soft)]">
       <Sparkles className="size-5 flex-none text-[color:var(--primary)]" aria-hidden />
-      <input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => { if (!q) open(); }} placeholder={`What do you want to know, ${name}?`} aria-label="Ask Tunyl" className="h-14 w-full bg-transparent text-[16px] outline-none placeholder:text-[#98A2B3]" />
+      <input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => { if (!q) open(); }} placeholder={`What do you want to know, ${name}?`} aria-label="Ask Tunyl" className="h-14 w-full bg-transparent text-[16px] outline-none focus-visible:outline-none placeholder:text-[#98A2B3]" />
       <kbd className="mono hidden rounded border border-[color:var(--border)] bg-[color:var(--surface-2)] px-1.5 py-0.5 text-[11px] text-[color:var(--ink-3)] sm:inline">⌘K</kbd>
     </form>
   );

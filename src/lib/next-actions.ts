@@ -23,23 +23,23 @@ export async function nextActions(name: string): Promise<NextAction[]> {
 
   for (const c of drafts) {
     const p = pname(c.projectId);
-    items.push({ id: "lodge-" + c.id, kind: "lodge", label: `Lodge claim ${c.number} on ${p?.name ?? "the project"}`, meta: `${money(c.total)} · drafted ${timeAgo(c.createdAt)}`, href: p ? `/projects/${p.slug}` : "/claims" });
+    items.push({ id: "lodge-" + c.id, kind: "lodge", label: `Lodge claim ${c.number} on ${p?.name ?? "the project"}`, meta: `${money(c.total)}, drafted ${timeAgo(c.createdAt)}`, href: p ? `/projects/${p.slug}` : "/claims" });
   }
   for (const c of lodged) {
     if (c.status === "lodged" && !c.scheduleReceived && c.scheduleDue && today > c.scheduleDue) {
-      items.push({ id: "chase-" + c.id, kind: "chase", label: `Chase ${c.client} for claim ${c.number}'s payment schedule`, meta: `${businessDaysBetween(c.scheduleDue, today)} business days late · ${c.projectName}`, href: `/claims/${c.id}` });
+      items.push({ id: "chase-" + c.id, kind: "chase", label: `Chase ${c.client} for claim ${c.number}'s payment schedule`, meta: `${businessDaysBetween(c.scheduleDue, today)} business days late, ${c.projectName}`, href: `/claims/${c.id}` });
     }
     if (c.status === "certified" && c.paymentDue && today >= c.paymentDue && !c.paidAt) {
-      items.push({ id: "pay-" + c.id, kind: "payment", label: `Check payment for claim ${c.number}`, meta: `${money(c.total)} · was due ${fmtDate(c.paymentDue)} · ${c.client}`, href: `/claims/${c.id}` });
+      items.push({ id: "pay-" + c.id, kind: "payment", label: `Check payment for claim ${c.number}`, meta: `${money(c.total)} from ${c.client}, was due ${fmtDate(c.paymentDue)}`, href: `/claims/${c.id}` });
     }
   }
   const held = queue.filter((r) => r.status === "held");
   for (const r of held.slice(0, 1)) {
-    items.push({ id: "paper-" + r.id, kind: "paper", label: `Ask the site for the paper behind ${r.title}`, meta: `${pname(r.projectId)?.name ?? ""} · held ${timeAgo(r.createdAt)}`, href: `/queue/${r.id}` });
+    items.push({ id: "paper-" + r.id, kind: "paper", label: `Ask the site for the paper behind ${r.title}`, meta: `${pname(r.projectId)?.name ?? ""}, held ${timeAgo(r.createdAt)}`, href: `/queue/${r.id}` });
   }
   if (queue.length) {
     const waiting = queue.filter((r) => r.status === "waiting").length;
-    const cont: NextAction = { id: "queue", kind: "continue", label: last?.kind === "tick" ? "Continue the review queue" : "Tick what is waiting in the review queue", meta: `${waiting} waiting, ${held.length} held${last?.kind === "tick" ? ` · you last ticked ${timeAgo(last.createdAt)}` : ""}`, href: "/queue" };
+    const cont: NextAction = { id: "queue", kind: "continue", label: last?.kind === "tick" ? "Continue the review queue" : "Tick what is waiting in the review queue", meta: `${waiting} waiting, ${held.length} held${last?.kind === "tick" ? `, you last ticked ${timeAgo(last.createdAt)}` : ""}`, href: "/queue" };
     if (last?.kind === "tick") items.unshift(cont); else items.push(cont);
   }
   // ready-to-claim nudge when nothing is drafted for a project with verified quantities
