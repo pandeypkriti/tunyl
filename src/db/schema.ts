@@ -120,3 +120,16 @@ export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
 export type RecordRow = typeof records.$inferSelect;
 export type Claim = typeof claims.$inferSelect;
 export type Wait = typeof waits.$inferSelect;
+
+// What people did, so the app can remember and suggest what comes next.
+export type ActionKind = "tick" | "send_back" | "hold" | "draft_claim" | "lodge_claim" | "certify" | "mark_paid" | "site_send" | "ask";
+export const actions = pgTable("actions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  actor: text("actor").notNull().default(""),
+  kind: text("kind").$type<ActionKind>().notNull(),
+  subject: text("subject").notNull().default(""),
+  href: text("href").notNull().default(""),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type ActionRow = typeof actions.$inferSelect;

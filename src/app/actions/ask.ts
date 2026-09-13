@@ -16,7 +16,7 @@ import { fmt, money, todayIso } from "@/lib/units";
 export type AskResult = { answer: string; href?: string; foot?: string };
 
 const HELP: AskResult = {
-  answer: "I can answer questions about unclaimed quantities, invoices held with no docket, a docket, invoice or purchase order number, delivered or ordered amounts for a material, what is waiting on a person, and what claims are owed.",
+  answer: "I did not catch that. Try: what is waiting for a person, which invoices are held, what are we owed, what is unclaimed on Kellyville Ridge, how much select fill was delivered, or where is docket 88212.",
   foot: "No AI key is configured here, so this only answers what it can find directly in the records.",
 };
 
@@ -43,7 +43,7 @@ function matchProject(question: string, projects: Project[]): Project | null {
 }
 
 async function unclaimedIntent(q: string): Promise<AskResult | null> {
-  if (!/unclaimed|ready to claim|ready to bill/i.test(q)) return null;
+  if (!/unclaimed|ready to|to claim|claimable|bill|draft|next claim/i.test(q)) return null;
   const projects = await allProjects();
   const match = matchProject(q, projects);
   const targets = match ? [match] : projects;
@@ -65,7 +65,7 @@ async function unclaimedIntent(q: string): Promise<AskResult | null> {
 }
 
 async function noDocketIntent(q: string): Promise<AskResult | null> {
-  if (!/no docket|held invoice|missing docket/i.test(q)) return null;
+  if (!/no docket|held|hold|missing|unmatched|without/i.test(q)) return null;
   const held = await db.select().from(records).where(and(eq(records.type, "invoice"), eq(records.status, "held")));
   if (!held.length) return { answer: "No invoices are on hold right now.", href: "/queue" };
   const projects = await allProjects();
@@ -124,7 +124,7 @@ async function materialAmountIntent(q: string): Promise<AskResult | null> {
 }
 
 async function waitingIntent(q: string): Promise<AskResult | null> {
-  if (!/what.*waiting|waiting on (a person|the office)|review queue/i.test(q)) return null;
+  if (!/waiting|queue|pending|needs? a person|for a person|to do/i.test(q)) return null;
   const items = await reviewQueue();
   if (!items.length) return { answer: "Nothing is waiting on a person right now.", href: "/queue" };
   const list = items.slice(0, 5).map((r) => `${r.title} (${r.supplier || "no supplier on file"})`).join(", ");
@@ -133,7 +133,7 @@ async function waitingIntent(q: string): Promise<AskResult | null> {
 }
 
 async function owedIntent(q: string): Promise<AskResult | null> {
-  if (!/what are we owed|overdue|owed on claims|outstanding claims|payment schedule/i.test(q)) return null;
+  if (!/owed|owe|overdue|outstanding|unpaid|paid|payment|schedule|certif|late|claim/i.test(q)) return null;
   const claims = await lodgedClaims();
   if (!claims.length) return { answer: "No claims are outstanding right now.", href: "/" };
   const today = todayIso();
@@ -157,12 +157,39 @@ async function moneyActionIntent(q: string): Promise<AskResult | null> {
   return { answer: "Not done, drafted. Anything that moves money comes back as a draft for a person to confirm." };
 }
 
+// People type fast and loosely: "whos waiting for claims", "wat r we owed". Normalise, then route
+// on keywords before the stricter phrase matchers get a go.
+const TYPO: Array<[RegExp, string]> = [
+  [/\bwhos\b/g, "who is"], [/\bwats?\b/g, "what"], [/\bwating\b/g, "waiting"], [/\bwaitng\b/g, "waiting"], [/\bclaimz\b/g, "claims"],
+  [/\bu\b/g, "you"], [/\br\b/g, "are"], [/\binv\b/g, "invoice"], [/\bpo\b/g, "purchase order"], [/\bdockets?\b/g, "docket"],
+];
+function normalise(q: string): string {
+  let s = q.toLowerCase().replace(/['’]/g, "").replace(/\s+/g, " ").trim();
+  for (const [re, to] of TYPO) s = s.replace(re, to);
+  return s;
+}
+type Intent = (q: string) => Promise<AskResult | null>;
+function route(n: string): Intent[] {
+  const has = (re: RegExp) => re.test(n);
+  const claimy = has(/\bclaim/);
+  const order: Intent[] = [];
+  if (has(/\d{4,}|[a-z]{1,4}-\d{2,}/)) order.push(documentNumberIntent);
+  if (has(/\b(owed|owe|outstanding|unpaid|paid|payment|schedule|certif|late|overdue)/) || (claimy && has(/\b(who|wait|status|where|when|which|what)/))) order.push(owedIntent);
+  if (has(/\b(unclaimed|ready to|to claim|claimable|bill)/) || (claimy && has(/\b(draft|next|can we|how much)/))) order.push(unclaimedIntent);
+  if (has(/\b(held|hold|no docket|missing|unmatched|without)/)) order.push(noDocketIntent);
+  if (has(/\b(waiting|queue|tick|pending|exception|to do|todo|needs? a person|for a person|check)/)) order.push(waitingIntent);
+  if (has(/\b(delivered|ordered|invoiced|claimed|how much|quantity|tonnes|m3|m³|select fill|road base|concrete|sand|topsoil|spoil)/)) order.push(materialAmountIntent);
+  if (has(/\b(stored|kept|store|retention|where are the (documents|files|photos|dockets)|seven years)/)) order.push(retentionIntent);
+  if (has(/\b(send|lodge|approve|xero|pay)\b/)) order.push(moneyActionIntent);
+  return order;
+}
 async function tryDeterministic(q: string): Promise<AskResult | null> {
+  const n = normalise(q);
+  const routed = route(n);
+  for (const intent of routed) { const r = await intent(n); if (r) return r; }
+  // fall back to the strict matchers in their original order
   const intents = [unclaimedIntent, noDocketIntent, documentNumberIntent, materialAmountIntent, waitingIntent, owedIntent, retentionIntent, moneyActionIntent];
-  for (const intent of intents) {
-    const result = await intent(q);
-    if (result) return result;
-  }
+  for (const intent of intents) { const r = await intent(n); if (r) return r; }
   return null;
 }
 

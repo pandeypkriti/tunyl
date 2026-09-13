@@ -109,7 +109,15 @@ async function main() {
     { what: "Colour selections", fromParty: "Client", who: "the client", job: "Lot 88 Box Hill", jobNo: "26-0388", kpiDays: 14, askedOn: "2026-08-20" },
   ]);
 
-  console.log("Seeded: 4 projects, materials, purchase orders, records, claims, waits.");
+  await db.delete(s.actions);
+  const ago = (h: number) => new Date(Date.now() - h * 3600 * 1000);
+  await db.insert(s.actions).values([
+    { actor: "Mel R.", kind: "tick", subject: "Tipping docket 0916", href: "/queue", projectId: kv.id, createdAt: ago(30) },
+    { actor: "Mel R.", kind: "tick", subject: "Haulage docket HH-30976", href: "/queue", projectId: kv.id, createdAt: ago(26) },
+    { actor: "Mel R.", kind: "lodge_claim", subject: "claim 4, $96,395", href: "/claims", projectId: mp.id, createdAt: ago(20) },
+    { actor: "Site, Kellyville Ridge bulk earthworks", kind: "site_send", subject: "Weighbridge docket 88212", href: "/queue", projectId: kv.id, createdAt: ago(18) },
+  ]);
+  console.log("Seeded: 4 projects, materials, purchase orders, records, claims, waits, actions.");
   console.log("Site links: /site/kr-gate2-7f3a (Kellyville), /site/bh-basin-2c9e (Box Hill)");
   console.log("Builder links: /c/kr-claim5-a1b2c3, /c/mp-claim4-d4e5f6");
   await client.end();

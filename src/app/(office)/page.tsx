@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { officeName } from "@/lib/auth";
 import { AskHero } from "@/components/app/ask-panel";
+import { NextActionsList } from "@/components/app/next-actions";
+import { nextActions } from "@/lib/next-actions";
 import { KpiCard } from "@/components/app/kpi-card";
 import { StatusChip, recordChip } from "@/components/app/status-chip";
 import { ActivityFeed } from "@/components/app/activity-feed";
@@ -26,6 +28,7 @@ function greeting(hour: number): string {
 }
 
 export default async function HomePage() {
+  const next = await nextActions(await officeName());
   const now = new Date();
   const [name, kpis, needsPerson, activity, claimsRows, projectRows] = await Promise.all([
     officeName(),
@@ -54,6 +57,7 @@ export default async function HomePage() {
       <div className="mt-5">
         <AskHero name={first} />
       </div>
+      <div className="mt-4"><NextActionsList items={next} /></div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard

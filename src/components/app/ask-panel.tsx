@@ -1,11 +1,13 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, X } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Sparkles, ArrowRight, X, ArrowUp, RotateCcw } from "lucide-react";
 import { ask, type AskResult } from "@/app/actions/ask";
+import type { BriefItem, NextAction } from "@/lib/next-actions";
+import { NextActionsList } from "./next-actions";
 import { cn } from "@/lib/utils";
 
+export type RecentRow = { id: string; who: string; did: string; subject: string; when: string; href: string };
 type Ctx = { open: () => void; close: () => void; isOpen: boolean; ask: (q: string) => void };
 const AskContext = React.createContext<Ctx | null>(null);
 export function useAsk(): Ctx {
@@ -14,17 +16,15 @@ export function useAsk(): Ctx {
   return c;
 }
 
-const SUGGESTED: Array<{ group: string; items: string[] }> = [
-  { group: "Ask", items: ["What is unclaimed on Kellyville Ridge?", "How much select fill was delivered on Kellyville Ridge?", "What are we owed?"] },
-  { group: "Check", items: ["Which invoices have loads with no docket?", "What is waiting for a person?", "Where is docket 88212?"] },
-  { group: "Draft", items: ["Draft claim 6", "Send claim 6 to Xero"] },
-];
+const SUGGESTED = ["What is waiting for a person?", "Which invoices have loads with no docket?", "What are we owed?", "What is unclaimed on Kellyville Ridge?", "How much select fill was delivered?", "Where is docket 88212?", "Draft claim 6"];
+const toneDot: Record<BriefItem["tone"], string> = { warn: "bg-[color:var(--warn)]", danger: "bg-[color:var(--danger)]", success: "bg-[color:var(--success)]", info: "bg-[color:var(--info)]" };
 
-export function AskProvider({ name, children }: { name: string; children: React.ReactNode }) {
+export function AskProvider({ name, brief = [], next = [], recent = [], children }: { name: string; brief?: BriefItem[]; next?: NextAction[]; recent?: RecentRow[]; children: React.ReactNode }) {
   const [isOpen, setOpen] = React.useState(false);
   const [q, setQ] = React.useState("");
   const [thread, setThread] = React.useState<Array<{ q: string; a: AskResult | null }>>([]);
   const [pending, start] = React.useTransition();
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const run = React.useCallback((question: string) => {
     const text = question.trim(); if (!text) return;
     setOpen(true); setQ("");
@@ -36,75 +36,121 @@ export function AskProvider({ name, children }: { name: string; children: React.
     });
   }, []);
   React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setOpen((o) => !o); } };
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setOpen((o) => !o); }
+      if (e.key === "Escape") setOpen(false);
+    };
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
   }, []);
+  React.useEffect(() => { if (isOpen) { document.body.style.overflow = "hidden"; const t = setTimeout(() => inputRef.current?.focus(), 50); return () => { document.body.style.overflow = ""; clearTimeout(t); }; } }, [isOpen]);
   const ctx = React.useMemo<Ctx>(() => ({ open: () => setOpen(true), close: () => setOpen(false), isOpen, ask: run }), [isOpen, run]);
+  const inThread = thread.length > 0;
+
+  const inputBar = (
+    <form onSubmit={(e) => { e.preventDefault(); run(q); }} className="flex items-center gap-3 rounded-2xl border border-[color:var(--border-strong)] bg-white px-4 shadow-[var(--shadow-lg)] focus-within:border-[color:var(--primary)] focus-within:ring-4 focus-within:ring-[color:var(--primary-soft)]">
+      <Sparkles className="size-5 flex-none text-[color:var(--primary)]" aria-hidden />
+      <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={inThread ? "Ask a follow-up" : "Ask about quantities, invoices, dockets or claims"} aria-label="Ask Tunyl" className="h-16 w-full bg-transparent text-[18px] outline-none placeholder:text-[#98A2B3]" />
+      <button type="submit" disabled={pending || !q.trim()} aria-label="Ask" className="flex size-10 flex-none items-center justify-center rounded-xl bg-[color:var(--primary)] text-white transition-colors hover:bg-[color:var(--primary-hover)] disabled:opacity-40"><ArrowUp className="size-5" /></button>
+    </form>
+  );
+
   return (
     <AskContext.Provider value={ctx}>
       {children}
-      <Sheet open={isOpen} onOpenChange={setOpen}>
-        <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[440px]" showCloseButton={false}>
-          <SheetHeader className="border-b border-[color:var(--border)] px-5 py-4">
-            <div className="flex items-center justify-between">
-              <SheetTitle className="flex items-center gap-2 text-[16px] font-semibold"><Sparkles className="size-4 text-[color:var(--primary)]" aria-hidden />Ask Tunyl</SheetTitle>
-              <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="rounded-md p-1 text-[color:var(--ink-3)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--ink)]"><X className="size-4" /></button>
+      {isOpen && (
+        <div role="dialog" aria-modal="true" aria-label="Ask Tunyl" className="fixed inset-0 z-50 overflow-y-auto bg-[color:var(--bg)]" style={{ animation: "rise .2s ease-out both" }}>
+          <div className="sticky top-0 z-10 flex h-14 items-center justify-between bg-[color:var(--bg)]/95 px-4 backdrop-blur md:px-8">
+            <div className="flex items-baseline gap-2"><span className="text-[16px] font-semibold tracking-[-0.01em]">Tunyl</span><span className="text-[13px] text-[color:var(--ink-3)]">Ask</span></div>
+            <div className="flex items-center gap-2">
+              {inThread && <button type="button" onClick={() => setThread([])} className="inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-[13px] text-[color:var(--ink-2)] hover:bg-white"><RotateCcw className="size-3.5" aria-hidden />New question</button>}
+              <button type="button" onClick={() => setOpen(false)} className="inline-flex h-9 items-center gap-2 rounded-md border border-[color:var(--border)] bg-white px-3 text-[13px] text-[color:var(--ink-2)] hover:bg-[color:var(--surface-2)]" aria-label="Close"><X className="size-4" /><kbd className="mono text-[11px] text-[color:var(--ink-3)]">Esc</kbd></button>
             </div>
-            <SheetDescription className="text-[13px] text-[color:var(--ink-3)]">Answers come from the ledger, the queue and the documents. Anything that moves money comes back as a draft.</SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-5 py-4">
-            {thread.length === 0 ? (
-              <div>
-                <p className="mb-4 text-[18px] font-semibold tracking-[-0.01em]">What do you want to know, {name}?</p>
-                {SUGGESTED.map((g) => (
-                  <div key={g.group} className="mb-4">
-                    <div className="tag mb-1.5">{g.group}</div>
+          </div>
+
+          {!inThread ? (
+            <div className="mx-auto max-w-[880px] px-4 pb-24 pt-10 md:px-8 md:pt-16">
+              <p className="tag mb-3">Ask Tunyl</p>
+              <h1 className="text-[32px] font-semibold tracking-[-0.02em] md:text-[40px]">What do you want to know, {name}?</h1>
+              <p className="mt-2 max-w-[60ch] text-[15px] text-[color:var(--ink-2)]">Answers come from the ledger, the queue and the documents. Anything that moves money comes back as a draft.</p>
+              <div className="mt-6">{inputBar}</div>
+
+              {brief.length > 0 && (
+                <div className="mt-10">
+                  <div className="tag mb-2">Right now</div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {brief.map((b) => (
+                      <button key={b.id} type="button" onClick={() => run(b.question)} className="group flex items-start gap-3 rounded-xl border border-[color:var(--border)] bg-white p-4 text-left shadow-[var(--shadow)] transition-colors hover:border-[color:var(--primary)] focus-visible:outline-2">
+                        <span aria-hidden className={cn("mt-1.5 size-2 flex-none rounded-full", toneDot[b.tone])} />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[15px] font-semibold">{b.title}</span>
+                          <span className="mt-0.5 block text-[13px] text-[color:var(--ink-2)]">{b.detail}</span>
+                          <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[color:var(--primary)]">{b.question}<ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden /></span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-10 grid gap-10 md:grid-cols-2">
+                <NextActionsList items={next} heading="You will probably do next" />
+                {recent.length > 0 && (
+                  <div>
+                    <div className="tag mb-1">What you did last</div>
                     <ul className="hairline">
-                      {g.items.map((s) => (
-                        <li key={s}><button type="button" onClick={() => run(s)} className="flex w-full items-center justify-between gap-2 py-2 text-left text-[14px] text-[color:var(--ink-2)] hover:text-[color:var(--ink)]">{s}<ArrowRight className="size-3.5 flex-none text-[color:var(--ink-3)]" aria-hidden /></button></li>
+                      {recent.map((r) => (
+                        <li key={r.id}>
+                          <Link href={r.href || "/"} className="flex items-center gap-3 py-3 text-[14px] hover:text-[color:var(--primary-ink)]">
+                            <span className="min-w-0 flex-1 truncate"><b className="font-semibold">{r.who}</b> {r.did} {r.subject}</span>
+                            <span className="flex-none text-[12px] text-[color:var(--ink-3)]">{r.when}</span>
+                          </Link>
+                        </li>
                       ))}
                     </ul>
                   </div>
-                ))}
+                )}
               </div>
-            ) : (
-              <ul className="grid gap-4">
+
+              <div className="mt-10">
+                <div className="tag mb-2">Try asking</div>
+                <div className="flex flex-wrap gap-2">
+                  {SUGGESTED.map((s) => <button key={s} type="button" onClick={() => run(s)} className="rounded-full border border-[color:var(--border)] bg-white px-3.5 py-1.5 text-[13px] text-[color:var(--ink-2)] transition-colors hover:border-[color:var(--primary)] hover:text-[color:var(--primary-ink)] focus-visible:outline-2">{s}</button>)}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[880px] flex-col px-4 md:px-8">
+              <ul className="flex-1 space-y-6 py-8">
                 {thread.map((t, i) => (
-                  <li key={i} className="grid gap-2">
-                    <div className="ml-8 rounded-lg bg-[color:var(--primary-soft)] px-3 py-2 text-[14px] text-[color:var(--primary-ink)]">{t.q}</div>
-                    <div className={cn("mr-8 rounded-lg border border-[color:var(--border)] bg-white px-3 py-2 text-[14px]", !t.a && "text-[color:var(--ink-3)]")} aria-live="polite">
+                  <li key={i} className="grid gap-3">
+                    <div className="ml-auto max-w-[80%] rounded-2xl rounded-br-md bg-[color:var(--primary-soft)] px-4 py-2.5 text-[15px] text-[color:var(--primary-ink)]">{t.q}</div>
+                    <div className={cn("mr-auto max-w-[85%] rounded-2xl rounded-bl-md border border-[color:var(--border)] bg-white px-4 py-3 text-[15px] shadow-[var(--shadow)]", !t.a && "text-[color:var(--ink-3)]")} aria-live="polite">
                       {t.a ? (<>
                         <p>{t.a.answer}</p>
-                        {t.a.href && <Link href={t.a.href} onClick={() => setOpen(false)} className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[color:var(--primary)] hover:underline">Open<ArrowRight className="size-3.5" aria-hidden /></Link>}
+                        {t.a.href && <Link href={t.a.href} onClick={() => setOpen(false)} className="mt-2 inline-flex items-center gap-1 text-[14px] font-medium text-[color:var(--primary)] hover:underline">Open<ArrowRight className="size-4" aria-hidden /></Link>}
                         {t.a.foot && <p className="mt-2 text-[12px] text-[color:var(--ink-3)]">{t.a.foot}</p>}
                       </>) : "Looking…"}
                     </div>
                   </li>
                 ))}
               </ul>
-            )}
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); run(q); }} className="border-t border-[color:var(--border)] p-4">
-            <div className="flex items-center gap-2 rounded-lg border border-[color:var(--border-strong)] bg-white px-3 focus-within:border-[color:var(--primary)] focus-within:ring-2 focus-within:ring-[color:var(--primary-soft)]">
-              <Sparkles className="size-4 flex-none text-[color:var(--primary)]" aria-hidden />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask about quantities, invoices, dockets or claims" aria-label="Ask Tunyl" className="h-11 w-full bg-transparent text-[14px] outline-none placeholder:text-[#98A2B3]" autoFocus />
-              <button type="submit" disabled={pending || !q.trim()} className="rounded-md bg-[color:var(--primary)] px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-[color:var(--primary-hover)] disabled:opacity-50">Ask</button>
+              <div className="sticky bottom-0 bg-[color:var(--bg)] pb-6 pt-2">{inputBar}</div>
             </div>
-          </form>
-        </SheetContent>
-      </Sheet>
+          )}
+        </div>
+      )}
     </AskContext.Provider>
   );
 }
 
-/** The hero input on the home page: same panel, opened with the typed question. */
+/** The hero input on the home page: same cover, opened with the typed question. */
 export function AskHero({ name }: { name: string }) {
-  const { ask } = useAsk();
+  const { ask, open } = useAsk();
   const [q, setQ] = React.useState("");
   return (
-    <form onSubmit={(e) => { e.preventDefault(); ask(q); setQ(""); }} className="flex items-center gap-3 rounded-xl border border-[color:var(--border-strong)] bg-white px-4 shadow-[var(--shadow)] focus-within:border-[color:var(--primary)] focus-within:ring-2 focus-within:ring-[color:var(--primary-soft)]">
+    <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) { ask(q); setQ(""); } else open(); }} className="flex items-center gap-3 rounded-2xl border border-[color:var(--border-strong)] bg-white px-4 shadow-[var(--shadow)] focus-within:border-[color:var(--primary)] focus-within:ring-4 focus-within:ring-[color:var(--primary-soft)]">
       <Sparkles className="size-5 flex-none text-[color:var(--primary)]" aria-hidden />
-      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`What do you want to know, ${name}?`} aria-label="Ask Tunyl" className="h-14 w-full bg-transparent text-[16px] outline-none placeholder:text-[#98A2B3]" />
+      <input value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => { if (!q) open(); }} placeholder={`What do you want to know, ${name}?`} aria-label="Ask Tunyl" className="h-14 w-full bg-transparent text-[16px] outline-none placeholder:text-[#98A2B3]" />
       <kbd className="mono hidden rounded border border-[color:var(--border)] bg-[color:var(--surface-2)] px-1.5 py-0.5 text-[11px] text-[color:var(--ink-3)] sm:inline">⌘K</kbd>
     </form>
   );

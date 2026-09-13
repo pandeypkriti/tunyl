@@ -1,4 +1,5 @@
 "use server";
+import { logAction } from "@/lib/actions-log";
 
 // Server actions for the supervisor's phone page. No login: the site token in
 // the URL is the only gate, so every action re-checks it against the project.
@@ -55,5 +56,6 @@ export async function sendDocket(
     source: "photo",
   });
 
+  await logAction({ actor: `Site, ${project.name}`, kind: "site_send", subject: record.title, href: `/queue/${record.id}`, projectId: project.id });
   return { status: record.status, why: record.why, fed: record.fed };
 }

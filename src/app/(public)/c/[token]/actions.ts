@@ -6,6 +6,8 @@ import { db } from "@/db";
 import { claims } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { addBusinessDays, todayIso } from "@/lib/units";
+import { logAction } from "@/lib/actions-log";
+import { projects } from "@/db/schema";
 
 export async function certifyClaim(claimId: string, token: string) {
   const [c] = await db.select().from(claims).where(eq(claims.id, claimId));
@@ -18,6 +20,9 @@ export async function certifyClaim(claimId: string, token: string) {
     .set({ status: "certified", scheduleReceived, paymentDue })
     .where(eq(claims.id, claimId))
     .returning();
+  const [p] = await db.select().from(projects).where(eq(projects.id, c.projectId));
+  await logAction({ actor: `${p?.client ?? "The builder"} (builder)`, kind: "certify", subject: `claim ${c.number}`, href: `/claims/${c.id}`, projectId: c.projectId });
   revalidatePath(`/c/${token}`);
+  revalidatePath("/", "layout");
   return updated;
 }
